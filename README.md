@@ -1,2 +1,3 @@
 # vrxar.github.io
-Research Group/Collective Web Page
+
+Web page of the **VRxAR Labs** research group/collective
