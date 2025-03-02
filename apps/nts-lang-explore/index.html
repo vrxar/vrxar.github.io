@@ -1,0 +1,1874 @@
+<!--
+#	VRxAR Labs | NTS Language Explorer
+#
+#	Author: Nico Reski
+#	Email: nico.reski@lnu.se
+#	Web: https://vrxar.lnu.se/apps/nts-lang-explore/
+#
+#   D3.js version: 5.0.0
+#	socket.io-client version: 2.1.1
+-->
+
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+	<meta charset="utf-8">
+	<title>VRxAR Labs - NTS Language Explorer</title>
+	<script src="lib/d3/d3.min.js" charset="utf-8"></script>
+	<!-- <script src="lib/topojson@1.js" charset="utf-8"></script> -->
+	<script src="lib/topojson/topojson@3.js" charset="utf-8"></script> 
+	<script src="lib/socket.io-client/socket.io.js" charset="utf-8"></script> 
+
+
+	<style>
+		/* CSS Tutorial: [https://www.w3schools.com/css/] */
+		text {
+			font-family: "Avenir Next", "Helvetica  Neue", Helvetica, Arial, sans-serif;
+			font-size: 11px;
+	  		text-anchor: middle;
+		}
+
+		.title {
+			font-family: "Avenir Next", "Helvetica  Neue", Helvetica, Arial, sans-serif;
+			font-size: 18px;
+		}
+
+		/* SVG Attribute reference: [https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute] */
+		svg {
+			font-family: "Avenir Next", "Helvetica  Neue", Helvetica, Arial, sans-serif;
+			font-size: 11px;
+		}
+
+
+		/* MAP VIEW */
+		.country {
+            fill: #ebebeb80;
+            stroke: #c0c0c0;
+            stroke-width: 0.5px;
+        } 
+
+        .nordiccountry {
+            fill: #ebebeb;
+            stroke: #c0c0c0;
+            stroke-width: 0.5px;
+        } 
+
+		.clustercircle {
+	  		fill-opacity: .8;
+	  		stroke: #FFFFFF;
+	  		stroke-width: 1px;
+		}
+
+		.clustercircle:hover {
+			fill: #5e5e5e;
+	  		fill-opacity: 1;
+		}
+
+		.clustercirclecapital {
+	  		fill-opacity: .8;
+	  		stroke: #000000;
+	  		stroke-width: 2px;
+		}
+
+		.clustercirclecapital:hover {
+			fill: #5e5e5e;
+	  		fill-opacity: 1;
+		}
+
+		#selectedClusterCircle {
+			stroke: #5e5e5e;
+			stroke-width: 2px;
+		}
+
+		.vrusercircle {
+	  		fill-opacity: .8;
+	  		stroke: #000000;
+	  		stroke-width: 1px;
+		}
+
+		#vrUserSelectedClusterCircle {
+			stroke: #cc4c02;
+			stroke-width: 2px;
+		}
+
+		/*
+		.leaf circle {
+	  		fill-opacity: 1;
+		}
+
+		.circletext {
+  			font: 11px "Avenir Next";
+  			text-anchor: middle;
+		}
+		*/	
+
+
+		/* CLUSTER DETAIL VIEW */
+
+		.arc path {
+		  stroke: #FFFFFF;
+		  stroke-width: 1px;
+		}
+
+		.langInfoText {
+  			font: 14px "Avenir Next";
+  			text-anchor: middle;
+		}
+
+		.donutcaption {
+			font-family: "Avenir Next", "Helvetica  Neue", Helvetica, Arial, sans-serif;
+			font-size: 16px;
+			text-align: center;
+		}
+
+
+		/* PLACES VIEW */
+
+		.placesText {
+			font-family: "Avenir Next", "Helvetica  Neue", Helvetica, Arial, sans-serif;
+			font-size: 16px;
+			text-align: left;
+			width: 300px;
+			word-wrap: break-word;
+		}
+
+
+		/* TIME VIEW */
+
+		#timeViewMouseOverLine {
+			stroke-width: 1px;
+			stroke: #C0C0C0;
+			stroke-dasharray: 4px 4px;
+		}
+
+		#timeViewMouseOverText {
+  			font: 12px "Avenir Next";
+  			text-anchor: start;
+  			fill: #C0C0C0;
+		}
+
+		#timeViewMouseOverPathText {
+  			font: 12px "Avenir Next";
+  			text-anchor: start;
+		}
+		
+		#timeViewSelectedDateLine {
+			stroke-width: 1px;
+			stroke-dasharray: 4px 4px;
+		}
+
+		#timeViewSelectedDateText {
+  			font: 11px "Avenir Next";
+  			text-anchor: start;
+		}
+
+
+		/* DIV styling for arranging all views */
+
+		#mapview {
+			width: 850px;
+			float: left;
+			margin: 0;
+		}
+
+		#clusterdetailview {
+			width: 400px;
+			float: left;
+			margin: 850;
+		}
+
+		#placesview {
+			width: 400px;
+			float: left;
+			margin: 1250;
+		}
+
+		#timeview {
+			width: 1660px;
+		}
+
+	</style>
+</head>
+
+<body>
+	
+	<!-- Initialize HTML DOM tree elements. -->
+	<div class="title">VRxAR Labs | NTS Language Explorer</div>
+	
+	<div id="mapview"></div>
+	<div id="clusterdetailview">
+		<div id="clustername" class="donutcaption"></div>
+		<div id="clusterdate" class="donutcaption"></div>
+		<div id="clusternotweets" class="donutcaption"></div>
+	</div>
+	<div id="placesview">
+		<div id="placesclusterid" class="placesText"></div>
+		</br>
+		<div id="placesincluster" class="placesText"></div>
+	</div>
+
+	<div id="timeview"></div>
+
+
+
+	<!-- D3.js visualization implementation. -->
+	<script>
+
+	// === WEBSOCKET MESSAGE API
+	// incoming (Unity3D -> WebSocker server -> WebClient)
+	var ODXVRUserTransformUpdate 	 = 'odxvr_user_transform_update';
+	var ODXVRUserNodeSelectionUpdate = 'odxvr_user_node_selection_update';
+	var ODXVRUserTimeSelectionUpdate = 'odxvr_user_time_selection_update';
+
+	// outgoing (WebClient -> WebSocketServer -> Unity3D)
+	var WEBUserNodeSelectionUpdate = 'web_user_node_selection_update';
+	var WEBUserTimeSelectionUpdate = 'web_user_time_selection_update';
+	// ==========
+
+
+
+	// === NETWORK IMPLEMENTATION
+	//
+
+	var socket;										// global socket object, handling the connection to the websocket server
+	var shouldConnectToWebSocketServer = false;		// default setting: do not connnect to websocket server
+
+	// decide whether the web app should connect to the websocket server or not via url argument
+	// standard (no websocket server connection): 	[ https://vrxar.lnu.se/apps/nts-lang-explore/ ]
+	// with websocket server connection: 			[ https://vrxar.lnu.se/apps/nts-lang-explore/?wssconnect=true ]
+	
+	var appURLString = window.location.href;						// grab url that was used to open this web app
+	var appURL = new URL(appURLString);								// create URL object
+	var wssConnect = appURL.searchParams.get("wssconnect");			// extract url argument "wssconnect"
+	if(wssConnect == "true") shouldConnectToWebSocketServer = true;	// set connect to websocket server flag if url argument was set accordingly
+
+	if(shouldConnectToWebSocketServer)
+	{
+		// create WebSocket connection to server (using socket.io-client)
+		socket = io('wss://vrxar.lnu.se:4247/');
+
+
+		// == DEBUG ==
+		// send
+		socket.emit('message', 'Hej VRxAR Labs WebSocket server, this is the web client.');
+		/*
+		socket.emit('biip');
+
+		// retrieve
+		socket.on('buup', function(message) {
+                console.log('websocket event received: buup');
+                console.log(message);
+                console.log(message.hello);
+            });
+		*/
+		// == END DEBUG ==
+
+
+		// == Event listeners (incoming) ==
+
+		// VR user transform update
+		socket.on(ODXVRUserTransformUpdate, function(message) {
+			//console.log('websocket event received: odxvr_user_transform_update');
+			//console.log(message);
+
+			// update the VR user node
+			updateVRUserNode(message);
+		});
+
+		// VR user node selection update
+		socket.on(ODXVRUserNodeSelectionUpdate, function(message) {
+			//console.log('websocket event received: ' + ODXVRUserNodeSelectionUpdate);
+			//console.log(message);
+
+			// keep track of selected node by VR user
+			clusterIDOfVrUserSelectedNode = message.selectedNodeID;
+
+			// update the node that is currently selected by the VR user
+			highlightNodeSelectedByVRUser();
+		});
+
+		// VR user time selection update
+		socket.on(ODXVRUserTimeSelectionUpdate, function(message) {
+			//console.log('websocket event received: ' + ODXVRUserTimeSelectionUpdate);
+			//console.log(message);
+
+			// update date label to present in time view and load the data
+	  		vrUserSelectedTimeDateLabel = message.selectedTime;
+
+	  		// update date label in Time View according to selected date
+	  		var labelPos;
+	  		if(message.interval == "weekly")
+	  		{
+	  			labelPos= [ xAxisScale(vrUserSelectedTimeDateLabel), 0 ];
+	  		}
+	  		else if (message.interval == "daily")
+	  		{
+	  			labelPos= [ xAxisScale(new Date(vrUserSelectedTimeDateLabel)), 0 ];
+	  		}
+	  		vrUserSelectedTimeDateLabelPosition = labelPos;
+
+	  		// vr user selection automatically changes time selection in web client
+	  		if(shouldVRUserTimeSelectionChangeWEBTimeSelection)
+	  		{
+	  			//handleTimeViewDateSelection(streamGraphSVG, labelPos, currentlySelectedTimeDateLabel);
+	  			handleTimeViewDateSelection(streamGraphSVG, labelPos, vrUserSelectedTimeDateLabel);
+
+	 			// update Map View
+				updateMapViewForDate(vrUserSelectedTimeDateLabel);
+	  		}
+	  		// vr user selection shows only time indicator in Time View
+	  		else
+	  		{
+	  			// update vr user selected time indicator
+	 			handleTimeViewDateSelectionByVRUser(streamGraphSVG, labelPos, vrUserSelectedTimeDateLabel);
+	  		}
+		});
+	}
+
+	var vrUserSelectedTimeDateLabel;
+	var vrUserSelectedTimeDateLabelPosition;
+
+	// == Socket messages (outgoing) ==
+	// Note: All function calls are tagged as 'NETWORKING' wherever applied (for better findability)
+
+	// web user selected a new node in the Map View
+	function socketMessageWEBUserNodeSelectionUpdate(nodeID)
+	{
+		// prepare JSON message that is going to be sent to the websocket server
+		var messageJSON = { 'selectedNodeID' : nodeID };
+
+		// send message
+		socket.emit(WEBUserNodeSelectionUpdate, messageJSON);
+	}
+
+	// web user selected a new time in the Time View
+	function socketMessageWEBUserTimeSelectionUpdate(time)
+	{
+		// prepare JSON message that is going to be sent to the websocket server
+		var messageJSON = { 'selectedTime' : time,
+							'year' : time.substring(0, 4),
+							'month' : time.substring(5, 7),
+							'day' : time.substring(8, 10)
+						  };
+
+		// send message
+		socket.emit(WEBUserTimeSelectionUpdate, messageJSON);
+	}
+
+
+
+	// === NETWORKING FEATURES 
+	//
+
+	// helper values of different attributes for components representing the VR user
+	var ODXVRUserRotLineLength 		= 42;
+	var ODXVRUserFovLenth 	   		= 40;
+	var ODXVRUserFovDegrees    		= 96;
+	var ODXVRUserNodeColor	   		= '#cc4c02';
+	var ODXVRUserNodeFovColor  		= '#fe9929' + '80';	// hex code + 80 (80 -> 50% transparency)
+	var ODXVRUserNodeSelectionColor	= '#cc4c02';
+
+	// helper values to determine which components of the VR user representation should be drawn
+	var shouldDrawODXVRUserRotationLine 				= true;
+	var shouldDrawODXVRUserFovArc 						= true;
+	var shouldVRUserTimeSelectionChangeWEBTimeSelection = false;
+
+	// function to represent the VR user visually as a node in the Map View
+	function drawVRUserNode()
+	{
+		// create a group inside the svg element of the Map View
+		var vrUserGroup = d3.select('#mapview').select('svg')
+							.append('g')
+							.attr('id', 'vrUser');
+
+		// select VR user element
+		var vrUserNode = vrUserGroup.selectAll('vrUser');
+
+		// initial hard-coded VR user position
+		var vrUserPos = [18.000, 62.000];
+	    var vrUser = [vrUserPos];
+
+	    // initialize VR user as 'circle' element and set its start up attributes accordingly
+	    vrUserNode.data(vrUser).enter()
+			.append('circle')
+			.attr('cx', function(d, i) { return projection(d)[0]; })
+			.attr('cy', function(d, i) { return projection(d)[1]; })
+			.attr('r', '6px')
+			.attr('fill', ODXVRUserNodeColor)
+			.attr('class', 'vrusercircle')
+			.attr('id', 'ODXVR_user_pos_circle');
+
+		// initialize a 'line' element representing the VR user's rotation by adding it to the 'group' element representing the whole VR user 
+		if(shouldDrawODXVRUserRotationLine)
+		{
+			vrUserGroup.append('line')
+				.attr('stroke', 'black')
+				.attr('id', 'ODXVR_user_rot_line');
+		}
+
+		// initialize a 'path' element representing the VR user's field of view (FOV) by adding it to the 'group' element representing the whole VR user 
+		if(shouldDrawODXVRUserFovArc)
+		{
+			vrUserGroup.append('path')
+				.attr('fill', ODXVRUserNodeFovColor)
+				.attr('id', 'ODXVR_user_fov_path')
+				.attr('pointer-events', 'none');
+		}
+	}
+
+	// function to return the transform attribute value for rotating the line representing the VR user's rotation
+	function getTransformStringForVRUserLineRotation(vrUser, angle)
+	{
+		// synchronize angle rotation between Unity3D and D3.js ( D3.js angle = Unity3D euler angle - 180 degrees)
+		angle = angle - 180;
+
+		// construct return value (for transform attribute)
+		return 'rotate(' + angle + ',' + vrUser.attr('cx') + ',' + vrUser.attr('cy') + ')';
+		
+		// return value =
+		// 'rotate(angle, x, y)'
+
+
+		/* OLD implementation using manual translation
+			// get numerical position values
+			var x = vrUser.attr('cx');
+			var y = vrUser.attr('cy');
+			x = +x;
+			y = +y;
+
+			return 'translate(' + x + ',' + y + ') ' +
+				   'rotate(' + angle + ') ' +
+				   'translate(' + (-x) + ',' + (-y) + ')';
+
+			// return value =
+			// 'translate(x, y) rotate(angle) translate(-x, -y)')
+		*/
+	}
+
+	// function to update the visual representation of the VR user node in the Map View
+	function updateVRUserNode(transform)
+	{
+		// select 'circle' element representing VR user by using its ID
+		var vrUserPosCircle = d3.select('#ODXVR_user_pos_circle');
+
+		// update position, accounting for the projection accordingly
+		vrUserPosCircle.attr('cx', function() { return projection([transform.posX, transform.posZ])[0]; })
+			  		   .attr('cy', function() { return projection([transform.posX, transform.posZ])[1]; });
+
+		// cache position attributes
+		var x = vrUserPosCircle.attr('cx');		// grab position attributes (returns a string)
+		var y = vrUserPosCircle.attr('cy');
+		x = +x;									// convert string attribute values to numerical (float/int)
+		y = +y;
+
+		if(shouldDrawODXVRUserRotationLine)
+		{
+			// select 'line' element representing the VR user's rotation
+			var vrUserRotLine = d3.select('#ODXVR_user_rot_line');
+
+			// update position
+			vrUserRotLine.attr('x1', x)
+						 .attr('y1', y)
+						 .attr('x2', x)
+						 .attr('y2', y + ODXVRUserRotLineLength);
+
+			// update rotation
+			vrUserRotLine.attr('transform', getTransformStringForVRUserLineRotation(vrUserPosCircle, transform.rotY));
+		}
+
+		if(shouldDrawODXVRUserFovArc)
+		{
+			// D3.js Shape Arc documentation: [ https://github.com/d3/d3-shape#arcs ]
+
+			// select 'path' element representing the VR user's field of view
+			var vrUserFovArc = d3.select('#ODXVR_user_fov_path');
+
+			// create ARC 		
+			var arc = d3.arc()
+			    .innerRadius(0)
+			    .outerRadius(ODXVRUserFovLenth)
+			    .startAngle(0 * (Math.PI/180) ) // converting from degrees to radians
+			    .endAngle(ODXVRUserFovDegrees * (Math.PI/180)); // converting from degrees to radians
+
+			// set position and rotation of arc
+			var arcTransform = 'translate(' + x + ',' + y + ')' +
+								'rotate(' + (transform.rotY - ODXVRUserFovDegrees * 0.5) + ')';
+
+			// update arc using the new attributes
+			vrUserFovArc.attr("d", arc)
+			    		.attr("transform", arcTransform);
+		}
+	}
+
+	// function to highlight the cluster (node) as currently selected by the VR user
+	var clusterIDOfVrUserSelectedNode;
+	function highlightNodeSelectedByVRUser()
+	{
+		// de-select previously selected node by VR user
+		d3.select("#vrUserSelectedClusterCircle")
+			.attr('id', null);
+
+		// get all nodes and highlight the one as selected by the VR user
+		d3.selectAll('.clustercircle')
+			.filter(function(d){
+				return (d.cluster_id == clusterIDOfVrUserSelectedNode);
+			})
+			.attr('id', 'vrUserSelectedClusterCircle');
+	}
+
+
+	// function to update and display the time the VR user is currently browsing as dashed line and text in the Time View
+	function handleTimeViewDateSelectionByVRUser(svg, labelPos, dateLabel)
+	{
+		// update UI elements in time view
+		//
+
+		// remove previous line
+		svg.selectAll("#VRUserTimeViewSelectedDateLine").remove();
+
+		// draw new line
+		svg.append("line")
+			.attr("id", "VRUserTimeViewSelectedDateLine")
+			.attr("x1", function() {
+				return labelPos[0];
+			})
+			.attr("y1", 10)
+			.attr("x2", function() {
+				return labelPos[0];
+			})
+			.attr("y2", streamGraphHeight-sgYAxisPadding)
+			.attr("stroke", ODXVRUserNodeColor)
+
+		// remove previous date text label
+		svg.selectAll("#VRUserTimeViewSelectedDateText").remove();
+
+		// display date text label
+		svg.append("text")
+			.attr("id", "VRUserTimeViewSelectedDateText")
+			.attr("x", function() {
+				var xPos = labelPos[0] + 46;						// + 46 to position slightly to the right of the current mouse position
+				if(xPos > streamGraphWidth - 150) xPos = xPos - 70;	// border handling: when too far right, swap to left
+				return xPos;
+			})
+          	.attr("y", function() {
+          		return 14;			// position at static height below x-axis
+          	})
+         	.text( function () {
+         		return dateLabel + ' (VR)';
+         	})
+         	.attr("fill", ODXVRUserNodeColor);
+	}
+
+
+	// === VISUALIZATION IMPLEMENTATION
+	//
+
+	// === GLOBAL VARIABLES ACROSS VIEWS ===
+
+	var languageColors = d3.scaleOrdinal()
+		.domain([0, 1, 2, 3, 4, 5, 6, 7])
+	    .range(["#ffd92f",	// Swedish: 	ffd92f
+	    	"#fc8d62",		// Danish: 		fc8d62
+	    	"#8da0cb",		// Norwegian: 	8da0cb
+	    	"#a6d854",		// Finnish: 	a6d854
+	    	"#b3b3b3",		// Icelandic: 	b3b3b3
+	    	"#e78ac3",		// English: 	e78ac3
+	    	"#e5c494",		// Other: 		e5c494
+	    	"#66c2a5"]);	// Unknown: 	66c2a5
+
+	// === MAP VIEW ===
+
+	// === Note ===
+	// overall adapted from example demonstrated by Robert Jesionek via 
+	// 1) [ https://github.com/jesion/d3js-flight-connections-map ]
+	// 2) [ http://d3js.robertjesionek.com/flight-connections-map/ ]
+       
+	// helper values
+	var shouldHighlightCapitalClusters = true;		// indicates whether clusters containing capitals should be given a special visual cue
+
+    // overall map drawing
+    //  
+    var mapWidth  = 850;
+    var mapHeight = 600;
+    var mapCenter = [4, 71.7];
+    var mapScale  = 830;
+
+	var projection = d3.geoMercator()
+						.scale(mapScale)
+						.translate([mapWidth / 2, 0]).center(mapCenter);
+
+    var path = d3.geoPath().projection(projection);
+
+    var mapSVG = d3.select('#mapview')
+    				.append('svg')
+      				.attr('height', mapHeight)
+      				.attr('width', mapWidth)
+      				.style('background', '#387EB8');
+
+    var countries = mapSVG.append("g")
+    						.attr('class', 'mapViewCountries');
+
+    var clusterGroup = mapSVG.append("g")
+    							.attr('id', 'mapViewClusters');
+
+	//d3.json("data/geodata_nordic_countries_pretty.json").then(function(data){		// load only Nordic countries
+	d3.json("data/geodata_europe_pretty.json").then(function(data){					// load Europe countries
+      
+      //console.log("europe", data);
+
+      countries.selectAll('.country')
+      	.data(topojson.feature(data, data.objects.europe).features)
+      	.enter()
+      	.append('path')
+      	.attr('class', function(d,) {
+      		// classify countries drifferenly depending whether they are a Nordic country or not
+      		if( d.properties.NAME == "Sweden" ||
+      			d.properties.NAME == "Denmark" ||
+      			d.properties.NAME == "Norway" || 
+      			d.properties.NAME == "Finland" || 
+      			d.properties.NAME == "Iceland")
+      			return 'nordiccountry';
+      		else
+      			return 'country';
+      	})
+      	.attr('d', path);
+      	return;
+    });
+
+
+    // drawing clusters as circles
+    // 
+    var clusters;
+    function updateMapViewForDate(date)
+    {
+		// delete previous map data entries
+		clusterGroup.selectAll(".mapViewClusterCircles").remove();
+
+		// create current map data entries
+	    var clusterCirclesGroup = clusterGroup.append("g")
+	    										.attr("class", "mapViewClusterCircles");
+		clusters = clusterCirclesGroup.selectAll('cluster');
+
+		/*
+		// DEBUG (START) : circle for each capital
+	    var stockholmGeo  = [18.070, 59.330];
+	    var helsinkiGeo   = [24.940, 60.170];
+	    var osloGeo 	  = [10.750, 59.910];
+	    var copenhagenGeo = [12.570, 55.680];
+	    var reykjavikGeo  = [-21.920, 64.140];
+	    
+	    var nordicCapitals = [stockholmGeo, helsinkiGeo, osloGeo, copenhagenGeo, reykjavikGeo];
+
+	    clusters.data(nordicCapitals).enter()
+			.append('circle')
+			.attr('cx', function(d, i) { return projection(d)[0]; })
+			.attr('cy', function(d, i) { return projection(d)[1]; })
+			.attr('r', '6px')
+			.attr('fill', 'darkred')
+			.attr('class', 'clustercircle');
+		// DEBUG (END)
+		*/
+
+		var clusterFileForCurrentDate = grabClusterFileForDate(date);
+		//console.log("fileToLoadForMapView = " + fileToLoad);
+
+		// load csv file: https://github.com/d3/d3-fetch/blob/master/README.md#dsv
+		//d3.dsv(",", "data/daily/_nts_generated_clusters_demo_unique.csv").then(function(data) {
+		d3.dsv(",", clusterFileForCurrentDate)
+			.then(function(data) {
+					
+				// DEBUG - check loaded data set
+				//console.log(data);
+				//console.log(data[0]);
+				//console.log(data[0].cluster_x);
+				//console.log(data[0].Swedish);
+
+				clusters.data(data).enter()
+					.filter(function(d){	// only draw clusters if tweet data exists
+						//console.log(d.Total);
+						return d.Total > 0;
+					})	
+					.append('circle')
+					.attr('cx', function(d) {
+						//console.log(d);
+						//console.log(d.cluster_x);
+						//console.log(projection(d.cluster_x));
+						//console.log(projection(d.cluster_x)[0]);
+						//return d.cluster_x;
+						return projection([d.cluster_x, d.cluster_y])[0];
+					})
+					.attr('cy', function(d) {
+						//return projection(d.cluster_y)[1];
+						//return d.cluster_y;
+						return projection([d.cluster_x, d.cluster_y])[1];
+					})
+					.attr('r', '6px')
+					.attr('fill', function(d) {
+
+						// DATA_LOADING_SWITCH
+						// Note: workaround for a typo within the daily cluster data set ("Finnish" (weekly) was spellec "Finish" (daily))
+						if(clusterTimeFrequency == "weekly")
+						{
+							// color circle based on most frequent language
+
+							var tweetValues = [d.Swedish, d.Danish, d.Norwegian, d.Finnish, d.Icelandic, d.English, d.Other, d.Unknown];
+							var max = Math.max(...tweetValues);
+							
+							//console.log(max + " = for cluster id " + d.cluster_id);
+
+							var clusterColor = "#FFFFFF";
+							if(d.Swedish == max ) clusterColor = languageColors(0);
+							else if (d.Danish == max ) clusterColor = languageColors(1);
+							else if (d.Norwegian == max ) clusterColor = languageColors(2);
+							else if (d.Finnish == max ) clusterColor = languageColors(3);
+							else if (d.Icelandic == max ) clusterColor = languageColors(4);
+							else if (d.English == max ) clusterColor = languageColors(5);
+							else if (d.Other == max ) clusterColor = languageColors(6);
+							else if (d.Unknown == max ) clusterColor = languageColors(7);
+
+							return clusterColor;
+						}
+						else if(clusterTimeFrequency == "daily")
+						{
+							// color circle based on most frequent language
+
+							var tweetValues = [d.Swedish, d.Danish, d.Norwegian, d.Finish, d.Icelandic, d.English, d.Other, d.Unknown];
+							var max = Math.max(...tweetValues);
+							
+							//console.log(max + " = for cluster id " + d.cluster_id);
+
+							var clusterColor = "#FFFFFF";
+							if(d.Swedish == max ) clusterColor = languageColors(0);
+							else if (d.Danish == max ) clusterColor = languageColors(1);
+							else if (d.Norwegian == max ) clusterColor = languageColors(2);
+							else if (d.Finish == max ) clusterColor = languageColors(3);
+							else if (d.Icelandic == max ) clusterColor = languageColors(4);
+							else if (d.English == max ) clusterColor = languageColors(5);
+							else if (d.Other == max ) clusterColor = languageColors(6);
+							else if (d.Unknown == max ) clusterColor = languageColors(7);
+
+							return clusterColor;
+						}
+
+						/*
+						// fill cluster based on country (hardcoded from sorted data structure / input data)
+						if(d.cluster_id >= 0 && d.cluster_id <= 18) return 'green';	// denmark
+						else if(d.cluster_id >= 19 && d.cluster_id <= 113) return 'yellow';	// sweden
+						else if(d.cluster_id >= 114 && d.cluster_id <= 225) return 'red';	// norway
+						else if(d.cluster_id >= 226 && d.cluster_id <= 308) return 'blue';	// finland
+						else return 'white';
+						*/
+					})
+					.attr('class', function(d, i){
+						// check whether clusters containing capitals should be handled differently
+						if(shouldHighlightCapitalClusters){
+							// check for capital cluster (IDs hardcoded based on data)
+							if( d.cluster_id ==   6 ||		// Copenhagen		
+								d.cluster_id ==  40 ||		// Stockholm
+								d.cluster_id == 118 ||		// Oslo
+								d.cluster_id == 233) {		// Helsinki
+								// current cluster contains a capital
+								return 'clustercirclecapital';
+							}
+							else {
+								// current cluser does not contain a capital
+								return 'clustercircle';
+							}
+						}
+						// all clusters are equally treated
+						else {
+							return 'clustercircle';
+						}
+					})
+					.attr('id', function(d, i){
+						// check if iterated circle is the currently selected one, and set it's ID accordingly
+						return (d.cluster_id == currentlySelectedClusterID) ? "selectedClusterCircle" : null;
+					})
+					.on("click", function(d) {
+
+						// update clicked circle (representing the selected cluster)
+						d3.select("#selectedClusterCircle").attr("id", null);	// remove highlight (ID attribute) from previus selected one 
+						d3.select(this).attr("id", "selectedClusterCircle");	// add highlight (ID attribute) to newly selected one
+
+						// set global variable
+						currentlySelectedClusterID = d.cluster_id;
+
+						// update views
+		  				updateClusterDetailViewForCluster(currentlySelectedClusterID, clusterFileForCurrentDate);
+		  				updateTimeViewForCluster(currentlySelectedClusterID);
+
+		  				// NETWORKING
+		  				if(shouldConnectToWebSocketServer)
+		  					socketMessageWEBUserNodeSelectionUpdate(currentlySelectedClusterID);
+
+		  				// LOGGING
+		  				if(shouldLog)
+		  					logNumberOfNodeSelections();
+					})
+					.append("title")
+					.text(function(d) {
+						return "Cluster ID: " + d.cluster_id;
+					});
+
+					// update cluster detail view when map data was loaded
+					updateClusterDetailViewForCluster(currentlySelectedClusterID, clusterFileForCurrentDate);
+
+					// NETWORKING
+					if(shouldConnectToWebSocketServer)
+    					highlightNodeSelectedByVRUser();
+			})
+			.catch(function(error) {
+				// update views according to "no data scenario"
+				updateViewsForNoDataAvailable();
+    		});
+    }
+
+
+	// === CLUSTER DETAIL VIEW ===
+
+	// === Note ===
+	// overall adapted from example demonstrated by Mike Bostock via 
+	// [ https://bl.ocks.org/mbostock/3887193 ]
+	// and Michael Hall
+	// [ https://bl.ocks.org/mbhall88/22f91dc6c9509b709defde9dc29c63f2 ]
+
+	var donutWidth = 400,
+	    donutHeight = 400,
+	    donutRadius = Math.min(donutWidth, donutHeight) / 2;
+
+	// setup arc [ https://github.com/d3/d3-shape/blob/master/README.md#arcs ]
+	var donutArc = d3.arc()
+	    .outerRadius(donutRadius * 0.6)
+	    .innerRadius(donutRadius * 0.9)
+	    .cornerRadius(6);
+
+	// setup pie function for data handling [ https://github.com/d3/d3-shape/blob/master/README.md#pies ]
+	var donutPie = d3.pie()
+    	.sort(null)
+    	.value(function(d) {
+    		return d;
+    	});    
+
+	// helper value to get language data for index
+	function currentLanguageForIndex(index)
+	{
+		var langJSON = { 'lang' : '',
+						 'tweets': 0,
+						 'total' : 0,
+						 'percentage' : 0 };
+
+		langJSON.total = currentlySelectedClusterData.Total;
+
+		switch(index)
+		{
+			case 0:
+				langJSON.lang = "Swedish";
+				langJSON.tweets = currentlySelectedClusterData.Swedish;
+				break;
+			case 1:
+				langJSON.lang = "Danish";
+				langJSON.tweets = currentlySelectedClusterData.Danish;
+				break;
+			case 2:
+				langJSON.lang = "Norwegian";
+				langJSON.tweets = currentlySelectedClusterData.Norwegian;
+				break;
+			case 3:
+				langJSON.lang = "Finnish";
+				// DATA_LOADING_SWITCH
+				if(clusterTimeFrequency == "weekly")
+					langJSON.tweets = currentlySelectedClusterData.Finnish;
+				else if(clusterTimeFrequency == "daily")
+					langJSON.tweets = currentlySelectedClusterData.Finish;
+				break;
+			case 4:
+				langJSON.lang = "Icelandic";
+				langJSON.tweets = currentlySelectedClusterData.Icelandic;
+				break;
+			case 5:
+				langJSON.lang = "English";
+				langJSON.tweets = currentlySelectedClusterData.English;
+				break;
+			case 6:
+				langJSON.lang = "Other";
+				langJSON.tweets = currentlySelectedClusterData.Other;
+				break;
+			case 7:
+				langJSON.lang = "Unknown";
+				langJSON.tweets = currentlySelectedClusterData.Unknown;
+				break;		
+		}
+
+		langJSON.percentage = Math.floor( langJSON.tweets / langJSON.total * 100 ).toFixed(0);
+
+		return langJSON;
+	}
+
+	// reference to the cluster ID that is currently being selected
+	var currentlySelectedClusterID;
+
+	// reference to the cluster data that has currently being selected using the Map View
+	var currentlySelectedClusterData;
+
+	// draw cluster detail view
+	function updateClusterDetailViewForCluster(cluster_id, file)
+	{
+		// update view for "no data scenario"
+		if(cluster_id == null && file == null)
+		{
+			// update cluster ID caption
+			d3.select("#clustername")
+				.text("No data available for date");
+
+			// update cluster date caption
+			d3.select("#clusterdate")
+				.text(currentlySelectedTimeDateLabel);
+
+			// remove all existing svg child elements from the div with the entered ID
+			d3.select('#clusterdetailview').selectAll("svg").remove();
+		}
+		// update view for normal scenario
+		else
+		{
+			// update cluster ID caption
+			d3.select("#clustername")
+				.text("Cluster ID: " + cluster_id);
+
+			// update cluster date caption
+			d3.select("#clusterdate")
+				.text(currentlySelectedTimeDateLabel);
+
+			// reset cluster no tweet caption
+			d3.select("#clusternotweets")
+				.text("");
+
+			// remove all existing svg child elements from the div with the entered ID
+			d3.select('#clusterdetailview').selectAll("svg").remove();
+
+		    // create SVG element
+			var clusterDetailSVG = d3.select('#clusterdetailview')
+									 .append('svg')
+									 .attr('height', donutWidth)
+		  							 .attr('width', donutHeight)
+		  							 .append("g")
+			    					 .attr("transform", "translate(" + donutWidth / 2 + "," + donutHeight / 2 + ")");
+
+			// load data
+			//d3.dsv(",", "data/daily/_nts_2016-11-06_cluster_languages.csv").then(function(data) {
+			d3.dsv(",", file).then(function(data) {
+
+				// index of selected cluster
+				var selectedClusterIndex = cluster_id - 1;	// cluster IDs start with 1, array indexing starts with 0
+
+				//console.log(data);
+				//console.log(data[selectedClusterID]);
+
+				// update currently selected cluster data (global variable)
+				currentlySelectedClusterData = data[selectedClusterIndex];
+
+				// normal scenario: total number of tweets > 0
+				if(data[selectedClusterIndex].Total > 0)
+				{
+					// DATA_LOADING_SWITCH
+					var selectedClusterData;
+					if(clusterTimeFrequency == "weekly")
+					{
+						// setup data array for selected cluster to be displayed as donut chart
+						var selectedClusterData = [ data[selectedClusterIndex].Swedish,
+													data[selectedClusterIndex].Danish,
+													data[selectedClusterIndex].Norwegian,
+													data[selectedClusterIndex].Finnish,
+													data[selectedClusterIndex].Icelandic,
+													data[selectedClusterIndex].English,
+													data[selectedClusterIndex].Other,
+													data[selectedClusterIndex].Unknown ];
+					}
+					else if(clusterTimeFrequency == "daily")
+					{
+						// setup data array for selected cluster to be displayed as donut chart
+						var selectedClusterData = [ data[selectedClusterIndex].Swedish,
+													data[selectedClusterIndex].Danish,
+													data[selectedClusterIndex].Norwegian,
+													data[selectedClusterIndex].Finish,
+													data[selectedClusterIndex].Icelandic,
+													data[selectedClusterIndex].English,
+													data[selectedClusterIndex].Other,
+													data[selectedClusterIndex].Unknown ];
+					}
+					
+					//console.log(selectedClusterData);
+
+					// create arc with data
+					var donutCluster = clusterDetailSVG.selectAll(".arc")
+				    									.data(donutPie(selectedClusterData))
+				    									.enter()
+				    									.append("g")
+				      									.attr("class", "arc");
+
+				    // create paths in arc based on data
+					donutCluster.append("path")
+				    	.attr("d", donutArc)
+				      	.style("fill", function(d, i) {
+				      		return languageColors(i);
+				      	}); 
+
+				    clusterDetailSVG.selectAll('path').call(languageInfo); 
+				}
+				// data available but no tweets scenario: total number of tweets = 0
+				else
+				{
+					d3.select("#clusternotweets")
+						.text("No one tweeted here.");
+				}	 
+			});
+			// update places view for cluster
+			updatePlacesViewForForCluster(currentlySelectedClusterID);
+		}
+	}
+
+	// display language info in the middle of the donut chart as circle
+    function languageInfo(selection) {
+
+        // display when mouse enters the slice of the donut chart
+        selection.on('mouseenter', function (data) {
+
+        	//console.log(data);
+
+        	var cdvSVG = d3.select('#clusterdetailview').select("svg");
+
+            cdvSVG.append('circle')
+            	.attr('class', 'langInfoCircle')
+                .attr("transform", "translate(" + donutWidth / 2 + "," + donutHeight / 2 + ")")
+                .attr('r', donutRadius * 0.5) // radius of tooltip circle
+                //.style('fill', colour(data.data[category])) // colour based on category mouse is over
+                .style('fill', languageColors(data.index))
+                .style('fill-opacity', 0.35);
+
+            cdvSVG.append('text')
+	  			.attr('class', 'langInfoText')
+	  			.attr('transform', "translate(" + donutWidth / 2 + "," + donutHeight / 2 + ")")
+	      		.attr("dy", "-2.0em")
+	      		.text(currentLanguageForIndex(data.index).lang);
+
+	      	cdvSVG.append('text')
+	  			.attr('class', 'langInfoText')
+	  			.attr('transform', "translate(" + donutWidth / 2 + "," + donutHeight / 2 + ")")
+	      		.attr("dy", "0.0em")
+	      		.text(function(d) {
+	      			return "Tweets: " + currentLanguageForIndex(data.index).tweets + " / "  + currentLanguageForIndex(data.index).total;
+	      		});
+
+	      	cdvSVG.append('text')
+	  			.attr('class', 'langInfoText')
+	  			.attr('transform', "translate(" + donutWidth / 2 + "," + donutHeight / 2 + ")")
+	      		.attr("dy", "2.0em")
+	      		.text(function(d, i) {
+	      			return "Percentage: " + currentLanguageForIndex(data.index).percentage + " %";
+	      		});
+        });
+
+        // hide when mouse exits the slice of the donut chart
+        selection.on('mouseout', function () {
+            d3.selectAll('.langInfoCircle').remove();
+            d3.selectAll('.langInfoText').remove();
+        });
+    }
+
+
+	// === PLACES VIEW ===
+
+	function updatePlacesViewForForCluster(cluster_id)
+	{
+		// update view for "no data scenario"
+		if(cluster_id == null)
+		{
+			// update caption
+			d3.select("#placesclusterid")
+				.text("");
+
+			d3.select("#placesincluster")
+					.text("");
+		}
+		// update view for normal scenario
+		else
+		{
+			// update caption
+			d3.select("#placesclusterid")
+				.text("Places in cluster with ID: " + cluster_id);
+
+			// DATA_LOADING_SWITCH
+			var placesClusterLookupFilePath;
+			if(clusterTimeFrequency == "weekly")
+				placesClusterLookupFilePath = "data/weekly/_places_cluster_lookup.csv";
+			else if(clusterTimeFrequency == "daily")
+				placesClusterLookupFilePath = "data/daily/_places_cluster_lookup.csv";
+
+			// build places string
+			d3.dsv(",", placesClusterLookupFilePath).then(function(data) {
+
+				var placesString = "";
+				for(var i = 0; i < data.length; i++)
+				{
+					if(data[i].cluster_id == cluster_id)
+					{
+						placesString = placesString + data[i].place_name + ", ";
+					}
+				}
+
+				// cut off last ", "
+				placesString = placesString.substring(0, placesString.length-2);
+
+				// update places
+				d3.select("#placesincluster")
+					.text(placesString);
+			});	
+		}
+	}
+
+
+	// === TIME VIEW ===
+
+	// === Note ===
+	// overall adapted from example demonstrated by f94f via 
+	// [ https://bl.ocks.org/f94f/5554bf0a6874a64f46deacf3448ee5c8/8cc81693c17377a77b0741252be02fc69409da9a ]
+	// and Jane Dilkes via 
+	// [ https://bl.ocks.org/jdilkes/f9d99adee07430072f96ebaa1056dc39 ]
+	// and Harry Stevens via
+	// [ https://bl.ocks.org/HarryStevens/c893c7b441298b36f4568bc09df71a1e ]
+
+	var streamGraphWidth = 1650,
+		streamGraphHeight = 500,
+		sgXAxisPadding = 50,
+		sgYAxisPadding = 20;
+
+	var streamGraphSVG;	// reference to stream graph svg element
+
+	var xAxisScale; 		// reference to stream graph x-axis scale [ https://github.com/d3/d3-scale#time-scales ] 
+	var xAxisScaleInvert;	// create helper scale since ordinal scale do not feature an invert() function (used for weekly data set)
+
+	var currentlySelectedTimeMousePos;		// reference to last clicked mouse position in time view
+	var currentlySelectedTimeDateLabel;		// reference to currently selected date according to time view
+
+	var tvMouseXOffset = -4;		// helper function to translate time view's date slider by a few pixels (otherwise the mouse would select the slider svg element all the time)
+
+	// helper functions to determine min / max layer in a series of data points
+	// via [ https://bl.ocks.org/mbostock/4060954 ]
+	function stackMax(layer) {
+	  return d3.max(layer, function(d) {
+	  	return d[1];
+	  });
+	}
+
+	function stackMin(layer) {
+	  return d3.min(layer, function(d) {
+	  	return d[0];
+	  });
+	}
+
+	function updateTimeViewForCluster(cluster_id)
+	{
+		// remove all existing svg child elements from the div with the entered ID
+		d3.select('#timeview').selectAll("svg").remove();
+
+		// build cluster file path to load correct data file from server
+		var clusterFileSuffix = "" + cluster_id;
+		if(cluster_id < 10) clusterFileSuffix = "00" + cluster_id;
+		else if (cluster_id < 100 && cluster_id >= 10) clusterFileSuffix = "0" + cluster_id;
+
+		// DATA_LOADING_SWITCH
+		var streamGraphFilePath;
+		if(clusterTimeFrequency == "weekly")
+			streamGraphFilePath = "data/weekly/streamgraph_demoht18_lang/cluster_" + clusterFileSuffix + ".csv";
+		else if(clusterTimeFrequency == "daily")
+			streamGraphFilePath = "data/daily/streamgraph_demovt18_lang/cluster_" + clusterFileSuffix + ".csv";
+
+		//console.log(streamGraphFilePath);
+
+		// load data file
+		d3.dsv(",", streamGraphFilePath).then(function(data) {
+
+			//console.log(data)
+
+			// using the data from the csv file, create a new nest structure
+			// key = data entry's date, value = data entry
+			var nested_data = d3.nest()
+								.key(function(d) {
+									return d.date;
+								})
+								.entries(data);
+
+			// DATA_LOADING_SWITCH
+			var langData;
+			if(clusterTimeFrequency == "weekly")
+			{
+				// using the nested data structure, create a map
+				// holding an object of type "string" as well as all the language data for that week
+				langData = nested_data.map(function(d, i){
+
+				    // create week string object
+				    var obj = {
+				    	date: d.key
+				    }
+				    
+				    // assign language values
+				    d.values.forEach(function(v){
+				    	obj[v.lang] = parseInt(v.count);
+				    });
+				    
+				    // return statement
+				    return obj;
+				});
+			}
+			else if(clusterTimeFrequency == "daily")
+			{
+				// using the nested data structure, create a map
+				// holding an object of d3.js type "date" as well as all the language data for that date
+				langData = nested_data.map(function(d, i){
+
+				    /* DEBUG substring
+				    console.log(d.key);
+				    console.log(d.key.substring(0, 4));		// year
+				    console.log(d.key.substring(5, 7));		// month
+				    console.log(d.key.substring(8, 10));	// day
+				    console.log("#####");
+					*/
+
+					// extract values for date generation from key string
+				    var yyyy, mm, dd;
+				    yyyy = d.key.substring(0, 4);
+				    mm = d.key.substring(5, 7);	
+				    dd = d.key.substring(8, 10);
+
+				    // ATTENTION:
+				    // month january = 0 (feb = 1, ...) , which means the extracted month needs to be subtracted by 1 when creating the date
+				    // year and day can be taking as normal
+
+				    // create date object
+				    var obj = {
+				    	date: new Date(yyyy, parseInt(mm) - 1, dd)
+				    }
+				    
+				    // assign language values
+				    d.values.forEach(function(v){
+				    	obj[v.lang] = parseInt(v.count);
+				    });
+				    
+				    // return statement
+				    return obj;
+				});
+			}
+
+			// create stream graph using language data (map)
+			createStreamGraph(langData);
+		});
+	}
+
+	function createStreamGraph(langData) {
+		
+		// DATA_LOADING_SWITCH
+		var stackLangKeys;
+		if(clusterTimeFrequency == "weekly")
+		{
+			stackLangKeys = ["Swedish", "Danish", "Norwegian", "Finnish", "Icelandic", "English", "Other", "Unknown"];
+		}
+		else if(clusterTimeFrequency = "daily")
+		{
+			stackLangKeys = ["Swedish", "Danish", "Norwegian", "Finish", "Icelandic", "English", "Other", "Unknown"];
+		}
+
+		// create a new stack using the individual language keys		  
+		var stack = d3.stack()
+		    .keys(stackLangKeys)
+		    .order(d3.stackOrderInsideOut)		// larger values on the inside, smaller on the outside (recommended for stream graphs)
+		    .offset(d3.stackOffsetWiggle);		// shifts baseline to minimize weighted wiggle of layers (recommended for stream graphs)
+
+		// genetate stack for the entered language data
+		var langSeries = stack(langData);
+
+		// DATA_LOADING_SWITCH
+		if (clusterTimeFrequency == "weekly")
+		{
+			// weekly data uses a string object representing the individual weeks (compared to the daily data set using a date object), therefore an ordinal scale (instead of a time scale)
+
+			// create array with the individual weeks representing the scale's domain
+			var weeksDomain = new Array();
+			for(var i = 0; i < langData.length; i++)
+			{
+				weeksDomain.push(langData[i].date);
+			}
+
+			// create array with the tick values corresponding to the individual weeks representing the scale's range
+			var weeksRange = new Array();
+			for(var i = 0; i < weeksDomain.length; i++)
+			{
+				var currentRangeValue = sgXAxisPadding + ( (streamGraphWidth-sgXAxisPadding) / weeksDomain.length * i); // x-axis according to width (considering left and right padding)
+				weeksRange.push(currentRangeValue);
+			}
+
+			// create scale for x-axis
+			xAxisScale = d3.scaleOrdinal()
+								.domain(weeksDomain)
+								.range(weeksRange);
+
+			// create helper scale since ordinal scale do not feature an invert() function
+			// note: this is needed to get the domain value from entering a range value (e.g. get week value from hovered pointer in the time line (range value))
+			xAxisScaleInvert = d3.scaleQuantile()
+								.domain(weeksRange)
+								.range(weeksDomain);
+		}
+		else if (clusterTimeFrequency == "daily")
+		{
+			// create scale for x-axis
+			xAxisScale = d3.scaleTime()									// linear time scale
+						    .domain(d3.extent(langData, function(d){	// domain = values of time scale (d3.extent returns [min, max] of all date values in language array)
+						    	return d.date;
+						    }))
+						    .range([sgXAxisPadding, streamGraphWidth-sgXAxisPadding]);	// draw x-axis according to width (considering left and right padding)
+		}
+
+		// setup x-axis according to scale
+		var xAxis = d3.axisBottom(xAxisScale);
+
+		// DATA_LOADING_SWITCH
+		if(clusterTimeFrequency == "weekly")
+		{
+			// create ticks of ordinal (weekly) x-axis
+			// label only every 5th week item
+			var xAxisTicksWeekly = xAxisScale.domain().filter(function(d,i){
+													return !(i%5);
+												});
+			// apply filtered tick values to x-axis
+			xAxis.tickValues(xAxisTicksWeekly);
+		}
+
+		// create scale for y-axis
+		var yAxisScale = d3.scaleLinear()						// linear scale
+						    .domain([d3.min(langSeries, stackMin), d3.max(langSeries, stackMax)])	// domain = values for linear scale (min and max for langSeries data)
+						    .range([streamGraphHeight, sgYAxisPadding*4]);		// draw y-axis according to streamgraph height
+
+		// create new area for languages (area = defined by two bouding lines)
+		var langArea = d3.area()
+		    .x(function(d) {
+		    	// x0 = date along the time axis; x1 = null
+		    	return xAxisScale(d.data.date);
+		    })
+		    .y0(function(d) {
+		    	// y0 = baseline (retrieved from setup y-axis based on language series data)
+		    	return yAxisScale(d[0]);
+		    })
+		    .y1(function(d) {
+		    	// y1 = topline (retrieved from setup y-axis based on language series data)
+		    	return yAxisScale(d[1]);
+		    })
+		    .curve(d3.curveBasis);		// create curve based on setup points for x and y; cubic basis line
+
+		// create variable to stream graph svg element in view and set it up acccordingly
+		streamGraphSVG = d3.select('#timeview')
+							.append('svg')
+							.attr('width', streamGraphWidth)
+							.attr('height', streamGraphHeight);
+
+		// draw stream graph
+		streamGraphSVG.selectAll("path")
+		    .data(langSeries)
+		    .enter()
+		    	.append("path")
+		    	.attr("class", "languageTimePath")
+		    	.attr("d", langArea)
+		    	.style("fill", function(d, i) {
+		    		return languageColors(i);
+		    	})
+			    .on('mouseover', function(d, i) {
+			    	// add stroke to path
+			    	d3.select(this).style('stroke', "#5e5e5e")
+			    					.style('stroke-width', "1px");
+			    })
+			    .on('mousemove', function(d, i){
+			    	// show label tool tip in ui with value of currently hovered language path
+			    	handleMouseMoveInStreamGraphPathUI(streamGraphSVG, langData, i, xAxisScale, [ d3.mouse(this)[0] + tvMouseXOffset, d3.mouse(this)[1] ]);
+
+			    })
+			    .on('mouseout', function(d, i) {
+			    	// remove stroke from path
+			    	d3.select(this).style('stroke', null)
+			    					.style('stroke-width', null);
+
+			    	// remove label tool tip
+			    	streamGraphSVG.selectAll("#timeViewMouseOverPathText").remove();
+
+			    });
+		
+		// draw x-axis
+		var xAxisGroup = streamGraphSVG.append("g")
+										.attr("transform", "translate(0," + (sgYAxisPadding) + ")")
+										.call(xAxis);
+
+		// update time view date picker according to last selected date
+	 	handleTimeViewDateSelection(streamGraphSVG, currentlySelectedTimeMousePos, currentlySelectedTimeDateLabel);
+
+	 	// update vr user selected time indicator
+	 	if(shouldConnectToWebSocketServer == true &&
+	 	   shouldVRUserTimeSelectionChangeWEBTimeSelection == false)
+	 	{
+	 		if(vrUserSelectedTimeDateLabel != null)
+	 		handleTimeViewDateSelectionByVRUser(streamGraphSVG, vrUserSelectedTimeDateLabelPosition, vrUserSelectedTimeDateLabel);
+	 	}
+
+		// Mouse interaction with TimeView
+		// overall adapted from example demonstrated by Paul Sherman via
+		// [ https://www.pshrmn.com/tutorials/d3/mouse/ ]
+		// and by Mike Bostock via
+		// [ https://bl.ocks.org/mbostock/3902569 ]
+		// Mouse events tutorial via [ https://www.stator-afm.com/tutorial/d3-js-mouse-events/ ]
+
+		
+		// add listener for mouse movement in stream graph svg: date preview
+		streamGraphSVG.on('mousemove', function(){
+			
+			// get coordinates from mouse in stream graph svg
+			//var mousePosition = d3.mouse(this);
+			var mousePosition = [ d3.mouse(this)[0] + tvMouseXOffset, d3.mouse(this)[1] ];
+
+			// grab x position and apply border handling based on stream graph x-axis scale
+			if(mousePosition[0] < sgXAxisPadding == false && mousePosition[0] > streamGraphWidth-sgXAxisPadding == false)
+			{
+				// DATA_LOADING_SWITCH
+				var domainX;
+				if(clusterTimeFrequency == "weekly")
+				{
+					// invert the scale to get the domain value
+					// for ordinal scale, helper axis is used
+		  			domainX = xAxisScaleInvert(mousePosition[0]);
+				}
+				else if(clusterTimeFrequency == "daily")
+				{
+					// invert the scale to get the domain value
+					// domainX variable = JavaScript Date object according to setup x-Axis
+		  			domainX = xAxisScale.invert(mousePosition[0]);
+				}
+
+		  		// update view according to mouse movement
+		 		updateTimeViewMouseOver(streamGraphSVG, mousePosition, createDateLabelStringFromDate(domainX));
+			}
+
+		});
+
+		// add listener for mouse leave in stream graph svg: remove date preview
+		streamGraphSVG.on('mouseleave', function(){
+
+			// remove preview line from svg
+			removeTimeViewMouseOver(streamGraphSVG);
+		});
+
+		// add listener for mouse click in stream graph svg: date selection
+		streamGraphSVG.on('click', function(){
+
+			// get coordinates from mouse in stream graph svg
+			//currentlySelectedTimeMousePos = d3.mouse(this);
+			currentlySelectedTimeMousePos = [ d3.mouse(this)[0] + tvMouseXOffset, d3.mouse(this)[1] ];
+			//console.log(currentlySelectedTimeMousePos);
+
+			// grab x position and apply border handling based on stream graph x-axis scale
+			if(currentlySelectedTimeMousePos[0] < sgXAxisPadding == false &&
+			   currentlySelectedTimeMousePos[0] > streamGraphWidth-sgXAxisPadding == false)
+			{
+				// DATA_LOADING_SWITCH
+				var domainX;
+				if(clusterTimeFrequency == "weekly")
+				{
+					// invert the scale to get the domain value
+					// for ordinal scale, helper axis is used
+		  			domainX = xAxisScaleInvert(currentlySelectedTimeMousePos[0]);
+				}
+				else if(clusterTimeFrequency == "daily")
+				{
+					// invert the scale to get the domain value
+					// domainX variable = JavaScript Date object according to setup x-Axis
+	  				domainX = xAxisScale.invert(currentlySelectedTimeMousePos[0]);
+				}
+
+	  			// create date label to present in time view and load the data
+	  			currentlySelectedTimeDateLabel = createDateLabelStringFromDate(domainX);
+
+	  			// update view according to mouse position
+	 			handleTimeViewDateSelection(streamGraphSVG, currentlySelectedTimeMousePos, currentlySelectedTimeDateLabel);
+
+	 			// update map view
+				updateMapViewForDate(currentlySelectedTimeDateLabel);
+
+				// NETWORKING
+				if(shouldConnectToWebSocketServer)
+					socketMessageWEBUserTimeSelectionUpdate(currentlySelectedTimeDateLabel);
+
+				// LOGGING
+				if(shouldLog)
+					logNumberOfTimeSelections();
+			}
+		});
+		
+	}
+
+	function handleMouseMoveInStreamGraphPathUI(svg, langData, i, xAxisScale, mousePos)
+	{
+		// DATA_LOADING_SWITCH
+		var result;
+		if(clusterTimeFrequency == "weekly")
+		{
+			// language and value for currently hovered path at the specific date along the x-axis time scale
+			//
+
+			// get week string based on current mouse position
+	    	var domainX = xAxisScaleInvert(mousePos[0]);
+
+			// find object with specific week string in language data
+	    	var result = langData.filter(function(obj) {
+					return obj.date === domainX;
+			});
+		}
+		else if(clusterTimeFrequency == "daily")
+		{
+			// language and value for currently hovered path at the specific date along the x-axis time scale
+			//
+
+			// create date object based on current mouse position
+	    	var domainX = xAxisScale.invert(mousePos[0]);
+	    	var dateObj = new Date(createDateLabelStringFromDate(domainX));
+
+			/* find object with specific date in language data || array version
+			for(var i = 0; i < langData.length; i++)
+			{
+				if(langData[i].date.getFullYear() === dateObj.getFullYear() &&
+					langData[i].date.getMonth() === dateObj.getMonth() &&
+					langData[i].date.getDate() === dateObj.getDate())
+					console.log(langData[i]);
+			}
+			*/
+
+			// find object with specific date in language data || array.filter() version
+	    	var result = langData.filter(function(obj) {
+					return obj.date.getFullYear() === dateObj.getFullYear() &&
+						obj.date.getMonth() === dateObj.getMonth() &&
+						obj.date.getDate() === dateObj.getDate();
+			});
+	    	//console.log(result[0])
+	    }
+
+    	var labelText = "";
+
+    	// check if there is a new label to be built
+    	if(result.length > 0)
+    	{
+			switch(i)
+			{
+				case 0:
+					labelText = "Swedish: " + result[0].Swedish;
+					break;
+				case 1:
+					labelText = "Danish: " + result[0].Danish;
+					break;
+				case 2:
+					labelText = "Norwegian: " + result[0].Norwegian;
+					break;
+				case 3:
+					// DATA_LOADING_SWITCH
+					if(clusterTimeFrequency == "weekly")
+						labelText = "Finnish: " + result[0].Finnish;
+					else if(clusterTimeFrequency == "daily")
+						labelText = "Finnish: " + result[0].Finish;
+					break;
+				case 4:
+					labelText = "Icelandic: " + result[0].Icelandic;
+					break;
+				case 5:
+					labelText = "English: " + result[0].English;
+					break;
+				case 6:
+					labelText = "Other: " + result[0].Other;
+					break;
+				case 7:
+					labelText = "Unknown: " + result[0].Unknown;
+					break;		
+			}
+		}
+		else
+		{
+			labelText = "No available data.";
+		}
+
+		// remove label text
+    	svg.selectAll("#timeViewMouseOverPathText").remove();
+
+		// update UI label
+		svg.append("text")
+			.attr("id", "timeViewMouseOverPathText")
+			.attr("x", function() {
+				var xPos = mousePos[0] + 6;							// + 6 to position slightly to the right of the current mouse position
+				if(xPos > streamGraphWidth - 150) xPos = xPos - 76;	// border handling: when too far right, swap to left
+				return xPos;		
+			})
+          	.attr("y", function() {
+          		return 76;			// position at static height below x-axis
+          	})
+          	.attr("fill", function(){
+          		if(result.length > 0)
+          			return languageColors(i);
+          		else
+          			return "#de2d26";
+          	})
+         	.text( function () {
+         		return labelText;
+         	});
+	}
+
+	function handleTimeViewDateSelection(svg, mousePos, dateLabel)
+	{
+		// update UI elements in time view
+		//
+
+		// remove previous line
+		svg.selectAll("#timeViewSelectedDateLine").remove();
+
+		// draw new line
+		svg.append("line")
+			.attr("id", "timeViewSelectedDateLine")
+			.attr("x1", function() {
+				return mousePos[0];
+			})
+			.attr("y1", 10)
+			.attr("x2", function() {
+				return mousePos[0];
+			})
+			.attr("y2", streamGraphHeight-sgYAxisPadding)
+			.attr("stroke", "#000000")
+
+		// remove previous date text label
+		svg.selectAll("#timeViewSelectedDateText").remove();
+
+		// display date text label
+		svg.append("text")
+			.attr("id", "timeViewSelectedDateText")
+			.attr("x", function() {
+				var xPos = mousePos[0] + 6;							// + 6 to position slightly to the right of the current mouse position
+				if(xPos > streamGraphWidth - 150) xPos = xPos - 70;	// border handling: when too far right, swap to left
+				return xPos;
+			})
+          	.attr("y", function() {
+          		return 14;			// position at static height below x-axis
+          		//return mousePos[1];
+          	})
+         	.text( function () {
+         		return dateLabel;
+         	})
+         	.attr("fill", "#000000");
+	}
+
+	function removeTimeViewMouseOver(svg){
+
+		// remove line
+		svg.selectAll("#timeViewMouseOverLine").remove();
+
+		// remove date text label
+		svg.selectAll("#timeViewMouseOverText").remove();
+	}
+   
+	function updateTimeViewMouseOver(svg, mousePos, dateLabel)
+	{
+		// remove previous line and text
+		removeTimeViewMouseOver(svg);
+
+		// draw new line
+		svg.append("line")
+			.attr("id", "timeViewMouseOverLine")
+			.attr("x1", function() {
+				return mousePos[0];
+			})
+			.attr("y1", sgYAxisPadding)
+			.attr("x2", function() {
+				return mousePos[0];
+			})
+			.attr("y2", streamGraphHeight-sgYAxisPadding);
+
+		// display date text label
+		svg.append("text")
+			.attr("id", "timeViewMouseOverText")
+			.attr("x", function() {
+				var xPos = mousePos[0] + 6;							// + 6 to position slightly to the right of the current mouse position
+				if(xPos > streamGraphWidth - 150) xPos = xPos - 76;	// border handling: when too far right, swap to left
+				return xPos;		
+			})
+          	.attr("y", function() {
+          		return 60;			// position at static height below x-axis
+          		//return mousePos[1];
+          	})
+         	.text( function () {
+         		return dateLabel;
+         	});
+	}
+
+	function createDateLabelStringFromDate(date)
+	{
+		// DATA_LOADING_SWITCH
+		if(clusterTimeFrequency == "weekly")
+		{
+			// return weekly date string as is
+			return date;
+		}
+		else if(clusterTimeFrequency == "daily")
+		{
+			// extract relevant date label components
+			var yyyy = date.getFullYear();		// year
+			var mm 	 = date.getMonth() + 1;		// january = 0
+			var dd   = date.getDate();			// day of the month	
+
+			// handle 0 prefix if neccesary
+			if(mm < 10) mm = "0" + mm;
+			if(dd < 10) dd = "0" + dd;
+
+			// return yyyy-mm-dd
+			return yyyy + "-" + mm + "-" + dd;
+		}
+	}
+
+
+	// === DATA SELECTION AND LOADING ===
+
+	function grabClusterFileForDate(date)
+	{
+		// DATA_LOADING_SWITCH
+		if (clusterTimeFrequency == "weekly")
+		{
+			//build file name
+			var filePrefix = date;
+			var fileSuffix = " cluster languages.csv";
+			var fileName = filePrefix + fileSuffix;
+			var filePath = "data/weekly/cluster_demoht18_lang/" + fileName;
+		}
+		else if (clusterTimeFrequency == "daily")
+		{
+			//build file name
+			var filePrefix = date;
+			var fileSuffix = " cluster languages.csv";
+			var fileName = filePrefix + fileSuffix;
+			var filePath = "data/daily/cluster_demovt18_lang/" + fileName;
+		}
+
+		//console.log(fileName);
+		//console.log(filePath);
+		
+		return filePath;
+	}
+
+	function updateViewsForNoDataAvailable()
+	{
+		// map view
+		// handled within map view drawing
+
+		// cluster detail view
+		updateClusterDetailViewForCluster(null, null);
+
+		// places view
+		updatePlacesViewForForCluster(null);
+
+		// time view
+		// mark time selector red, indicating that data is not available for the selected day
+		streamGraphSVG.selectAll("#timeViewSelectedDateLine").attr("stroke", "#de2d26");
+		streamGraphSVG.selectAll("#timeViewSelectedDateText").attr("fill", "#de2d26");
+	}
+
+
+	// === DATA LOADING SWITCH ===
+	// demo-vt18 = daily  (set through URL argument)
+	// demo-ht18 = weekly (default)
+	// Note: All function calls are tagged as 'DATA_LOADING_SWITCH' wherever applied (for better findability)
+
+	var clusterTimeFrequency = "weekly";	
+	var dataCTF = appURL.searchParams.get("ctf");			// extract url argument "ctf"
+	if(dataCTF == "daily") clusterTimeFrequency = "daily";
+
+
+	// === SETUP START-UP STATE OF APPLICATION (hardcoded) === 
+	// DATA_LOADING_SWITCH
+	if(clusterTimeFrequency == "weekly")
+	{
+		currentlySelectedClusterID = 70;						// 70 -> Gotland, 112 -> Växjö
+		currentlySelectedTimeMousePos = [662, 242];
+		currentlySelectedTimeDateLabel = "2017-w18";
+	}
+	else if(clusterTimeFrequency == "daily") {
+		currentlySelectedClusterID = 70;						// 70 -> Gotland, 112 -> Växjö
+		currentlySelectedTimeMousePos = [279, 242];
+		currentlySelectedTimeDateLabel = "2017-01-15";
+
+		// ODXVRxNTS study init for Friday, 21.09.2018
+
+		// get task parameter from app url (created within NETWORKING section) and override (if exsiting) initial startup state of application
+		var task = appURL.searchParams.get("task");			// extract url argument "task"
+		if(task == "christmas")
+		{
+			currentlySelectedClusterID = 112;						// 112 -> Växjö
+			currentlySelectedTimeMousePos = [1380, 242];
+			currentlySelectedTimeDateLabel = "2017-12-20";
+		}
+		else if(task == "midsummer")
+		{
+			currentlySelectedClusterID = 112;						// 112 -> Växjö
+			currentlySelectedTimeMousePos = [780, 242];
+			currentlySelectedTimeDateLabel = "2017-06-18";
+		}
+	}
+	
+
+	// LOGGING (places in the source code related to the logging are commented with 'LOGGING')
+	// get logging parameter from app url (created within NETWORKING section) and setup initial startup state of application
+	var shouldLog = false;
+	var logs = appURL.searchParams.get("logs");			// extract url argument "logs"
+	if(logs == "true") shouldLog = true;
+
+	if(shouldLog)
+	{
+		var logging_numberOfNodeSelections = 0;
+		var logging_numberOfTimeSelections = 0;
+
+		function logNumberOfNodeSelections()
+		{
+			logging_numberOfNodeSelections += 1;
+			console.log('[NODE] Number of node selections = ' + logging_numberOfNodeSelections + ' | ' + new Date());
+		}
+
+		function logNumberOfTimeSelections()
+		{
+			logging_numberOfTimeSelections += 1;
+			console.log('[TIME] Number of time selections = ' + logging_numberOfTimeSelections + ' | ' + new Date());
+		}		
+	}
+
+	// === INITIALIZE VIEWS WITH START-UP CONDITIONS ===
+
+	// DEBUG initial vis at start up
+	updateMapViewForDate(currentlySelectedTimeDateLabel);
+
+    // DEBUG initial vis at start up
+	//updateClusterDetailViewForCluster(currentlySelectedClusterID);
+
+    // DEBUG initial vis at start up
+	updatePlacesViewForForCluster(currentlySelectedClusterID);
+
+    // DEBUG initial vis at start up
+	updateTimeViewForCluster(currentlySelectedClusterID);
+
+
+	// DEBUG initial vis at start up
+	if(shouldConnectToWebSocketServer)
+	{
+		drawVRUserNode();
+		//updateVRUserNode();
+	}
+
+	</script>
+	<!-- D3.js visualization implementation END. -->
+
+</body>
+
+</html>

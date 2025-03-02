@@ -1,0 +1,288 @@
+/*
+Theme Name: reski.nicoversity Theme
+Theme URI: http://reski.nicoversity.com
+Description: Theme for the reski.nicoversity.com
+Version: 0.1
+Tags: nicoversity
+Author: Nico Reski
+Author URI: http://reski.nicoversity.com
+
+	nicoversity Teaser Theme
+	http://reski.nicoversity.com
+
+	This theme was designed and built by Nico Reski
+
+	The CSS, XHTML and design is released under GPL:
+	http://www.opensource.org/licenses/gpl-license.php
+
+	Third-party resources:
+	http://drinchev.github.io/monosocialiconsfont/
+	http://fancyapps.com/fancybox/
+*/
+
+@font-face {
+    font-family: 'Mono Social Icons Font';
+    src: url('MonoSocialIconsFont-1.10.eot');
+    src: url('MonoSocialIconsFont-1.10.eot?#iefix') format('embedded-opentype'),
+         url('MonoSocialIconsFont-1.10.woff') format('woff'),
+         url('MonoSocialIconsFont-1.10.ttf') format('truetype'),
+         url('MonoSocialIconsFont-1.10.svg#MonoSocialIconsFont') format('svg');
+    src: url('MonoSocialIconsFont-1.10.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+.symbol, a.symbol:before {
+    font-family: 'Mono Social Icons Font';
+    -webkit-text-rendering: optimizeLegibility;
+    -moz-text-rendering: optimizeLegibility;
+    -ms-text-rendering: optimizeLegibility;
+    -o-text-rendering: optimizeLegibility;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-font-smoothing: antialiased;
+    -ms-font-smoothing: antialiased;
+    -o-font-smoothing: antialiased;
+    font-smoothing: antialiased;
+}
+
+a.symbol:before {
+    content: attr(title);
+    margin-right: 0.3em;
+    font-size: 130%;
+}
+
+a.symbol {
+    background: #7D7D7D;
+    padding: 7px 5px 3px 5px;
+    color: white;
+    text-decoration: none;
+}
+
+html, body
+{
+	font: normal 11px menlo,'andale mono','courier new',sans-serif;
+	/*font: normal 12px Helvetica Neue, Helvetica, Arial, sans-serif;*/
+	line-height: 1.8em;
+	letter-spacing: 0px;
+	font-weight: 400;
+	font-style: normal;
+	background: #ffffff;
+	color: #333333;
+	display: block;
+}
+
+#headerWrapper
+{
+	vertical-align: middle;
+	text-align: center;
+	margin-bottom: 0px;
+}
+
+#navBlock nav
+{
+	font-family: 'Mono Social Icons Font';
+	width: auto;
+	text-align: center;
+	border-bottom: 1px solid rgba(197, 27, 27, 0);
+	border-top: 1px solid rgba(197, 27, 27, 0);
+	margin: 0;
+	padding: 28px 0;
+}
+
+#navBlock nav ul li
+{
+	display: inline-block;
+	text-align: center;
+	padding: 0 .8em;
+}
+
+#navBlock nav ul
+{
+	font-size: 18px;
+	line-height: 1.5em;
+}
+
+#site
+{
+	margin: 0 auto;
+	padding: 7px;
+}
+
+#canvas
+{
+	padding: 0;
+	max-width: 680px;
+	margin: 0 auto;
+}
+
+div
+{
+	display: block;
+}
+
+ul
+{
+	display: block;
+	list-style-type: disc;
+	-webkit-margin-before: 1em;
+	-webkit-margin-after: 1em;
+	-webkit-margin-start: 0px;
+	-webkit-margin-end: 0px;
+	-webkit-padding-start: 40px;
+}
+
+a:link
+{
+	color:#7D7D7D;
+	text-decoration: none;
+}
+
+a:visited
+{
+	color:#7D7D7D;
+	text-decoration: none;
+}
+
+a:hover
+{
+	color:#AFAFAF;
+	text-decoration: none;
+}
+
+a:active
+{
+	color:#AFAFAF;
+	text-decoration: none;
+}
+
+.activePage a:link
+{
+	color: #0c5a81;
+	text-decoration: none;
+}
+
+.activePage a:visited
+{
+	color: #0c5a81;
+	text-decoration: none;
+}
+
+.activePage a:hover
+{
+	color:#1d9ddd;
+	text-decoration: none;
+}
+
+.activePage a:active
+{
+	color:#1d9ddd;
+	text-decoration: none;
+}
+
+h1
+{
+	font-family: 'Mono Social Icons Font';
+	font-size: 22px;
+	margin: 0 0 28px;
+}
+
+h3
+{
+	margin-top: 28px;
+}
+
+#socialFooter
+{
+	text-align: center;
+}
+
+#socialFooter ul li
+{
+	display: inline-block;
+	padding: 0 .8em;
+}
+
+#socialFooter ul
+{
+	font-size: 28px;
+	line-height: 1.5em;
+	padding: 0 0 0 0px;
+}
+
+.listing div
+{
+	padding-bottom: 20px;
+}
+
+.block
+{
+	position: relative;
+	clear: both;
+	height: auto;
+	outline: 1px solid transparent;
+	-webkit-transition: outline .1s ease-in-out;
+	-moz-transition: outline .1s ease-in-out;
+	-o-transition: outline .1s ease-in-out;
+	transition: outline .1s ease-in-out;
+	padding-top: 14px;
+	padding-bottom: 17px;
+	padding-left: 17px;
+	padding-right: 17px;
+}
+
+.block-content
+{
+	outline: none;
+	text-align: justify;
+}
+
+.image-block-wrapper
+{
+	line-height: 0;
+	text-align: center;
+	position: relative;
+	overflow: hidden;
+	padding-bottom: 14px;
+}
+
+.image-block-wrapper img
+{
+	top: 0;
+	left: 0;
+	max-width: none;
+}
+
+.text-align-center
+{
+	text-align: center;
+}
+
+.text-align-left
+{
+	text-align: left;
+}
+
+.listing
+{
+	padding-top: 14px;
+	padding-bottom: 14px;
+	padding-left: 17px;
+	padding-right: 17px;
+}
+
+.video-wrapper
+{
+	position: relative;
+	top: 0;
+	left: 0;
+	width: 100%;
+	max-width: 100%;
+	padding-top: 14px;
+	padding-bottom: 14px;
+}
+
+.video-wrapper iframe
+{
+	max-width: 100%;
+}

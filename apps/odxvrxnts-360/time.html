@@ -1,0 +1,256 @@
+<!--
+#   VRxAR Labs | ODXVRxNTS 360 Viewer
+#
+#   Author: Nico Reski
+#   Email: nico.reski@lnu.se
+#   Web: https://vrxar.lnu.se/apps/odxvrxnts-360/
+#
+#   Pannellum version: 2.4.0
+-->
+
+<!DOCTYPE HTML>
+
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ODXVRxNTS: 360 Viewer - VRxAR Labs</title>
+    <link rel="stylesheet" href="lib/pannellum.css"/>
+    <script type="text/javascript" src="lib/pannellum.js" charset="utf-8"></script>
+
+    <style type="text/css">
+        #panorama {
+            width:  100%;
+            height: 500px;
+        }
+
+        /* Panorama element size adjustment based on device's screen size. */
+        @media not screen and (max-width: 1024px) {
+            #panorama {
+                height: 576px;
+            }
+        }
+
+        @media not screen and (max-width: 1280px) {
+            #panorama {
+                height: 720px;
+            }
+        }
+
+        @media not screen and (max-width: 1600px) {
+            #panorama {
+                height: 900px;
+            }
+        }
+
+        @media not screen and (max-width: 1920px) {
+            #panorama {
+                height: 1080px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div id="panorama"></div>
+
+    <script>
+
+        // init default settings (show information panel)
+        //
+
+        var imageFileDirectory = "images/time-demo/infoPanel/";         // image file directory
+        var hotSpotPositions = [ [-32.0, -109.0], [-31.0, -127.0] ];    // hot spot positions [ [forward pitch, yaw], [backward pitch, yaw] ]
+
+
+        // determine whether default settings need to be overridden (hide information panel)
+        //
+
+        var appURLString = window.location.href;        // grab url that was used to open this web app
+        var appURL = new URL(appURLString);             // create URL object
+        var ip = appURL.searchParams.get("ip");         // extract url argument "ip" (= information panel)
+        if (ip == "false")
+        {
+            imageFileDirectory = "images/time-demo/noInfoPanel/";
+            hotSpotPositions = [ [-36.0, -112.0], [-33.0, -131.0] ];
+        }
+
+        // load 360 image
+        //
+
+        // determine whether the page is viewn in portrait (typical for mobile) or landscape (typical for desktop) mode
+        // and adjust field of view accordingly
+        var computedHFOV = (screen.width > screen.height) ? 110 : 40;
+
+        // create 360 viewer and load images
+		var panViewer = pannellum.viewer('panorama', {   
+		    "default": {
+		        "firstScene": "w21",
+		        "sceneFadeDuration": 0,
+		        "autoLoad": true,
+		        "orientationOnByDefault": false
+		    },
+
+		    "scenes": {
+		        "w21": {
+		            "hfov": computedHFOV,
+		            "pitch": -25,
+		            "yaw": -95,
+		            "type": "equirectangular",
+		            "panorama": imageFileDirectory + "2019-01-29_w21.jpg",
+		            "hotSpots": [
+		                {
+							"pitch": hotSpotPositions[0][0],
+                    		"yaw": hotSpotPositions[0][1],
+		                    "type": "scene",
+		                    "text": "Move forward in time (w22).",
+		                    "sceneId": "w22",
+                            "targetPitch": "same",
+                            "targetYaw": "same",
+                            "targetHfov": "same"
+		                }
+		            ]
+		        },
+		        "w22": {
+		            "hfov": computedHFOV,
+                    "pitch": -25,
+                    "yaw": -95,
+		            "type": "equirectangular",
+		            "panorama": imageFileDirectory + "2019-01-29_w22.jpg",
+		            "hotSpots": [
+		                {
+                            "pitch": hotSpotPositions[0][0],
+                            "yaw": hotSpotPositions[0][1],
+		                    "type": "scene",
+		                    "text": "Move forward in time (2017-w23).",
+		                    "sceneId": "w23",
+                            "targetPitch": "same",
+                            "targetYaw": "same",
+                            "targetHfov": "same"
+		                },
+		                {
+                            "pitch": hotSpotPositions[1][0],
+                            "yaw": hotSpotPositions[1][1],
+		                    "type": "scene",
+		                    "text": "Move backward in time (2017-w21).",
+		                    "sceneId": "w21",
+                            "targetPitch": "same",
+                            "targetYaw": "same",
+                            "targetHfov": "same"
+		                }
+		            ]
+		        },
+                "w23": {
+                    "hfov": computedHFOV,
+                    "pitch": -25,
+                    "yaw": -95,
+                    "type": "equirectangular",
+                    "panorama": imageFileDirectory + "2019-01-29_w23.jpg",
+                    "hotSpots": [
+                        {
+                            "pitch": hotSpotPositions[0][0],
+                            "yaw": hotSpotPositions[0][1],
+                            "type": "scene",
+                            "text": "Move forward in time (2017-w24).",
+                            "sceneId": "w24",
+                            "targetPitch": "same",
+                            "targetYaw": "same",
+                            "targetHfov": "same"
+                        },
+                        {
+                            "pitch": hotSpotPositions[1][0],
+                            "yaw": hotSpotPositions[1][1],
+                            "type": "scene",
+                            "text": "Move backward in time (2017-w22).",
+                            "sceneId": "w22",
+                            "targetPitch": "same",
+                            "targetYaw": "same",
+                            "targetHfov": "same"
+                        }
+                    ]
+                },
+                "w24": {
+                    "hfov": computedHFOV,
+                    "pitch": -25,
+                    "yaw": -95,
+                    "type": "equirectangular",
+                    "panorama": imageFileDirectory + "2019-01-29_w24.jpg",
+                    "hotSpots": [
+                        {
+                            "pitch": hotSpotPositions[0][0],
+                            "yaw": hotSpotPositions[0][1],
+                            "type": "scene",
+                            "text": "Move forward in time (2017-w25).",
+                            "sceneId": "w25",
+                            "targetPitch": "same",
+                            "targetYaw": "same",
+                            "targetHfov": "same"
+                        },
+                        {
+                            "pitch": hotSpotPositions[1][0],
+                            "yaw": hotSpotPositions[1][1],
+                            "type": "scene",
+                            "text": "Move backward in time (2017-w23).",
+                            "sceneId": "w23",
+                            "targetPitch": "same",
+                            "targetYaw": "same",
+                            "targetHfov": "same"
+                        }
+                    ]
+                },
+                "w25": {
+                    "hfov": computedHFOV,
+                    "pitch": -25,
+                    "yaw": -95,
+                    "type": "equirectangular",
+                    "panorama": imageFileDirectory + "2019-01-29_w25.jpg",
+                    "hotSpots": [
+                        {
+                            "pitch": hotSpotPositions[0][0],
+                            "yaw": hotSpotPositions[0][1],
+                            "type": "scene",
+                            "text": "Move forward in time (2017-w26).",
+                            "sceneId": "w26",
+                            "targetPitch": "same",
+                            "targetYaw": "same",
+                            "targetHfov": "same"
+                        },
+                        {
+                            "pitch": hotSpotPositions[1][0],
+                            "yaw": hotSpotPositions[1][1],
+                            "type": "scene",
+                            "text": "Move backward in time (2017-w24).",
+                            "sceneId": "w24",
+                            "targetPitch": "same",
+                            "targetYaw": "same",
+                            "targetHfov": "same"
+                        }
+                    ]
+                },
+		        "w26": {
+		            "hfov": computedHFOV,
+                    "pitch": -25,
+                    "yaw": -95,
+		            "type": "equirectangular",
+		            "panorama": imageFileDirectory + "2019-01-29_w26.jpg",
+		            "hotSpots": [
+		                {
+                            "pitch": hotSpotPositions[1][0],
+                            "yaw": hotSpotPositions[1][1],
+		                    "type": "scene",
+		                    "text": "Move backward in time (2017-w25).",
+		                    "sceneId": "w25",
+                            "targetPitch": "same",
+                            "targetYaw": "same",
+                            "targetHfov": "same"
+		                }
+		            ]
+		        }
+		    }
+		});
+
+    </script>
+</body>
+
+</html>

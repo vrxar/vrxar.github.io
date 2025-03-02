@@ -1,0 +1,273 @@
+<!--
+#   "Oh, that’s where you are!" - Towards a Hybrid Asymmetric Collaborative Immersive Analytics System: 360 Viewer
+#
+#   Academic reference:
+#   Nico Reski, Aris Alissandrakis, Jukka Tyrkkö, and Andreas Kerren. 2020. “Oh, that’s where you are!” – Towards a Hybrid Asymmetric Collaborative Immersive Analytics System. In NordiCHI 2020: The 11th Nordic Conference on Human-Computer Interaction, October 25–29, 2020, Tallinn, Estonia. ACM, New York, NY, USA, 12 pages. DOI: 10.1145/3419249.3420102
+#
+#   Developed using:
+#   Pannellum version: 2.4.0
+-->
+
+<!DOCTYPE HTML>
+
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>"Oh, that’s where you are!" - Towards a Hybrid Asymmetric Collaborative Immersive Analytics System: 360&#176; Viewer</title>
+    <link rel="stylesheet" href="lib/pannellum.css"/>
+    <script type="text/javascript" src="lib/pannellum.js" charset="utf-8"></script>
+
+    <style type="text/css">
+        #panorama {
+            width:  100%;
+            height: 500px;
+        }
+
+        /* Panorama element size adjustment based on device's screen size. */
+        @media not screen and (max-width: 1024px) {
+            #panorama {
+                height: 576px;
+            }
+        }
+
+        @media not screen and (max-width: 1280px) {
+            #panorama {
+                height: 720px;
+            }
+        }
+
+        @media not screen and (max-width: 1600px) {
+            #panorama {
+                height: 900px;
+            }
+        }
+
+        @media not screen and (max-width: 1920px) {
+            #panorama {
+                height: 1080px;
+            }
+        }
+
+
+        html, body
+        {
+            font: normal 14px menlo,'andale mono','courier new',sans-serif;
+            /*font: normal 12px Helvetica Neue, Helvetica, Arial, sans-serif;*/
+            line-height: 1.8em;
+            letter-spacing: 0px;
+            font-weight: 400;
+            font-style: normal;
+            background: #ffffff;
+            color: #333333;
+            display: block;
+        }
+
+        a:link
+        {
+            color:#7D7D7D;
+            text-decoration: none;
+        }
+
+        a:visited
+        {
+            color:#7D7D7D;
+            text-decoration: none;
+        }
+
+        a:hover
+        {
+            color:#AFAFAF;
+            text-decoration: none;
+        }
+
+        a:active
+        {
+            color:#AFAFAF;
+            text-decoration: none;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="title">
+        <p>
+            "Oh, that’s where you are!" - Towards a Hybrid Asymmetric Collaborative Immersive Analytics System: 360&#176; Viewer
+        </p>
+    </div>
+
+    <div id="panorama"></div>
+
+    <div id="links">
+        <p>
+            <b>Available Scenes:</b> <br />
+            1. <a href="index.html">Load Default Scene</a>: Overview of the VR application with all elements annotated (<i>as illustrated in Figure 1</i>). <br />
+            2. <a href="index.html?sid=bm">Load Bookmark Scene</a>: Illustration of the view with bookmarked / annotated data nodes in VR (<i>as illustrated in Figure 3</i>). <br />
+        </p>
+    </div>
+
+    <hr>
+
+    <div id="academicreference">
+        <p>
+            <b>Academic Reference:</b> <br />
+            Nico Reski, Aris Alissandrakis, Jukka Tyrkkö, and Andreas Kerren. 2020. “Oh, that’s where you are!” – Towards a Hybrid Asymmetric Collaborative Immersive Analytics System, in <i> Proceedings of the 11 Nordic Conference on Human-Computer Interaction: Shaping Experiences, Shaping Society</i> (NordiCHI 2020). October 25–29, 2020, Tallinn, Estonia. pp 5:1-5:12. DOI: <a href="https://doi.org/10.1145/3419249.3420102" target="_BLANK">10.1145/3419249.3420102</a>
+        </p>
+    </div>
+
+    <div id="authorstatement">
+        <p>
+            <b>Author Statement:</b> <br />
+            This web page features supplemental media material referred to in the scientific publication listed above.
+        </p>
+    </div>
+
+    <div id="researchgroupreferences">
+        <p>
+            <b>Author Research Groups:</b> <br />
+            <a href="../../index.html" target="_blank">VRxAR Labs</a>, Linnaeus University, Sweden.<br />
+            <a href="https://cs.lnu.se/isovis/" target="_blank">ISOVIS</a>, Linneaus University, Sweden.
+        </p>
+    </div>
+
+    <script>
+
+        // retrieve URL parameter references
+        //
+
+        var appURLString = window.location.href;        // grab url that was used to open this web app
+        var appURL = new URL(appURLString);             // create URL object
+
+
+        // determine which screenshot (= scene) to load
+        var sceneID = appURL.searchParams.get("sid");           // extract url argument "sid" (= scene id)
+
+        // prepare image file path and hotspot data according to determine scene id
+        var imageFilePath = "";                                 // string to store file path of loaded image
+        var hotspotData = null;                                 // variable potentially holding hotspot data
+
+
+        switch(sceneID)
+        {
+            // bookmark annotation scene: illustrating the view in VR with bookmark and pillar
+            case "bm":
+                imageFilePath = "images/360-bookmark.jpg";
+                hotspotData = [
+                    {
+                        "pitch": 0.0,
+                        "yaw": -82.0,
+                        "type": "info",
+                        "text": "Semi-transparent white pillar: Node selected by the non-immersed user using the web application to point the VR user to a node of interest (spatial referencing)."
+                    },
+                    {
+                        "pitch": -7.0,
+                        "yaw": -35.0,
+                        "type": "info",
+                        "text": "Pin: Node selected by the immersed user directly in VR to point the non-immersed user to a node of interest (that is highlighted accordingly in the web application interface; spatial referencing)."
+                    }
+                ];
+                break;
+
+            // default scene: overview of the VR application with all elements annotated
+            case "default":
+            default:
+                imageFilePath = "images/360-overview.jpg";
+                hotspotData = [
+                    {
+                        "pitch": -31.0,
+                        "yaw": -22.0,
+                        "type": "info",
+                        "text": "3D gestural input: The hands of the VR user are detected, then displayed, and translated into the virtual 3D space accordingly, live and in real-time, enabling interaction using hand postures and gestures."
+                    },
+                    {
+                        "pitch": -37.0,
+                        "yaw": -35.0,
+                        "type": "info",
+                        "text": "Interaction Pause Menu: Attached to the VR user's right-hand palm is a menu with one button, allowing the user to turn off/on the possibility to interact with the data in the immersive environment. This is helpful when the user wants to take a step back to simply observe the data or talk to a peer while gesturing and pointing without the intend to interact with the system itself."
+                    },
+                    {
+                        "pitch": 6.0,
+                        "yaw": -50.0,
+                        "type": "info",
+                        "text": "Information Panel - Center: Display a preview of the most frequent hashtags used within the tweets in the currently selected cluster. The preview is formatted as a tag cloud. The color of the hashtag indicates the language of the tweet it was detected in."
+                    },
+                    {
+                        "pitch": 6.0,
+                        "yaw": -90.0,
+                        "type": "info",
+                        "text": "Information Panel - Left: Display additional information about the currently selected cluster, for instance the total amount of tweets, the time of the presented data, as well as all unique location names that are contained within the currently selected cluster."
+                    },
+                    {
+                        "pitch": 6.0,
+                        "yaw": -12.0,
+                        "type": "info",
+                        "text": "Information Panel - Right: Display the detailed language distribution of the selected cluster (language name and its assigned color, share in percentage, amount of tweets)."
+                    },
+                    {
+                        "pitch": -43.0,
+                        "yaw": -47.0,
+                        "type": "info",
+                        "text": "Selected cluster: The cluster selected by the VR user is outlined with a red wire frame, while all other clusters feature a black wire frame."
+                    },
+                    {
+                        "pitch": -14.0,
+                        "yaw": 42.0,
+                        "type": "info",
+                        "text": "Cluster: A cluster represents all Twitter traffic within a radius of 60 km as 'stacked cuboids'. Each stacked cuboid consists of four parts: the size of the top three stacks of the cuboid represent, in order, the three most frequent languages detected within the cluster, while the size of the fourth stack represents the sum of all remaining tweets in other languages than the top three."
+                    },
+                    {
+                        "pitch": -50.0,
+                        "yaw": -56.0,
+                        "type": "info",
+                        "text": "Elevated cluster: Clusters in close proximity will get raised up approximately to the VR user's chest height to facilitate interaction under consideration of human factors and ergonomics. The cluster's shadow is projected to the virtual floor in order to keep a visual indication of its exact location."
+                    },
+                    {
+                        "pitch": -18.0,
+                        "yaw": 34.0,
+                        "type": "info",
+                        "text": "Nordic countries: The five Nordic countries (Denmark, Finland, Iceland, Norway, Sweden) are displayed, color-coded, on the floor within the virtual three-dimensional (3D) space."
+                    },
+                    {
+                        "pitch": -12.0,
+                        "yaw": 47.0,
+                        "type": "info",
+                        "text": "Cluster height: Each stacked cuboid's height is scaled according to the total amount of tweets within that cluster (the more tweets, the higher the cuboid, using a logarithmic scale)."
+                    }
+                ];
+                break;
+        }
+
+        // reset hotspot data (if it should not be displayed)
+        //
+        
+        var annotated = appURL.searchParams.get("annot");       // extract url argument "annot" (= annotation)
+        if (annotated == "false")
+        {
+            hotspotData = null;
+        }
+
+
+        // load 360 image
+        //
+
+        // determine whether the page is viewn in portrait (typical for mobile) or landscape (typical for desktop) mode
+        // and adjust field of view accordingly
+        var computedHFOV = (screen.width > screen.height) ? 110 : 40;
+
+        // create 360 viewer and load image
+        pannellum.viewer('panorama', {
+            "type": "equirectangular",
+            "panorama": imageFilePath,
+            "autoLoad": true,
+            "orientationOnByDefault": true,
+            "yaw" : -50.0,               // default: 0
+            "pitch": -10.0,            // default: 0
+            "hfov": computedHFOV,           // default: 100
+            "hotSpots": hotspotData
+        });
+    </script>
+</body>
+
+</html>

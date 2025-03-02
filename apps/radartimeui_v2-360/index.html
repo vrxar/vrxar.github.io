@@ -1,0 +1,229 @@
+<!--
+#   VRxAR Labs | Designing a 3D Gestural Interface to Support User Interaction with Time-Oriented Data as Immersive 3D Radar Charts -  360 Viewer
+#
+#   Author: Nico Reski
+#   Email: nico.reski@lnu.se
+#   Web: https://vrxar.lnu.se/apps/radartimeui-360/
+#
+#   Pannellum version: 2.4.0
+-->
+
+<!DOCTYPE HTML>
+
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Designing a 3D Gestural Interface to Support User Interaction with Time-Oriented Data as Immersive 3D Radar Charts: 360 Viewer - VRxAR Labs</title>
+    <link rel="stylesheet" href="lib/pannellum.css"/>
+    <script type="text/javascript" src="lib/pannellum.js" charset="utf-8"></script>
+
+    <style type="text/css">
+        #panorama {
+            width:  100%;
+            height: 500px;
+        }
+
+        /* Panorama element size adjustment based on device's screen size. */
+        @media not screen and (max-width: 1024px) {
+            #panorama {
+                height: 576px;
+            }
+        }
+
+        @media not screen and (max-width: 1280px) {
+            #panorama {
+                height: 720px;
+            }
+        }
+
+        @media not screen and (max-width: 1600px) {
+            #panorama {
+                height: 900px;
+            }
+        }
+
+        @media not screen and (max-width: 1920px) {
+            #panorama {
+                height: 1080px;
+            }
+        }
+
+
+        html, body
+        {
+            font: normal 14px menlo,'andale mono','courier new',sans-serif;
+            /*font: normal 12px Helvetica Neue, Helvetica, Arial, sans-serif;*/
+            line-height: 1.8em;
+            letter-spacing: 0px;
+            font-weight: 400;
+            font-style: normal;
+            background: #ffffff;
+            color: #333333;
+            display: block;
+        }
+
+        a:link
+        {
+            color:#7D7D7D;
+            text-decoration: none;
+        }
+
+        a:visited
+        {
+            color:#7D7D7D;
+            text-decoration: none;
+        }
+
+        a:hover
+        {
+            color:#AFAFAF;
+            text-decoration: none;
+        }
+
+        a:active
+        {
+            color:#AFAFAF;
+            text-decoration: none;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="title">
+        <p>
+            Designing a 3D Gestural Interface to Support User Interaction with Time-Oriented Data as Immersive 3D Radar Charts: 360 Viewer - VRxAR Labs
+        </p>
+    </div>
+
+    <div id="panorama"></div>
+
+    <div id="links">
+        <p>
+            <b>Available Scenes:</b> <br />
+            1. <a href="/apps/radartimeui_v2-360/">Time Slice grab v1</a><br />
+            2. <a href="/apps/radartimeui_v2-360/?sid=2">Time Slice grab v2</a><br />
+            3. <a href="/apps/radartimeui_v2-360/?sid=3">Sort v1</a><br />
+            4. <a href="/apps/radartimeui_v2-360/?sid=4">Sort v2</a><br />
+            5. <a href="/apps/radartimeui_v2-360/?sid=5">Filter v1</a><br />
+            6. <a href="/apps/radartimeui_v2-360/?sid=6">Filter v2</a><br />
+            7. <a href="/apps/radartimeui_v2-360/?sid=7">Filter release</a><br />
+            8. <a href="/apps/radartimeui_v2-360/?sid=8">Reset</a><br />
+            9. <a href="/apps/radartimeui_v2-360/?sid=9">Travel</a><br />
+        </p>
+    </div>
+
+    <div id="home">
+        <p>
+            <b>Research group web page:</b> <a href="/">VRxAR Labs</a> <br />
+        </p>
+    </div>
+
+    <div id="updated">
+        <p>
+            <b>Updated:</b> 2022-05-25 <br />
+        </p>
+    </div>
+
+    <script>
+
+        // retrieve URL parameter references
+        //
+
+        var appURLString = window.location.href;        // grab url that was used to open this web app
+        var appURL = new URL(appURLString);             // create URL object
+
+
+        // determine which screenshot (= scene) to load
+        var sceneID = appURL.searchParams.get("sid");           // extract url argument "sid" (= scene id)
+
+        // prepare image file path and hotspot data according to determine scene id
+        var imageFilePath = "";                                 // string to store file path of loaded image
+        var hotspotData = null;                                 // variable potentially holding hotspot data
+
+        switch(sceneID)
+        {
+            case "2":
+                imageFilePath = "images/2_timeslice_grab.png";
+                hotspotData = [];
+                break;
+
+            case "3":
+                imageFilePath = "images/3_sort.png";
+                hotspotData = [];
+                break;
+
+            case "4":
+                imageFilePath = "images/4_sort.png";
+                hotspotData = [];
+                break;
+
+            case "5":
+                imageFilePath = "images/5_filter.png";
+                hotspotData = [];
+                break;
+
+            case "6":
+                imageFilePath = "images/6_filter.png";
+                hotspotData = [];
+                break;
+
+            case "7":
+                imageFilePath = "images/7_filter_release.png";
+                hotspotData = [];
+                break;
+                
+            case "8":
+                imageFilePath = "images/8_reset.png";
+                hotspotData = [];
+                break;
+
+            case "9":
+                imageFilePath = "images/9_travel.png";
+                hotspotData = [];
+                break;
+
+            // default scene: overview of the VR application with all elements annotated
+            case "default":
+            default:
+                imageFilePath = "images/1_timeslice_grab.png";
+                hotspotData = [ ];
+                break;
+        }
+
+
+        // reset hotspot data (if it should not be displayed)
+        //
+        
+        var annotated = appURL.searchParams.get("annot");       // extract url argument "annot" (= annotation)
+        if (annotated == "false")
+        {
+            hotspotData = null;
+        }
+
+
+        // load 360 image
+        //
+
+        // determine whether the page is viewn in portrait (typical for mobile) or landscape (typical for desktop) mode
+        // and adjust field of view accordingly
+        var computedHFOV = (screen.width > screen.height) ? 110 : 40;
+
+        // create 360 viewer and load image
+        pannellum.viewer('panorama', {
+            "type": "equirectangular",
+            "panorama": imageFilePath,
+            "autoLoad": true,
+            "orientationOnByDefault": true,
+            "yaw" : 0.0,               // default: 0
+            "pitch": -25.0,            // default: 0
+            "hfov": computedHFOV,           // default: 100
+            "hotSpots": hotspotData
+        });
+    </script>
+
+</body>
+
+</html>

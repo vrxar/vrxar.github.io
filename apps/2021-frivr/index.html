@@ -1,0 +1,2043 @@
+<!--
+#	An Empirical Evaluation of Asymmetric Synchronous Collaboration Combining Immersive and Non-Immersive Interfaces Within the Context of Immersive Analytics : Collaboration Pathway Visualization
+#
+#	Academic reference:
+#	Nico Reski, Aris Alissandrakis and Andreas Kerren. 2021. An Empirical Evaluation of Asymmetric Synchronous Collaboration Combining Immersive and Non-Immersive Interfaces Within the Context of Immersive Analytics. Frontiers in Virtual Reality.
+#
+#	Developed using:
+#	Three.js revision: 129
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<title>VRxAR Labs -  Collaboration Pathway Visualization</title>
+		
+		<style type="text/css">
+		
+			html, body
+			{
+				font: normal 14px menlo,'andale mono','courier new',sans-serif;
+				/*font: normal 12px Helvetica Neue, Helvetica, Arial, sans-serif;*/
+				line-height: 1.8em;
+				letter-spacing: 0px;
+				font-weight: 400;
+				font-style: normal;
+				background: #ffffff;
+				color: #333333;
+				display: block;
+
+				margin: 4px;
+			}
+
+			a:link
+			{
+				color:#7D7D7D;
+				text-decoration: none;
+			}
+
+			a:visited
+			{
+				color:#7D7D7D;
+				text-decoration: none;
+			}
+
+			a:hover
+			{
+				color:#AFAFAF;
+				text-decoration: none;
+			}
+
+			a:active
+			{
+				color:#AFAFAF;
+				text-decoration: none;
+			}
+
+			.button {
+				border: none;
+				color: white;
+				padding: 10px 14px;
+				text-align: center;
+				text-decoration: none;
+				display: inline-block;
+				font-size: 16px;
+				margin: 6px 0px 0px 0px;
+				transition-duration: 0.4s;
+				cursor: pointer;
+			}
+
+			.button4pair {
+				background-color: white; 
+				color: black; 
+				border: 2px solid #a1d99b;
+			}
+
+			.button4pair:hover {
+				background-color: #a1d99b;
+				color: white;
+			}
+
+			.button4controls {
+				background-color: white; 
+				color: black; 
+				border: 2px solid #bdbdbd;
+			}
+
+			.button4controls:hover {
+				background-color: #bdbdbd;
+				color: white;
+			}
+
+			#datainfolabel {
+				position: absolute;
+				top: 80px;
+				left: 20px;
+				width: 100%;
+				text-align: left;
+				z-index: 100;
+				display:block;
+				font-weight: bold;
+			}
+
+			#usercolorinfolabel {
+				position: absolute;
+				top: 100px;
+				left: 20px;
+				width: 100%;
+				text-align: left;
+				z-index: 100;
+				display:block;
+				font-weight: bold;
+			}
+
+			span[data-color="vr_user"] {
+				color: #d73027;
+			}
+
+			span[data-color="web_user"] {
+				color: #4575b4;
+			}
+
+		</style>
+	</head>
+	<body>
+
+		<div id="title">
+			<p>
+			Asymmetric Collaboration Combining Immersive and Non-Immersive Interfaces
+			</p>
+		</div>
+
+		<div id="threejsscene"></div>
+		<div id="datainfolabel">Description</div>
+		<div id="usercolorinfolabel"><span data-color="vr_user">VR</span> | <span data-color="web_user">Desktop</span></div>
+
+		<div id="buttons">
+			<button class="button button4pair" onclick="displayPathwaysForPair(1,1)">P1F</button>
+			<button class="button button4pair" onclick="displayPathwaysForPair(1,2)">P1V</button>
+			<button class="button button4pair" onclick="displayPathwaysForPair(2,1)">P2F</button>
+			<button class="button button4pair" onclick="displayPathwaysForPair(2,2)">P2V</button>
+			<button class="button button4pair" onclick="displayPathwaysForPair(3,1)">P3F</button>
+			<button class="button button4pair" onclick="displayPathwaysForPair(3,2)">P3V</button>
+			<button class="button button4pair" onclick="displayPathwaysForPair(4,1)">P4F</button>
+			<button class="button button4pair" onclick="displayPathwaysForPair(4,2)">P4V</button>
+			<button class="button button4pair" onclick="displayPathwaysForPair(5,1)">P5F</button>
+			<button class="button button4pair" onclick="displayPathwaysForPair(5,2)">P5V</button>
+			<br />
+			<!--<button class="button button4controls" id="button_resetCamera" onclick="resetCamera()">reset camera</button>-->
+			<button class="button button4controls" id="button_cameraFrontDown" onclick="cameraDefault()">default view</button>
+			<button class="button button4controls" id="button_cameraAngled" onclick="cameraAngled()">angled view</button>
+			<button class="button button4controls" id="button_cameraTopDown" onclick="cameraTopDown()">bird's-eye view</button>
+			<button class="button button4controls" id="button_cameraTopDown" onclick="cameraSideView()">side view</button>
+			<button class="button button4controls" id="button_toggleAutoRotate" onclick="toggleAutoRotate()">auto rotate off</button>
+		</div>
+
+		<div id="controls_desription">
+			<p>
+				<b>Mouse Controls:</b>
+				<span>Left-click + hold: <i>Rotate</i>. Right-click + hold: <i>Pan</i>. Mouse wheel: <i>Zoom in/out</i>.</span>
+			</p>
+		</div>
+
+		<hr>
+
+		<div id="academicreference">
+			<p>
+				<b>Academic Reference:</b> <br />
+				Nico Reski, Aris Alissandrakis and Andreas Kerren. 2021. An Empirical Evaluation of Asymmetric Synchronous Collaboration Combining Immersive and Non-Immersive Interfaces Within the Context of Immersive Analytics. <i>Frontiers in Virtual Reality</i>.
+			</p>
+		</div>
+
+		<div id="authorstatement">
+			<p>
+				<b>Author Statement:</b> <br />
+				This web page features supplemental media material referred to in the scientific publication listed above.
+			</p>
+		</div>
+
+		<div id="researchgroupreferences">
+			<p>
+	            <b>Author Research Groups:</b> <br />
+	            <a href="../../index.html" target="_blank">VRxAR Labs</a>, Linnaeus University, Sweden.<br />
+	            <a href="https://cs.lnu.se/isovis/" target="_blank">ISOVIS</a>, Linneaus University, Sweden.
+			</p>
+		</div>
+
+		<script type="module">
+
+			// === DOCUMENTATION / RESOURCES ===
+			// * https://threejs.org/docs/#manual/en/introduction/Creating-a-scene
+			// * https://threejs.org/docs/#manual/en/introduction/Drawing-lines
+			// * https://threejs.org/docs/#examples/en/controls/OrbitControls
+			// * https://threejs.org/examples/?q=fa#webgl_lines_fat
+			// =================================
+
+			// === API REFRENCES ===
+			// * https://threejs.org/docs/#api/en/scenes/Scene
+			// * https://threejs.org/docs/#api/en/math/Color
+			// * https://threejs.org/docs/#api/en/extras/core/Shape
+			// * https://threejs.org/docs/#api/en/math/Vector3
+			// * https://threejs.org/docs/#api/en/geometries/EdgesGeometry
+			// =================================
+
+
+			// import Three.js library and additional modules
+			//
+			import * as THREE from './lib/threejs/build/three.module.js';
+			import { OrbitControls } from './lib/threejs/examples/jsm/controls/OrbitControls.js';
+
+			import { Line2 } from './lib/threejs/examples/jsm/lines/Line2.js';
+			import { LineMaterial } from './lib/threejs/examples/jsm/lines/LineMaterial.js';
+			import { LineGeometry } from './lib/threejs/examples/jsm/lines/LineGeometry.js';
+
+
+			// === GLOBAL PROPERTIES === 
+			//
+			//const staticWindowWidth = 1400;
+			//const staticWindowHeight = 1000;
+			const staticWindowWidth = ( window.innerWidth < 2000 ) ? window.innerWidth : 2000;	// dynamically determine browser window width at start up (when the html file is opened); cap max at 2000 px
+			const staticWindowHeight = staticWindowWidth / 16 * 10;								// dynamically set height based on determined width value to feature 16:10 aspect ratio
+			let boundingBoxCenterFocusPoint = new THREE.Vector3(0, 0, 0);	// vector value is set as part of displayBoundingBoxAndInitCamera(), and used as the OrbitControls focus point
+			let boundingBoxDepth = 44.0; 	// value is set as part of displayBoundingBoxAndInitCamera()
+
+			const sceneObjectName_vrPathway = "scene-pathway_vr";
+			const sceneObjectName_webPathway = "scene-pathway_web";
+			const vrPathwayColor = new THREE.Color( 0xd73027 );
+			const webPathwayColor = new THREE.Color( 0x4575b4 );
+			const vrUserStartLocation = new THREE.Vector2( 14.0,38.0 );	// TODO 
+			const zStartOffset = 0.5;
+			const vrUserXOffset = -0.1;
+			const webUserXOffset = 0.1;
+
+			const isUsingLine2ForPathways = true;	// flag to determine whether to use the default line rendering or the advanced "fat lines"
+			const line2PathwayWidth = 0.004;
+
+
+			// retrieve URL parameter references
+			//
+			var appURLString = window.location.href;        // grab url that was used to open this web app
+			var appURL = new URL(appURLString);             // create URL object
+
+			// determine which pathway (= scene) to load
+			var pathwayId = appURL.searchParams.get("id");           // extract url argument "sid" (= scene id)
+
+
+			// === 3D Space and Camera controls setup === 
+			//
+
+			// scene
+			const scene = new THREE.Scene();
+			scene.background = new THREE.Color( 0x9ecae1 ); 
+			
+			// camera (PERSPECTIVE)
+			//const camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
+			//const camera = new THREE.PerspectiveCamera( 75, staticWindowWidth / staticWindowHeight, 0.1, 1000 );
+			////camera.lookAt(0, 0, 0);
+			//camera.up.set( 0, 0, 1 );
+
+			// camera (ORTHOGRAPHIC)
+			//const camera = new THREE.OrthographicCamera( staticWindowWidth / - 2, staticWindowWidth / 2, staticWindowHeight / 2, staticWindowHeight / - 2, 1, 1000 );
+			const camera = new THREE.OrthographicCamera( staticWindowWidth / - 2, staticWindowWidth / 2, staticWindowHeight / 2, staticWindowHeight / - 2, 0, 2000 );
+			camera.up.set( 0, 0, 1 );
+
+			// renderer
+			const renderer = new THREE.WebGLRenderer();
+			renderer.setSize( staticWindowWidth, staticWindowHeight );
+			//document.body.appendChild( renderer.domElement );
+
+			let threejsSceneDiv = document.getElementById( "threejsscene" );
+			if (threejsSceneDiv != null) threejsSceneDiv.appendChild( renderer.domElement );
+			else console.log('not found');
+
+			// Orbit Controls
+			const controls = new OrbitControls( camera, renderer.domElement );
+			//controls.minDistance = 2.0;			// perspective camera only
+			//controls.maxDistance = 140.0;			// perspective camera only
+			controls.minZoom = 2.0;
+			controls.maxZoom = 120.0;
+			controls.minPolarAngle = 0.0 * Math.PI;
+			controls.maxPolarAngle = 0.5 * Math.PI;
+			//controls.minAzimuthAngle = -1.0 * Math.PI;
+			//controls.maxAzimuthAngle = 1.0 * Math.PI;
+
+			// init bounding box
+			//controls.target = boundingBoxCenterFocusPoint;
+			//camera.position.set(boundingBoxCenterFocusPoint.x, boundingBoxCenterFocusPoint.y-50, 34);
+			//controls.update();
+
+
+			// === Country Mesh Rendering === 
+			//
+			// import and mesh creation based on rworldmap to three.js converted JavaScript files
+			// VT21 3D Radar Chart study locations
+			import * as MeshDataAlbania from './lib/rworldmap/MeshDataAlbania.js';
+			createCountryFromMeshDataAndAddToScene( MeshDataAlbania, scene );
+			import * as MeshDataAustria from './lib/rworldmap/MeshDataAustria.js';
+			createCountryFromMeshDataAndAddToScene( MeshDataAustria, scene );
+			import * as MeshDataBelarus from './lib/rworldmap/MeshDataBelarus.js';
+			createCountryFromMeshDataAndAddToScene( MeshDataBelarus, scene );
+			import * as MeshDataBelgium from './lib/rworldmap/MeshDataBelgium.js';
+			createCountryFromMeshDataAndAddToScene( MeshDataBelgium, scene );
+			import * as MeshDataBosniaandHerz from './lib/rworldmap/MeshDataBosniaandHerz.js';
+			createCountryFromMeshDataAndAddToScene( MeshDataBosniaandHerz, scene );
+			import * as MeshDataBulgaria from './lib/rworldmap/MeshDataBulgaria.js';
+			createCountryFromMeshDataAndAddToScene( MeshDataBulgaria, scene );
+			import * as MeshDataCroatia from './lib/rworldmap/MeshDataCroatia.js';
+			createCountryFromMeshDataAndAddToScene( MeshDataCroatia, scene );
+			import * as MeshDataCzechRep from './lib/rworldmap/MeshDataCzechRep.js';
+			createCountryFromMeshDataAndAddToScene( MeshDataCzechRep, scene );
+			import * as MeshDataDenmark from './lib/rworldmap/MeshDataDenmark.js';
+			createCountryFromMeshDataAndAddToScene( MeshDataDenmark, scene );
+			import * as MeshDataEstonia from './lib/rworldmap/MeshDataEstonia.js';
+			createCountryFromMeshDataAndAddToScene( MeshDataEstonia, scene );
+			import * as MeshDataFinland from './lib/rworldmap/MeshDataFinland.js';
+			createCountryFromMeshDataAndAddToScene( MeshDataFinland, scene );
+			import * as MeshDataFrance from './lib/rworldmap/MeshDataFrance.js';
+			createCountryFromMeshDataAndAddToScene( MeshDataFrance, scene );
+			import * as MeshDataGermany from './lib/rworldmap/MeshDataGermany.js';
+			createCountryFromMeshDataAndAddToScene( MeshDataGermany, scene );
+			import * as MeshDataGreece from './lib/rworldmap/MeshDataGreece.js';
+			createCountryFromMeshDataAndAddToScene( MeshDataGreece, scene );
+			import * as MeshDataHungary from './lib/rworldmap/MeshDataHungary.js';
+			createCountryFromMeshDataAndAddToScene( MeshDataHungary, scene );
+			import * as MeshDataIceland from './lib/rworldmap/MeshDataIceland.js';
+			createCountryFromMeshDataAndAddToScene( MeshDataIceland, scene );
+			import * as MeshDataIreland from './lib/rworldmap/MeshDataIreland.js';
+			createCountryFromMeshDataAndAddToScene( MeshDataIreland, scene );
+			import * as MeshDataItaly from './lib/rworldmap/MeshDataItaly.js';
+			createCountryFromMeshDataAndAddToScene( MeshDataItaly, scene );
+			import * as MeshDataKosovo from './lib/rworldmap/MeshDataKosovo.js';
+			createCountryFromMeshDataAndAddToScene( MeshDataKosovo, scene );
+			import * as MeshDataLatvia from './lib/rworldmap/MeshDataLatvia.js';
+			createCountryFromMeshDataAndAddToScene( MeshDataLatvia, scene );
+			import * as MeshDataLithuania from './lib/rworldmap/MeshDataLithuania.js';
+			createCountryFromMeshDataAndAddToScene( MeshDataLithuania, scene );
+			import * as MeshDataMalta from './lib/rworldmap/MeshDataMalta.js';
+			createCountryFromMeshDataAndAddToScene( MeshDataMalta, scene );
+			import * as MeshDataMoldova from './lib/rworldmap/MeshDataMoldova.js';
+			createCountryFromMeshDataAndAddToScene( MeshDataMoldova, scene );
+			import * as MeshDataMontenegro from './lib/rworldmap/MeshDataMontenegro.js';
+			createCountryFromMeshDataAndAddToScene( MeshDataMontenegro, scene );
+			import * as MeshDataNetherlands from './lib/rworldmap/MeshDataNetherlands.js';
+			createCountryFromMeshDataAndAddToScene( MeshDataNetherlands, scene );
+			import * as MeshDataMacedonia from './lib/rworldmap/MeshDataMacedonia.js';
+			createCountryFromMeshDataAndAddToScene( MeshDataMacedonia, scene );
+			import * as MeshDataNorway from './lib/rworldmap/MeshDataNorway.js';
+			createCountryFromMeshDataAndAddToScene( MeshDataNorway, scene );
+			import * as MeshDataPoland from './lib/rworldmap/MeshDataPoland.js';
+			createCountryFromMeshDataAndAddToScene( MeshDataPoland, scene );
+			import * as MeshDataPortugal from './lib/rworldmap/MeshDataPortugal.js';
+			createCountryFromMeshDataAndAddToScene( MeshDataPortugal, scene );
+			import * as MeshDataRomania from './lib/rworldmap/MeshDataRomania.js';
+			createCountryFromMeshDataAndAddToScene( MeshDataRomania, scene );
+			import * as MeshDataSerbia from './lib/rworldmap/MeshDataSerbia.js';
+			createCountryFromMeshDataAndAddToScene( MeshDataSerbia, scene );
+			import * as MeshDataSlovakia from './lib/rworldmap/MeshDataSlovakia.js';
+			createCountryFromMeshDataAndAddToScene( MeshDataSlovakia, scene );
+			import * as MeshDataSlovenia from './lib/rworldmap/MeshDataSlovenia.js';
+			createCountryFromMeshDataAndAddToScene( MeshDataSlovenia, scene );
+			import * as MeshDataSpain from './lib/rworldmap/MeshDataSpain.js';
+			createCountryFromMeshDataAndAddToScene( MeshDataSpain, scene );
+			import * as MeshDataSweden from './lib/rworldmap/MeshDataSweden.js';
+			createCountryFromMeshDataAndAddToScene( MeshDataSweden, scene );
+			import * as MeshDataSwitzerland from './lib/rworldmap/MeshDataSwitzerland.js';
+			createCountryFromMeshDataAndAddToScene( MeshDataSwitzerland, scene );
+			import * as MeshDataTurkey from './lib/rworldmap/MeshDataTurkey.js';
+			createCountryFromMeshDataAndAddToScene( MeshDataTurkey, scene );
+			import * as MeshDataUkraine from './lib/rworldmap/MeshDataUkraine.js';
+			createCountryFromMeshDataAndAddToScene( MeshDataUkraine, scene );
+			import * as MeshDataUnitedKingdom from './lib/rworldmap/MeshDataUnitedKingdom.js';
+			createCountryFromMeshDataAndAddToScene( MeshDataUnitedKingdom, scene );
+
+			// VT21 not used locations in Europe in VT21 study
+			//import * as MeshDataAndorra from './lib/rworldmap/MeshDataAndorra.js';
+			//createCountryFromMeshDataAndAddToScene( MeshDataAndorra, scene );
+			//import * as MeshDataArmenia from './lib/rworldmap/MeshDataArmenia.js';
+			//createCountryFromMeshDataAndAddToScene( MeshDataArmenia, scene );
+			//import * as MeshDataAzerbaijan from './lib/rworldmap/MeshDataAzerbaijan.js';
+			//createCountryFromMeshDataAndAddToScene( MeshDataAzerbaijan, scene );
+			//import * as MeshDataNCyprus from './lib/rworldmap/MeshDataNCyprus.js';
+			//createCountryFromMeshDataAndAddToScene( MeshDataNCyprus, scene );
+			//import * as MeshDataCyprus from './lib/rworldmap/MeshDataCyprus.js';
+			//createCountryFromMeshDataAndAddToScene( MeshDataCyprus, scene );
+			//import * as MeshDataGeorgia from './lib/rworldmap/MeshDataGeorgia.js';
+			//createCountryFromMeshDataAndAddToScene( MeshDataGeorgia, scene );
+			//import * as MeshDataKazakhstan from './lib/rworldmap/MeshDataKazakhstan.js';
+			//createCountryFromMeshDataAndAddToScene( MeshDataKazakhstan, scene );
+			//import * as MeshDataLiechtenstein from './lib/rworldmap/MeshDataLiechtenstein.js';
+			//createCountryFromMeshDataAndAddToScene( MeshDataLiechtenstein, scene );
+			import * as MeshDataLuxembourg from './lib/rworldmap/MeshDataLuxembourg.js';
+			createCountryFromMeshDataAndAddToScene( MeshDataLuxembourg, scene );
+			//import * as MeshDataMonaco from './lib/rworldmap/MeshDataMonaco.js';
+			//createCountryFromMeshDataAndAddToScene( MeshDataMonaco, scene );
+			//import * as MeshDataRussia from './lib/rworldmap/MeshDataRussia.js';
+			//createCountryFromMeshDataAndAddToScene( MeshDataRussia, scene );
+			//import * as MeshDataSanMarino from './lib/rworldmap/MeshDataSanMarino.js';
+			//createCountryFromMeshDataAndAddToScene( MeshDataSanMarino, scene );
+			//import * as MeshDataVatican from './lib/rworldmap/MeshDataVatican.js';
+			//createCountryFromMeshDataAndAddToScene( MeshDataVatican, scene );
+
+
+			// === Country Locations (Centroids) === 
+			//
+
+			const countryCentroids = {
+				Albania: 		new THREE.Vector2( 20.04982,41.14249 ),
+				Austria: 		new THREE.Vector2( 14.12642,47.58524 ),
+				Belarus: 		new THREE.Vector2( 28.03209,53.53137 ),
+				Belgium: 		new THREE.Vector2( 4.640651,50.63998) ,
+				BosniaandHerz: 	new THREE.Vector2( 17.76874,44.1745 ),
+				Bulgaria: 		new THREE.Vector2( 25.21548,42.76881 ),
+				Croatia: 		new THREE.Vector2( 16.42395,45.15948 ),
+				CzechRep: 		new THREE.Vector2( 15.31243,49.73346 ),
+				Denmark: 		new THREE.Vector2( 9.355992,56.24042 ),
+				Estonia: 		new THREE.Vector2( 25.83219,58.68573 ),
+				Finland: 		new THREE.Vector2( 26.28357,64.50504 ),
+				France: 		new THREE.Vector2( 2.452759,46.62007 ),
+				Germany: 		new THREE.Vector2( 10.37214,51.0876 ),
+				Greece: 		new THREE.Vector2( 22.58459,39.47906 ),
+				Hungary: 		new THREE.Vector2( 19.39556,47.16276 ),
+				Iceland: 		new THREE.Vector2( -18.57388,64.99539 ),
+				Ireland: 		new THREE.Vector2( -8.134511,53.17394 ),
+				Italy: 			new THREE.Vector2( 12.14883,43.52943 ),
+				Kosovo: 		new THREE.Vector2( 20.87246,42.57085 ),
+				Latvia: 		new THREE.Vector2( 24.91242,56.85076 ),
+				Lithuania: 		new THREE.Vector2( 23.89199,55.32607 ),
+				Malta: 			new THREE.Vector2( 14.44334,35.88985 ),
+				Moldova: 		new THREE.Vector2( 28.45664,47.19487 ),
+				Montenegro: 	new THREE.Vector2( 19.23882,42.78867 ),
+				Netherlands: 	new THREE.Vector2( 5.642114,52.28207 ),
+				Macedonia: 		new THREE.Vector2( 21.6821,41.59533 ),
+				Norway: 		new THREE.Vector2( 9.355992,61.0000 ),
+				Poland: 		new THREE.Vector2( 19.39011,52.12754 ),
+				Portugal: 		new THREE.Vector2( -7.977612,39.67736 ),
+				Romania: 		new THREE.Vector2( 24.97294,45.85243 ),
+				Serbia: 		new THREE.Vector2( 20.78954,44.22135 ),
+				Slovakia: 		new THREE.Vector2( 19.47906,48.70529 ),
+				Slovenia: 		new THREE.Vector2( 14.80441,46.11545 ),
+				Spain: 			new THREE.Vector2( -3.563367,40.39979 ),
+				Sweden: 		new THREE.Vector2( 16.7331,62.83818 ),
+				Switzerland: 	new THREE.Vector2( 8.208662,46.79768 ),
+				Turkey: 		new THREE.Vector2( 35.42208,38.99076 ),
+				Ukraine: 		new THREE.Vector2( 31.38308,48.99746 ),
+				UnitedKingdom: 	new THREE.Vector2( -2.506886,53.93774 )
+			}
+
+			//console.log(countryCentroids['Germany']);	// get location for Germany
+
+			// iterature through all centroids
+			for (const [key, value] of Object.entries(countryCentroids)) {
+				//console.log(key);
+				//console.log(value);
+				//console.log("====");
+
+				// ... and draw a tiny sphere at its location
+				const centroidSphereGeometry = new THREE.SphereGeometry( 0.2, 16, 16 );
+				const centroidSphereMaterial = new THREE.MeshBasicMaterial( {color: 0x000000} );
+				const centroidSphereMesh = new THREE.Mesh( centroidSphereGeometry, centroidSphereMaterial );
+				centroidSphereMesh.translateX(value.x);
+				centroidSphereMesh.translateY(value.y);
+				centroidSphereMesh.translateZ(0.4);
+				centroidSphereMesh.name = "Centroid-" + key;
+				scene.add( centroidSphereMesh );
+			}
+
+			// === Initial data loading ===
+			//
+			//createPathwaysPair2( 1 );
+			//let dataInfoLabelElement = document.getElementById( "datainfolabel" );
+			//dataInfoLabelElement.innerHTML = "Pair 2 : Fruits";
+
+			//displayBoundingBoxAndInitCamera( scene );
+
+			switch(pathwayId)
+			{
+				case "p1f":
+					createPathwaysPair1(1);
+					document.getElementById( "datainfolabel" ).innerHTML = "Pair 1 : Fruits";
+					break;
+				case "p1v":
+					createPathwaysPair1(2);
+					document.getElementById( "datainfolabel" ).innerHTML = "Pair 1 : Vegetables";
+					break;
+				case "p2f":
+					createPathwaysPair2(1);
+					document.getElementById( "datainfolabel" ).innerHTML = "Pair 2 : Fruits";
+					break;
+				case "p2v":
+					createPathwaysPair2(2);
+					document.getElementById( "datainfolabel" ).innerHTML = "Pair 2 : Vegetables";
+					break;
+				case "p3f":
+					createPathwaysPair3(1);
+					document.getElementById( "datainfolabel" ).innerHTML = "Pair 3 : Fruits";
+					break;
+				case "p3v":
+					createPathwaysPair3(2);
+					document.getElementById( "datainfolabel" ).innerHTML = "Pair 3 : Vegetables";
+					break;
+				case "p4f":
+					createPathwaysPair4(1);
+					document.getElementById( "datainfolabel" ).innerHTML = "Pair 4 : Fruits";
+					break;
+				case "p4v":
+					createPathwaysPair4(2);
+					document.getElementById( "datainfolabel" ).innerHTML = "Pair 4 : Vegetables";
+					break;
+				case "p5f":
+					createPathwaysPair5(1);
+					document.getElementById( "datainfolabel" ).innerHTML = "Pair 5 : Fruits";
+					break;
+				case "p5v":
+					createPathwaysPair5(2);
+					document.getElementById( "datainfolabel" ).innerHTML = "Pair 5 : Vegetables";
+					break;
+
+			default:
+				case "p3f":
+					createPathwaysPair3(1);
+					document.getElementById( "datainfolabel" ).innerHTML = "Pair 3 : Fruits";
+					break;
+			}
+
+			displayBoundingBoxAndInitCamera( scene );
+
+
+			// === PERFORM RENDERING === 
+			//
+			function animate() {
+				requestAnimationFrame( animate );
+
+				// required if controls.enableDamping or controls.autoRotate are set to true
+				controls.update();
+
+				// additional 3D object manipulations go in here
+
+				renderer.render( scene, camera );
+			}
+			animate();
+
+
+			// === HELPER FUNCTIONS === 
+			//
+
+			// create country mesh and add it to the scene
+			function createCountryFromMeshDataAndAddToScene( meshdata_class, scene )
+			{
+				const countryMeshData = meshdata_class.getMeshData();
+				for (let i = 0; i < countryMeshData.length; i++) { 
+
+					// create extruded country shape / mesh
+					const countryShape = new THREE.Shape( countryMeshData[i] );
+					const extrudeSettings = { depth: 0.2, bevelEnabled: true, bevelSegments: 1, steps: 0, bevelSize: 0, bevelThickness: 0 };
+					const countryGeometry = new THREE.ExtrudeGeometry( countryShape, extrudeSettings );
+					const countryMaterial = new THREE.MeshBasicMaterial( { color: 0xfff7bc } );
+					const countryMesh = new THREE.Mesh( countryGeometry, countryMaterial );
+					countryMesh.name = "" + countryMeshData;
+					scene.add( countryMesh );
+
+					// create visible edges for the created country
+					const countryShapeEdges = new THREE.EdgesGeometry( countryGeometry );
+					const countryShapeEdgesLine = new THREE.LineSegments( countryShapeEdges, new THREE.LineBasicMaterial( { color: 0x000000 } ) );
+					countryShapeEdgesLine.name = "" + countryMeshData + "-edges";
+					scene.add( countryShapeEdgesLine );
+				}
+			}
+
+			// display a bounding box and initialize camera controls
+			function displayBoundingBoxAndInitCamera( scene )
+			{
+				// dynamically determine latitude (x) and longitude (y) min and max centroids
+				let latMin = 10000.0;
+				let latMax = -10000.0;
+				let longMin = 10000.0;
+				let longMax = -10000.0;
+
+				// iterature through all centroids
+				for (const [key, value] of Object.entries(countryCentroids)) {
+					//console.log(key);
+					//console.log(value);
+					//console.log("====");
+
+					// determine min max
+					if (value.x < latMin) latMin = value.x;
+					if (value.x > latMax) latMax = value.x;
+					if (value.y < longMin) longMin = value.y;
+					if (value.y > longMax) longMax = value.y;
+				}
+
+				//console.log("latMin = " + latMin);
+				//console.log("latMax = " + latMax);
+				//console.log("longMin = " + longMin);
+				//console.log("longMax = " + longMax);
+
+				// bounding box
+
+				// adopted from
+				// * https://github.com/mrdoob/three.js/blob/master/examples/webgl_lines_dashed.html
+
+				let width = latMax - latMin;
+				let height = longMax - longMin;
+				let depth = boundingBoxDepth;
+
+				let padding = 16;
+
+				width = width * 0.5 + padding;		// X
+				height = height * 0.5 + padding;	// Y
+				depth = depth * 0.5;				// Z
+
+				const boundingBoxGeometry = new THREE.BufferGeometry();
+				const position = [];
+
+				position.push(
+					- width, - height, - depth,
+					- width, height, - depth,
+
+					- width, height, - depth,
+					width, height, - depth,
+
+					width, height, - depth,
+					width, - height, - depth,
+
+					width, - height, - depth,
+					- width, - height, - depth,
+
+					- width, - height, depth,
+					- width, height, depth,
+
+					- width, height, depth,
+					width, height, depth,
+
+					width, height, depth,
+					width, - height, depth,
+
+					width, - height, depth,
+					- width, - height, depth,
+
+					- width, - height, - depth,
+					- width, - height, depth,
+
+					- width, height, - depth,
+					- width, height, depth,
+
+					width, height, - depth,
+					width, height, depth,
+
+					width, - height, - depth,
+					width, - height, depth
+				 );
+
+				boundingBoxGeometry.setAttribute( 'position', new THREE.Float32BufferAttribute( position, 3 ) );
+
+				const boundingBoxLineSegments = new THREE.LineSegments( boundingBoxGeometry, new THREE.LineDashedMaterial( { color: 0x000000, dashSize: 3, gapSize: 1, transparent: true, opacity: 0.4 } ) );
+				boundingBoxLineSegments.computeLineDistances();
+
+				boundingBoxLineSegments.translateX( latMin + ((latMax - latMin) * 0.5) );
+				boundingBoxLineSegments.translateY( longMin + ((longMax - longMin) * 0.5) );
+				boundingBoxLineSegments.translateZ( depth );
+
+				boundingBoxLineSegments.name = "Bounding_Box";
+				scene.add( boundingBoxLineSegments );
+
+				// set bounding box focus point variable to the buttom center of the bounding box
+				boundingBoxCenterFocusPoint = new THREE.Vector3( latMin + ((latMax - latMin) * 0.5),
+				 									 			 longMin + ((longMax - longMin) * 0.5),
+				 									 			 depth * 1.0 );
+				
+
+				// INITIAL CAMERA SETUP
+				//
+				// set and backup initial camera controls (perspective)
+				//controls.target = boundingBoxCenterFocusPoint;
+				//camera.position.set(boundingBoxCenterFocusPoint.x, boundingBoxCenterFocusPoint.y-50, 34);
+				//controls.update();
+				//controls.saveState();
+				//controls.reset();
+
+				// set and backup initial camera controls (orthographic)
+				controls.target = boundingBoxCenterFocusPoint;
+				
+				// (default) set camera to look at the front, centered, slightly from above looking down at the boundingBoxCenterFocusPoint
+				camera.position.set(boundingBoxCenterFocusPoint.x, boundingBoxCenterFocusPoint.y - 100, depth * 5.0);	
+				camera.zoom = 10.0;
+				
+				controls.update();
+				controls.saveState();
+				controls.reset();
+			}
+
+
+			// === PATHWAY CREATION BASED ON COLLECTED DATA === 
+			//
+
+			// function to use Line2, LineGeometry, and LineMaterial for pathway visualization
+			function createFatLinePathway(pathwayPoints, color, lineWidth, nameInScene)
+			{
+				// adopted from
+				// https://threejs.org/examples/?q=fa#webgl_lines_fat
+
+				// Position and THREE.Color Data
+				const positions = [];	// vertices as triplets [x,y,z]
+				const colors = [];		// colors as triplets [r,g,b]
+
+				// populate positions and color data
+				for (let i = 0; i < pathwayPoints.length; i++)
+				{
+					positions.push( pathwayPoints[i].x, pathwayPoints[i].y, pathwayPoints[i].z );
+					colors.push( color.r, color.g, color.b );
+				}
+
+				// Line2 ( LineGeometry, LineMaterial )
+				const geometry = new LineGeometry();
+				geometry.setPositions( positions );
+				geometry.setColors( colors );
+
+				let matLine = new LineMaterial( {
+					color: 0xffffff,
+					linewidth: lineWidth, // in pixels
+					vertexColors: true,
+					//resolution:  // to be set by renderer, eventually
+					dashed: false,
+					alphaToCoverage: true,
+
+				} );
+
+				let line = new Line2( geometry, matLine );
+				line.computeLineDistances();
+				line.scale.set( 1, 1, 1 );
+				line.name = nameInScene;
+				scene.add( line );
+			}
+
+			// helper function to convert the original collected millisecond timestamp to a value in the z-axis for visualization
+			function getZForForTimeInMilliseconds( milliseconds )
+			{
+				return zStartOffset + ( milliseconds / 60.0 );
+			}
+
+			// helper function to make single entries along the pathway more human readable
+			function pathwayMove( pathwayPoints, xOffset, location, time )
+			{
+				time = getZForForTimeInMilliseconds( time );
+
+				pathwayPoints.push(new THREE.Vector3(pathwayPoints[pathwayPoints.length-1].x, pathwayPoints[pathwayPoints.length-1].y, time) );
+				pathwayPoints.push(new THREE.Vector3(countryCentroids[location].x + xOffset, countryCentroids[location].y, time) );
+			}
+
+			// PAIR 1 PATHWAYS
+			function createPathwaysPair1( task_id )
+			{
+				// PAIR 1 FRUITS
+				if ( task_id == 1 )
+				{
+					// session start and end z-axis coordinates
+					const sessionStartZ = zStartOffset;
+					const sessionEndZ = getZForForTimeInMilliseconds(1872.85123);
+
+					// VR user pathway
+					//
+					const vrPathwayPoints = [];
+
+					// start vertex
+					vrPathwayPoints.push(new THREE.Vector3(vrUserStartLocation.x + vrUserXOffset, vrUserStartLocation.y, sessionStartZ) );
+
+					// all user movements go here...
+					pathwayMove(vrPathwayPoints, vrUserXOffset, "BosniaandHerz", 30.57283);
+					pathwayMove(vrPathwayPoints, vrUserXOffset, "Albania", 36.09343);
+
+					// end vertex
+					vrPathwayPoints.push(new THREE.Vector3(vrPathwayPoints[vrPathwayPoints.length-1].x, vrPathwayPoints[vrPathwayPoints.length-1].y, sessionEndZ) );
+
+					// instantiate 3D object (line)
+					if (isUsingLine2ForPathways)
+					{
+						createFatLinePathway( vrPathwayPoints, vrPathwayColor, line2PathwayWidth, sceneObjectName_vrPathway);
+					}
+					else
+					{
+						const vrPathwayLineGeometry = new THREE.BufferGeometry().setFromPoints( vrPathwayPoints );
+						const vrPathwayLineMaterial = new THREE.LineBasicMaterial( { color: vrPathwayColor } );
+						const vrPathwayLine = new THREE.Line( vrPathwayLineGeometry, vrPathwayLineMaterial );
+						vrPathwayLine.name = sceneObjectName_vrPathway;
+						scene.add( vrPathwayLine );
+					}
+
+
+					// desktop user pathway
+					//
+					const webPathwayPoints = [];
+
+					// start vertex
+					webPathwayPoints.push(new THREE.Vector3(countryCentroids["Belgium"].x + webUserXOffset, countryCentroids["Belgium"].y, sessionStartZ) ); // LOG_COMMENT (Nico): I did not write down the start location of the desktop user, but I believe to remember it was Belgium.
+
+					// all user movements go here...
+					pathwayMove(webPathwayPoints, webUserXOffset, "Croatia", 33.17113);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Albania", 42.55803);
+
+					// end vertex
+					webPathwayPoints.push(new THREE.Vector3(webPathwayPoints[webPathwayPoints.length-1].x, webPathwayPoints[webPathwayPoints.length-1].y, sessionEndZ) );
+
+					// instantiate 3D object (line)
+					if (isUsingLine2ForPathways)
+					{
+						createFatLinePathway( webPathwayPoints, webPathwayColor, line2PathwayWidth, sceneObjectName_webPathway);
+					}
+					else
+					{
+						const webPathwayLineGeometry = new THREE.BufferGeometry().setFromPoints( webPathwayPoints );
+						const webPathwayLineMaterial = new THREE.LineBasicMaterial( { color: webPathwayColor } );
+						const webPathwayLine = new THREE.Line( webPathwayLineGeometry, webPathwayLineMaterial );
+						webPathwayLine.name = sceneObjectName_webPathway;
+						scene.add( webPathwayLine );
+					}
+				}
+
+				// PAIR 1 VEGETABLES
+				else if ( task_id == 2 )
+				{
+					// logfile:
+					// start 52.40643
+					// break 1 start 1398.471-52.40643
+					// break 1 end 1569.945
+					// end 2642.655
+
+					// session start and end z-axis coordinates
+					const sessionStartZ = zStartOffset;
+					const sessionEndZ = getZForForTimeInMilliseconds(2642.655 - (1569.945 - 1398.471) - 52.40643);
+
+					// VR user pathway
+					//
+					const vrPathwayPoints = [];
+
+					// start vertex
+					vrPathwayPoints.push(new THREE.Vector3(vrUserStartLocation.x + vrUserXOffset, vrUserStartLocation.y, sessionStartZ) );
+
+					// all user movements go here...
+					pathwayMove(vrPathwayPoints, vrUserXOffset, "Italy", 8.80165);
+					pathwayMove(vrPathwayPoints, vrUserXOffset, "Switzerland", 11.60426);
+					pathwayMove(vrPathwayPoints, vrUserXOffset, "France", 17.0994);
+					pathwayMove(vrPathwayPoints, vrUserXOffset, "Spain", 20.59697);
+					pathwayMove(vrPathwayPoints, vrUserXOffset, "Portugal", 49.13687);
+					pathwayMove(vrPathwayPoints, vrUserXOffset, "UnitedKingdom", 69.81147);
+					pathwayMove(vrPathwayPoints, vrUserXOffset, "France", 896.99637);
+					pathwayMove(vrPathwayPoints, vrUserXOffset, "Germany", 901.85577);
+
+					pathwayMove(vrPathwayPoints, vrUserXOffset, "Denmark", (1398.471-52.40643 + 119.392));
+					pathwayMove(vrPathwayPoints, vrUserXOffset, "Norway", (1398.471-52.40643 + 130.463));
+					pathwayMove(vrPathwayPoints, vrUserXOffset, "CzechRep", (1398.471-52.40643 + 487.793));
+					pathwayMove(vrPathwayPoints, vrUserXOffset, "Poland", (1398.471-52.40643 + 497.069));
+					pathwayMove(vrPathwayPoints, vrUserXOffset, "Belarus", (1398.471-52.40643 + 513.817));
+					pathwayMove(vrPathwayPoints, vrUserXOffset, "Poland", (1398.471-52.40643 + 901.261));
+					pathwayMove(vrPathwayPoints, vrUserXOffset, "Slovakia", (1398.471-52.40643 + 916.888));
+
+					// end vertex
+					vrPathwayPoints.push(new THREE.Vector3(vrPathwayPoints[vrPathwayPoints.length-1].x, vrPathwayPoints[vrPathwayPoints.length-1].y, sessionEndZ) );
+
+					// instantiate 3D object (line)
+					if (isUsingLine2ForPathways)
+					{
+						createFatLinePathway( vrPathwayPoints, vrPathwayColor, line2PathwayWidth, sceneObjectName_vrPathway);
+					}
+					else
+					{
+						const vrPathwayLineGeometry = new THREE.BufferGeometry().setFromPoints( vrPathwayPoints );
+						const vrPathwayLineMaterial = new THREE.LineBasicMaterial( { color: vrPathwayColor } );
+						const vrPathwayLine = new THREE.Line( vrPathwayLineGeometry, vrPathwayLineMaterial );
+						vrPathwayLine.name = sceneObjectName_vrPathway;
+						scene.add( vrPathwayLine );
+					}
+
+
+					// desktop user pathway
+					//
+					const webPathwayPoints = [];
+
+					// start vertex
+					webPathwayPoints.push(new THREE.Vector3(countryCentroids["Poland"].x + webUserXOffset, countryCentroids["Poland"].y, sessionStartZ) ); // LOG_COMMENT (Nico): I did not write down the start location of the desktop user, but I believe to remember it was Poland.
+
+					// all user movements go here...
+					pathwayMove(webPathwayPoints, webUserXOffset, "France", 21.5515);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Spain", 23.16773);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Portugal", 46.30406);
+					pathwayMove(webPathwayPoints, webUserXOffset, "UnitedKingdom", 72.44517);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Ireland", 306.02217);
+					pathwayMove(webPathwayPoints, webUserXOffset, "UnitedKingdom", 307.52907);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Germany", 920.97937);
+
+					pathwayMove(webPathwayPoints, webUserXOffset, "Norway",(1398.471-52.40643 + 146.547));
+					pathwayMove(webPathwayPoints, webUserXOffset, "UnitedKingdom",(1398.471-52.40643 + 465.032));
+					pathwayMove(webPathwayPoints, webUserXOffset, "Norway",(1398.471-52.40643 + 466.577));
+					pathwayMove(webPathwayPoints, webUserXOffset, "CzechRep",(1398.471-52.40643 + 489.93));
+					pathwayMove(webPathwayPoints, webUserXOffset, "Poland",(1398.471-52.40643 + 499.086));
+					pathwayMove(webPathwayPoints, webUserXOffset, "Belarus",(1398.471-52.40643 + 506.233));
+					pathwayMove(webPathwayPoints, webUserXOffset, "Lithuania",(1398.471-52.40643 + 558.799));
+					pathwayMove(webPathwayPoints, webUserXOffset, "Belarus",(1398.471-52.40643 + 559.92));
+					pathwayMove(webPathwayPoints, webUserXOffset, "Lithuania",(1398.471-52.40643 + 562.761));
+					pathwayMove(webPathwayPoints, webUserXOffset, "Belarus",(1398.471-52.40643 + 566.268));
+					pathwayMove(webPathwayPoints, webUserXOffset, "Ukraine",(1398.471-52.40643 + 620.014));
+					pathwayMove(webPathwayPoints, webUserXOffset, "Slovakia",(1398.471-52.40643 + 922.653));
+
+					// end vertex
+					webPathwayPoints.push(new THREE.Vector3(webPathwayPoints[webPathwayPoints.length-1].x, webPathwayPoints[webPathwayPoints.length-1].y, sessionEndZ) );
+
+					// instantiate 3D object (line)
+					if (isUsingLine2ForPathways)
+					{
+						createFatLinePathway( webPathwayPoints, webPathwayColor, line2PathwayWidth, sceneObjectName_webPathway);
+					}
+					else
+					{
+						const webPathwayLineGeometry = new THREE.BufferGeometry().setFromPoints( webPathwayPoints );
+						const webPathwayLineMaterial = new THREE.LineBasicMaterial( { color: webPathwayColor } );
+						const webPathwayLine = new THREE.Line( webPathwayLineGeometry, webPathwayLineMaterial );
+						webPathwayLine.name = sceneObjectName_webPathway;
+						scene.add( webPathwayLine );
+					}
+				}
+			}
+
+			// PAIR 2 PATHWAYS
+			function createPathwaysPair2( task_id )
+			{
+				// PAIR 2 FRUITS
+				if ( task_id == 1 )
+				{
+					// session start and end z-axis coordinates
+					const sessionStartZ = zStartOffset;
+					const sessionEndZ = getZForForTimeInMilliseconds(1584.988 - 123.2569);
+
+					// VR user pathway
+					//
+					const vrPathwayPoints = [];
+
+					// start vertex
+					vrPathwayPoints.push(new THREE.Vector3(vrUserStartLocation.x + vrUserXOffset, vrUserStartLocation.y, sessionStartZ) );
+
+					// all user movements go here...
+					pathwayMove(vrPathwayPoints, vrUserXOffset, "Italy", 19.8951);
+					pathwayMove(vrPathwayPoints, vrUserXOffset, "Netherlands", 273.7129);
+					pathwayMove(vrPathwayPoints, vrUserXOffset, "Finland", 448.2037);
+					pathwayMove(vrPathwayPoints, vrUserXOffset, "Norway", 560.6795);
+					pathwayMove(vrPathwayPoints, vrUserXOffset, "Iceland", 691.9634);
+					pathwayMove(vrPathwayPoints, vrUserXOffset, "Netherlands", 833.3063);
+					pathwayMove(vrPathwayPoints, vrUserXOffset, "Austria", 834.6683);
+					pathwayMove(vrPathwayPoints, vrUserXOffset, "Croatia", 836.775);
+					pathwayMove(vrPathwayPoints, vrUserXOffset, "Serbia", 840.864);
+					pathwayMove(vrPathwayPoints, vrUserXOffset, "Bulgaria", 844.3254);
+					pathwayMove(vrPathwayPoints, vrUserXOffset, "Turkey", 846.1108);
+					pathwayMove(vrPathwayPoints, vrUserXOffset, "Bulgaria", 1048.2571);
+					pathwayMove(vrPathwayPoints, vrUserXOffset, "Macedonia", 1059.5051);
+					pathwayMove(vrPathwayPoints, vrUserXOffset, "Italy", 1071.6071);
+					pathwayMove(vrPathwayPoints, vrUserXOffset, "Malta", 1107.7221);
+					pathwayMove(vrPathwayPoints, vrUserXOffset, "Croatia", 1257.7521);
+					pathwayMove(vrPathwayPoints, vrUserXOffset, "Poland", 1259.6701);
+					pathwayMove(vrPathwayPoints, vrUserXOffset, "CzechRep", 1395.5901);
+
+					// end vertex
+					vrPathwayPoints.push(new THREE.Vector3(vrPathwayPoints[vrPathwayPoints.length-1].x, vrPathwayPoints[vrPathwayPoints.length-1].y, sessionEndZ) );
+
+					// instantiate 3D object (line)
+					if (isUsingLine2ForPathways)
+					{
+						createFatLinePathway( vrPathwayPoints, vrPathwayColor, line2PathwayWidth, sceneObjectName_vrPathway);
+					}
+					else
+					{
+						const vrPathwayLineGeometry = new THREE.BufferGeometry().setFromPoints( vrPathwayPoints );
+						const vrPathwayLineMaterial = new THREE.LineBasicMaterial( { color: vrPathwayColor } );
+						const vrPathwayLine = new THREE.Line( vrPathwayLineGeometry, vrPathwayLineMaterial );
+						vrPathwayLine.name = sceneObjectName_vrPathway;
+						scene.add( vrPathwayLine );
+					}
+
+					// desktop user pathway
+					//
+					const webPathwayPoints = [];
+
+					// start vertex
+					webPathwayPoints.push(new THREE.Vector3(countryCentroids["Italy"].x + webUserXOffset, countryCentroids["Italy"].y, sessionStartZ) ); 
+
+					// all user movements go here...
+					pathwayMove(webPathwayPoints, webUserXOffset, "Spain", 261.2377);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Netherlands", 279.5561);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Finland", 451.0615);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Norway", 553.675);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Iceland", 687.6401);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Turkey", 826.4263);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Malta", 1032.6491);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Italy", 1095.2461);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Malta", 1099.9071);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Germany", 1245.2471);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Poland", 1251.1351);
+					pathwayMove(webPathwayPoints, webUserXOffset, "CzechRep", 1388.7911);
+
+					// end vertex
+					webPathwayPoints.push(new THREE.Vector3(webPathwayPoints[webPathwayPoints.length-1].x, webPathwayPoints[webPathwayPoints.length-1].y, sessionEndZ) );
+
+					// instantiate 3D object (line)
+					if (isUsingLine2ForPathways)
+					{
+						createFatLinePathway( webPathwayPoints, webPathwayColor, line2PathwayWidth, sceneObjectName_webPathway);
+					}
+					else
+					{
+						const webPathwayLineGeometry = new THREE.BufferGeometry().setFromPoints( webPathwayPoints );
+						const webPathwayLineMaterial = new THREE.LineBasicMaterial( { color: webPathwayColor } );
+						const webPathwayLine = new THREE.Line( webPathwayLineGeometry, webPathwayLineMaterial );
+						webPathwayLine.name = sceneObjectName_webPathway;
+						scene.add( webPathwayLine );
+					}
+				}
+
+				// PAIR 2 VEGETABLES
+				else if ( task_id == 2 )
+				{
+					// session start and end z-axis coordinates
+					const sessionStartZ = zStartOffset;
+					const sessionEndZ = getZForForTimeInMilliseconds(1558.051 - 36.88617);
+
+					// VR user pathway
+					//
+					const vrPathwayPoints = [];
+
+					// start vertex
+					vrPathwayPoints.push(new THREE.Vector3(vrUserStartLocation.x + vrUserXOffset, vrUserStartLocation.y, sessionStartZ) );
+
+					// all user movements go here...
+					pathwayMove(vrPathwayPoints, vrUserXOffset, "France", 10.63933);
+					pathwayMove(vrPathwayPoints, vrUserXOffset, "UnitedKingdom", 12.53055);
+					pathwayMove(vrPathwayPoints, vrUserXOffset, "Spain", 101.26523);
+					pathwayMove(vrPathwayPoints, vrUserXOffset, "Italy", 271.68523);
+					pathwayMove(vrPathwayPoints, vrUserXOffset, "Slovenia", 274.07373);
+					pathwayMove(vrPathwayPoints, vrUserXOffset, "Hungary", 276.25353);
+					pathwayMove(vrPathwayPoints, vrUserXOffset, "Poland", 399.04183);
+					pathwayMove(vrPathwayPoints, vrUserXOffset, "Sweden", 401.35163);
+					pathwayMove(vrPathwayPoints, vrUserXOffset, "Poland", 517.15793);
+					pathwayMove(vrPathwayPoints, vrUserXOffset, "Serbia", 645.44643);
+					pathwayMove(vrPathwayPoints, vrUserXOffset, "Albania", 647.15533);
+					pathwayMove(vrPathwayPoints, vrUserXOffset, "Kosovo", 650.89953);
+					pathwayMove(vrPathwayPoints, vrUserXOffset, "BosniaandHerz", 748.57443);
+					pathwayMove(vrPathwayPoints, vrUserXOffset, "Malta", 750.99623);
+					pathwayMove(vrPathwayPoints, vrUserXOffset, "Switzerland", 829.44513);
+					pathwayMove(vrPathwayPoints, vrUserXOffset, "Spain", 831.89103);
+					pathwayMove(vrPathwayPoints, vrUserXOffset, "Portugal", 833.36763);
+					pathwayMove(vrPathwayPoints, vrUserXOffset, "France", 915.42123);
+					pathwayMove(vrPathwayPoints, vrUserXOffset, "Switzerland", 916.71293);
+					pathwayMove(vrPathwayPoints, vrUserXOffset, "Italy", 950.55363);
+					pathwayMove(vrPathwayPoints, vrUserXOffset, "Netherlands", 1069.73783);
+					pathwayMove(vrPathwayPoints, vrUserXOffset, "Germany", 1235.45583);
+					pathwayMove(vrPathwayPoints, vrUserXOffset, "CzechRep", 1236.83883);
+					pathwayMove(vrPathwayPoints, vrUserXOffset, "Slovakia", 1238.99383);
+					pathwayMove(vrPathwayPoints, vrUserXOffset, "Moldova", 1240.45583);
+					pathwayMove(vrPathwayPoints, vrUserXOffset, "Belarus", 1255.23383);
+					pathwayMove(vrPathwayPoints, vrUserXOffset, "Moldova", 1260.65983);
+					pathwayMove(vrPathwayPoints, vrUserXOffset, "Poland", 1339.86083);
+					pathwayMove(vrPathwayPoints, vrUserXOffset, "Denmark", 1345.28683);
+					pathwayMove(vrPathwayPoints, vrUserXOffset, "Poland", 1349.07683);
+					pathwayMove(vrPathwayPoints, vrUserXOffset, "Denmark", 1437.93183);
+					pathwayMove(vrPathwayPoints, vrUserXOffset, "UnitedKingdom", 1519.61883);
+
+					// end vertex
+					vrPathwayPoints.push(new THREE.Vector3(vrPathwayPoints[vrPathwayPoints.length-1].x, vrPathwayPoints[vrPathwayPoints.length-1].y, sessionEndZ) );
+
+					// instantiate 3D object (line)
+					if (isUsingLine2ForPathways)
+					{
+						createFatLinePathway( vrPathwayPoints, vrPathwayColor, line2PathwayWidth, sceneObjectName_vrPathway);
+					}
+					else
+					{
+						const vrPathwayLineGeometry = new THREE.BufferGeometry().setFromPoints( vrPathwayPoints );
+						const vrPathwayLineMaterial = new THREE.LineBasicMaterial( { color: vrPathwayColor } );
+						const vrPathwayLine = new THREE.Line( vrPathwayLineGeometry, vrPathwayLineMaterial );
+						vrPathwayLine.name = sceneObjectName_vrPathway;
+						scene.add( vrPathwayLine );
+					}
+
+
+					// desktop user pathway
+					//
+					const webPathwayPoints = [];
+
+					// start vertex
+					webPathwayPoints.push(new THREE.Vector3(countryCentroids["UnitedKingdom"].x + webUserXOffset, countryCentroids["UnitedKingdom"].y, sessionStartZ) ); // LOG_COMMENT (Nico): I did not write down the start location of the desktop user, but I believe to remember it was UnitedKingdom.
+
+					// all user movements go here...
+					pathwayMove(webPathwayPoints, webUserXOffset, "Spain", 96.20493);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Hungary", 210.51403);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Spain", 225.94443);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Hungary", 268.69643);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Sweden", 397.45953);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Poland", 510.90103);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Kosovo", 643.47373);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Malta", 761.11133);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Portugal", 826.95563);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Switzerland", 911.15413);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Norway", 953.76993);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Kosovo", 958.18573);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Italy", 959.82863);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Netherlands", 1066.85183);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Moldova", 1232.35383);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Poland", 1343.30883);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Denmark", 1435.74883);
+
+
+					// end vertex
+					webPathwayPoints.push(new THREE.Vector3(webPathwayPoints[webPathwayPoints.length-1].x, webPathwayPoints[webPathwayPoints.length-1].y, sessionEndZ) );
+
+					// instantiate 3D object (line)
+					if (isUsingLine2ForPathways)
+					{
+						createFatLinePathway( webPathwayPoints, webPathwayColor, line2PathwayWidth, sceneObjectName_webPathway);
+					}
+					else
+					{
+						const webPathwayLineGeometry = new THREE.BufferGeometry().setFromPoints( webPathwayPoints );
+						const webPathwayLineMaterial = new THREE.LineBasicMaterial( { color: webPathwayColor } );
+						const webPathwayLine = new THREE.Line( webPathwayLineGeometry, webPathwayLineMaterial );
+						webPathwayLine.name = sceneObjectName_webPathway;
+						scene.add( webPathwayLine );
+					}
+				}
+			}
+
+			// PAIR 3 PATHWAYS
+			function createPathwaysPair3( task_id )
+			{
+				// PAIR 3 FRUITS
+				if ( task_id == 1 )
+				{
+					// session start and end z-axis coordinates
+					const sessionStartZ = zStartOffset;
+					const sessionEndZ = getZForForTimeInMilliseconds(1461.051 - 115.8496);
+
+					// VR user pathway
+					//
+					const vrPathwayPoints = [];
+
+					// start vertex
+					vrPathwayPoints.push(new THREE.Vector3(vrUserStartLocation.x + vrUserXOffset, vrUserStartLocation.y, sessionStartZ) );
+
+					// all user movements go here...
+					pathwayMove(vrPathwayPoints, vrUserXOffset, "Greece", 30.8231);
+					pathwayMove(vrPathwayPoints, vrUserXOffset, "Bulgaria", 320.8523);
+					pathwayMove(vrPathwayPoints, vrUserXOffset, "Moldova", 321.962);
+					pathwayMove(vrPathwayPoints, vrUserXOffset, "Ukraine", 323.1667);
+					pathwayMove(vrPathwayPoints, vrUserXOffset, "Netherlands", 600.6451);
+					pathwayMove(vrPathwayPoints, vrUserXOffset, "Germany", 603.3241);
+					pathwayMove(vrPathwayPoints, vrUserXOffset, "Sweden", 815.8748);
+					pathwayMove(vrPathwayPoints, vrUserXOffset, "Ireland", 965.8114);
+					pathwayMove(vrPathwayPoints, vrUserXOffset, "UnitedKingdom", 1024.4604);
+					pathwayMove(vrPathwayPoints, vrUserXOffset, "Switzerland", 1117.4774);
+					pathwayMove(vrPathwayPoints, vrUserXOffset, "Austria", 1172.8954);
+					pathwayMove(vrPathwayPoints, vrUserXOffset, "Germany", 1215.4574);
+
+					// end vertex
+					vrPathwayPoints.push(new THREE.Vector3(vrPathwayPoints[vrPathwayPoints.length-1].x, vrPathwayPoints[vrPathwayPoints.length-1].y, sessionEndZ) );
+
+					// instantiate 3D object (line)
+					if (isUsingLine2ForPathways)
+					{
+						createFatLinePathway( vrPathwayPoints, vrPathwayColor, line2PathwayWidth, sceneObjectName_vrPathway);
+					}
+					else
+					{
+						const vrPathwayLineGeometry = new THREE.BufferGeometry().setFromPoints( vrPathwayPoints );
+						const vrPathwayLineMaterial = new THREE.LineBasicMaterial( { color: vrPathwayColor } );
+						const vrPathwayLine = new THREE.Line( vrPathwayLineGeometry, vrPathwayLineMaterial );
+						vrPathwayLine.name = sceneObjectName_vrPathway;
+						scene.add( vrPathwayLine );
+					}
+
+
+					// desktop user pathway
+					//
+					const webPathwayPoints = [];
+
+					// start vertex
+					webPathwayPoints.push(new THREE.Vector3(countryCentroids["Ukraine"].x + webUserXOffset, countryCentroids["Ukraine"].y, sessionStartZ) ); 
+
+					// all user movements go here...
+					pathwayMove(webPathwayPoints, webUserXOffset, "Greece", 32.6968);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Ukraine", 314.9775);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Germany", 595.1707);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Sweden", 804.5982);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Ireland", 963.3724);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Iceland", 1025.5334);
+					pathwayMove(webPathwayPoints, webUserXOffset, "UnitedKingdom", 1033.9184);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Switzerland", 1109.2364);
+
+					// end vertex
+					webPathwayPoints.push(new THREE.Vector3(webPathwayPoints[webPathwayPoints.length-1].x, webPathwayPoints[webPathwayPoints.length-1].y, sessionEndZ) );
+
+					// instantiate 3D object (line)
+					if (isUsingLine2ForPathways)
+					{
+						createFatLinePathway( webPathwayPoints, webPathwayColor, line2PathwayWidth, sceneObjectName_webPathway);
+					}
+					else
+					{
+						const webPathwayLineGeometry = new THREE.BufferGeometry().setFromPoints( webPathwayPoints );
+						const webPathwayLineMaterial = new THREE.LineBasicMaterial( { color: webPathwayColor } );
+						const webPathwayLine = new THREE.Line( webPathwayLineGeometry, webPathwayLineMaterial );
+						webPathwayLine.name = sceneObjectName_webPathway;
+						scene.add( webPathwayLine );
+					}
+				}
+
+				// PAIR 3 VEGETABLES
+				else if ( task_id == 2 )
+				{
+					// session start and end z-axis coordinates
+					const sessionStartZ = zStartOffset;
+					const sessionEndZ = getZForForTimeInMilliseconds(1591.374 - 102.8616);
+
+					// VR user pathway
+					//
+					const vrPathwayPoints = [];
+
+					// start vertex
+					vrPathwayPoints.push(new THREE.Vector3(vrUserStartLocation.x + vrUserXOffset, vrUserStartLocation.y, sessionStartZ) );
+
+					// all user movements go here...
+					pathwayMove(vrPathwayPoints, vrUserXOffset, "Italy", 17.6811);
+					pathwayMove(vrPathwayPoints, vrUserXOffset, "Netherlands", 20.0915);
+					pathwayMove(vrPathwayPoints, vrUserXOffset, "Italy", 22.239);
+					pathwayMove(vrPathwayPoints, vrUserXOffset, "Austria", 262.8859);
+					pathwayMove(vrPathwayPoints, vrUserXOffset, "Finland", 264.1794);
+					pathwayMove(vrPathwayPoints, vrUserXOffset, "Estonia", 722.4905);
+					pathwayMove(vrPathwayPoints, vrUserXOffset, "Finland", 728.7964);
+					pathwayMove(vrPathwayPoints, vrUserXOffset, "Poland", 811.7272);
+					pathwayMove(vrPathwayPoints, vrUserXOffset, "CzechRep", 1118.9064);
+					pathwayMove(vrPathwayPoints, vrUserXOffset, "Poland", 1124.5284);
+
+					// end vertex
+					vrPathwayPoints.push(new THREE.Vector3(vrPathwayPoints[vrPathwayPoints.length-1].x, vrPathwayPoints[vrPathwayPoints.length-1].y, sessionEndZ) );
+
+					// instantiate 3D object (line)
+					if (isUsingLine2ForPathways)
+					{
+						createFatLinePathway( vrPathwayPoints, vrPathwayColor, line2PathwayWidth, sceneObjectName_vrPathway);
+					}
+					else
+					{
+						const vrPathwayLineGeometry = new THREE.BufferGeometry().setFromPoints( vrPathwayPoints );
+						const vrPathwayLineMaterial = new THREE.LineBasicMaterial( { color: vrPathwayColor } );
+						const vrPathwayLine = new THREE.Line( vrPathwayLineGeometry, vrPathwayLineMaterial );
+						vrPathwayLine.name = sceneObjectName_vrPathway;
+						scene.add( vrPathwayLine );
+					}
+
+
+					// desktop user pathway
+					//
+					const webPathwayPoints = [];
+
+					// start vertex
+					webPathwayPoints.push(new THREE.Vector3(countryCentroids["Norway"].x + webUserXOffset, countryCentroids["Norway"].y, sessionStartZ) ); // LOG_COMMENT (Nico): I did not write down the start location of the desktop user, but I believe to remember it was Poland.
+
+					// all user movements go here...
+					pathwayMove(webPathwayPoints, webUserXOffset, "Italy", 16.4417);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Finland", 260.4299);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Poland", 804.0228);
+
+					// end vertex
+					webPathwayPoints.push(new THREE.Vector3(webPathwayPoints[webPathwayPoints.length-1].x, webPathwayPoints[webPathwayPoints.length-1].y, sessionEndZ) );
+
+					// instantiate 3D object (line)
+					if (isUsingLine2ForPathways)
+					{
+						createFatLinePathway( webPathwayPoints, webPathwayColor, line2PathwayWidth, sceneObjectName_webPathway);
+					}
+					else
+					{
+						const webPathwayLineGeometry = new THREE.BufferGeometry().setFromPoints( webPathwayPoints );
+						const webPathwayLineMaterial = new THREE.LineBasicMaterial( { color: webPathwayColor } );
+						const webPathwayLine = new THREE.Line( webPathwayLineGeometry, webPathwayLineMaterial );
+						webPathwayLine.name = sceneObjectName_webPathway;
+						scene.add( webPathwayLine );
+					}
+				}
+			}
+
+			// PAIR 4 PATHWAYS
+			function createPathwaysPair4( task_id )
+			{
+				// PAIR 4 FRUITS
+				if ( task_id == 1 )
+				{
+					// session start and end z-axis coordinates
+					const sessionStartZ = zStartOffset;
+					const sessionEndZ = getZForForTimeInMilliseconds( (964.7302 - 58.60081) + (1585.121 - 53.42388) );
+
+					// VR user pathway
+					//
+					const vrPathwayPoints = [];
+
+					// start vertex
+					vrPathwayPoints.push(new THREE.Vector3(vrUserStartLocation.x + vrUserXOffset, vrUserStartLocation.y, sessionStartZ) );
+
+					// all user movements go here...
+					pathwayMove(vrPathwayPoints, vrUserXOffset, "Malta", 4.33828);
+					pathwayMove(vrPathwayPoints, vrUserXOffset, "France", 174.55999);
+					pathwayMove(vrPathwayPoints, vrUserXOffset, "Netherlands", 631.25779);
+					pathwayMove(vrPathwayPoints, vrUserXOffset, "Belgium", 814.54339);
+
+					pathwayMove(vrPathwayPoints, vrUserXOffset, "France", (964.7302 - 58.60081) + 0.816780000000001);
+					pathwayMove(vrPathwayPoints, vrUserXOffset, "Belgium", (964.7302 - 58.60081) + 265.73762);
+					pathwayMove(vrPathwayPoints, vrUserXOffset, "Denmark", (964.7302 - 58.60081) + 382.05182);
+					pathwayMove(vrPathwayPoints, vrUserXOffset, "Netherlands", (964.7302 - 58.60081) + 383.31762);
+					pathwayMove(vrPathwayPoints, vrUserXOffset, "Germany", (964.7302 - 58.60081) + 538.50212);
+					pathwayMove(vrPathwayPoints, vrUserXOffset, "Netherlands", (964.7302 - 58.60081) + 622.78592);
+					pathwayMove(vrPathwayPoints, vrUserXOffset, "Germany", (964.7302 - 58.60081) + 669.60802);
+					pathwayMove(vrPathwayPoints, vrUserXOffset, "Netherlands", (964.7302 - 58.60081) + 824.80002);
+					pathwayMove(vrPathwayPoints, vrUserXOffset, "Austria", (964.7302 - 58.60081) + 902.13592);
+					pathwayMove(vrPathwayPoints, vrUserXOffset, "Hungary", (964.7302 - 58.60081) + 908.12192);
+					pathwayMove(vrPathwayPoints, vrUserXOffset, "Poland", (964.7302 - 58.60081) + 910.86782);
+					pathwayMove(vrPathwayPoints, vrUserXOffset, "Romania", (964.7302 - 58.60081) + 912.37522);
+					pathwayMove(vrPathwayPoints, vrUserXOffset, "Greece", (964.7302 - 58.60081) + 914.29442);
+					pathwayMove(vrPathwayPoints, vrUserXOffset, "France", (964.7302 - 58.60081) + 1039.44812);
+					pathwayMove(vrPathwayPoints, vrUserXOffset, "Ireland", (964.7302 - 58.60081) + 1040.90912);
+					pathwayMove(vrPathwayPoints, vrUserXOffset, "France", (964.7302 - 58.60081) + 1046.14712);
+					pathwayMove(vrPathwayPoints, vrUserXOffset, "Ireland", (964.7302 - 58.60081) + 1111.27312);
+					pathwayMove(vrPathwayPoints, vrUserXOffset, "France", (964.7302 - 58.60081) + 1114.06112);
+					pathwayMove(vrPathwayPoints, vrUserXOffset, "Greece", (964.7302 - 58.60081) + 1188.63912);
+					pathwayMove(vrPathwayPoints, vrUserXOffset, "Bulgaria", (964.7302 - 58.60081) + 1267.91512);
+					pathwayMove(vrPathwayPoints, vrUserXOffset, "Macedonia", (964.7302 - 58.60081) + 1273.05412);
+					pathwayMove(vrPathwayPoints, vrUserXOffset, "Spain", (964.7302 - 58.60081) + 1379.53612);
+					pathwayMove(vrPathwayPoints, vrUserXOffset, "Portugal", (964.7302 - 58.60081) + 1381.74012);
+					pathwayMove(vrPathwayPoints, vrUserXOffset, "Iceland", (964.7302 - 58.60081) + 1492.64812);
+					pathwayMove(vrPathwayPoints, vrUserXOffset, "Norway", (964.7302 - 58.60081) + 1499.36712);
+					pathwayMove(vrPathwayPoints, vrUserXOffset, "Lithuania", (964.7302 - 58.60081) + 1501.61912);
+					pathwayMove(vrPathwayPoints, vrUserXOffset, "Ukraine", (964.7302 - 58.60081) + 1505.04612);
+					pathwayMove(vrPathwayPoints, vrUserXOffset, "Turkey", (964.7302 - 58.60081) + 1506.59812);
+					pathwayMove(vrPathwayPoints, vrUserXOffset, "Moldova", (964.7302 - 58.60081) + 1510.26712);
+
+					// end vertex
+					vrPathwayPoints.push(new THREE.Vector3(vrPathwayPoints[vrPathwayPoints.length-1].x, vrPathwayPoints[vrPathwayPoints.length-1].y, sessionEndZ) );
+
+					// instantiate 3D object (line)
+					if (isUsingLine2ForPathways)
+					{
+						createFatLinePathway( vrPathwayPoints, vrPathwayColor, line2PathwayWidth, sceneObjectName_vrPathway);
+					}
+					else
+					{
+						const vrPathwayLineGeometry = new THREE.BufferGeometry().setFromPoints( vrPathwayPoints );
+						const vrPathwayLineMaterial = new THREE.LineBasicMaterial( { color: vrPathwayColor } );
+						const vrPathwayLine = new THREE.Line( vrPathwayLineGeometry, vrPathwayLineMaterial );
+						vrPathwayLine.name = sceneObjectName_vrPathway;
+						scene.add( vrPathwayLine );
+					}
+
+
+					// desktop user pathway
+					//
+					const webPathwayPoints = [];
+
+					// start vertex
+					webPathwayPoints.push(new THREE.Vector3(countryCentroids["Germany"].x + webUserXOffset, countryCentroids["Germany"].y, sessionStartZ) ); 
+
+					// all user movements go here...
+					pathwayMove(webPathwayPoints, webUserXOffset, "Malta", 7.89887);
+					pathwayMove(webPathwayPoints, webUserXOffset, "France", 175.82969);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Netherlands", 628.38709);
+					pathwayMove(webPathwayPoints, webUserXOffset, "France", 795.81719);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Netherlands", 813.29319);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Belgium", 815.60039);
+					pathwayMove(webPathwayPoints, webUserXOffset, "France", 857.42739);
+
+					pathwayMove(webPathwayPoints, webUserXOffset, "Belgium", (964.7302 - 58.60081) + 266.45352);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Netherlands", (964.7302 - 58.60081) + 366.58202);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Ireland", (964.7302 - 58.60081) + 414.49762);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Netherlands", (964.7302 - 58.60081) + 423.36432);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Norway", (964.7302 - 58.60081) + 525.57172);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Germany", (964.7302 - 58.60081) + 528.87022);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Sweden", (964.7302 - 58.60081) + 530.69182);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Finland", (964.7302 - 58.60081) + 534.73872);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Poland", (964.7302 - 58.60081) + 536.47322);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Belarus", (964.7302 - 58.60081) + 538.00152);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Lithuania", (964.7302 - 58.60081) + 539.53952);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Moldova", (964.7302 - 58.60081) + 542.98582);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Ukraine", (964.7302 - 58.60081) + 544.32262);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Turkey", (964.7302 - 58.60081) + 546.98952);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Malta", (964.7302 - 58.60081) + 548.84972);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Germany", (964.7302 - 58.60081) + 550.65122);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Belgium", (964.7302 - 58.60081) + 607.39062);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Germany", (964.7302 - 58.60081) + 609.63822);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Netherlands", (964.7302 - 58.60081) + 610.64242);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Germany", (964.7302 - 58.60081) + 612.41752);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Netherlands", (964.7302 - 58.60081) + 618.00402);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Germany", (964.7302 - 58.60081) + 671.50952);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Netherlands", (964.7302 - 58.60081) + 712.37832);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Germany", (964.7302 - 58.60081) + 717.14072);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Netherlands", (964.7302 - 58.60081) + 727.83792);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Germany", (964.7302 - 58.60081) + 730.61962);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Netherlands", (964.7302 - 58.60081) + 810.10722);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Norway", (964.7302 - 58.60081) + 881.10952);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Sweden", (964.7302 - 58.60081) + 882.83352);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Finland", (964.7302 - 58.60081) + 884.31222);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Estonia", (964.7302 - 58.60081) + 885.73582);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Latvia", (964.7302 - 58.60081) + 887.12212);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Lithuania", (964.7302 - 58.60081) + 888.61282);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Belarus", (964.7302 - 58.60081) + 890.38932);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Ukraine", (964.7302 - 58.60081) + 891.87242);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Slovakia", (964.7302 - 58.60081) + 893.17832);
+					pathwayMove(webPathwayPoints, webUserXOffset, "CzechRep", (964.7302 - 58.60081) + 895.01822);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Austria", (964.7302 - 58.60081) + 896.27402);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Slovenia", (964.7302 - 58.60081) + 897.11282);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Croatia", (964.7302 - 58.60081) + 898.23312);
+					pathwayMove(webPathwayPoints, webUserXOffset, "BosniaandHerz", (964.7302 - 58.60081) + 900.05362);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Montenegro", (964.7302 - 58.60081) + 902.06632);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Kosovo", (964.7302 - 58.60081) + 903.56722);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Greece", (964.7302 - 58.60081) + 905.21182);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Portugal", (964.7302 - 58.60081) + 1029.64812);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Spain", (964.7302 - 58.60081) + 1031.44512);
+					pathwayMove(webPathwayPoints, webUserXOffset, "France", (964.7302 - 58.60081) + 1033.38512);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Ireland", (964.7302 - 58.60081) + 1113.32712);
+					pathwayMove(webPathwayPoints, webUserXOffset, "France", (964.7302 - 58.60081) + 1117.35512);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Greece", (964.7302 - 58.60081) + 1182.32512);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Portugal", (964.7302 - 58.60081) + 1249.40012);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Greece", (964.7302 - 58.60081) + 1254.60412);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Albania", (964.7302 - 58.60081) + 1265.61512);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Macedonia", (964.7302 - 58.60081) + 1267.77812);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Bulgaria", (964.7302 - 58.60081) + 1270.80012);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Macedonia", (964.7302 - 58.60081) + 1274.14012);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Bulgaria", (964.7302 - 58.60081) + 1360.13612);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Romania", (964.7302 - 58.60081) + 1362.40012);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Serbia", (964.7302 - 58.60081) + 1363.93412);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Hungary", (964.7302 - 58.60081) + 1365.37312);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Slovakia", (964.7302 - 58.60081) + 1366.55812);
+					pathwayMove(webPathwayPoints, webUserXOffset, "CzechRep", (964.7302 - 58.60081) + 1368.64412);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Slovenia", (964.7302 - 58.60081) + 1370.27112);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Austria", (964.7302 - 58.60081) + 1371.42212);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Switzerland", (964.7302 - 58.60081) + 1373.07312);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Spain", (964.7302 - 58.60081) + 1375.23212);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Portugal", (964.7302 - 58.60081) + 1376.57212);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Ukraine", (964.7302 - 58.60081) + 1512.97212);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Belarus", (964.7302 - 58.60081) + 1517.19912);
+
+					// end vertex
+					webPathwayPoints.push(new THREE.Vector3(webPathwayPoints[webPathwayPoints.length-1].x, webPathwayPoints[webPathwayPoints.length-1].y, sessionEndZ) );
+
+					// instantiate 3D object (line)
+					if (isUsingLine2ForPathways)
+					{
+						createFatLinePathway( webPathwayPoints, webPathwayColor, line2PathwayWidth, sceneObjectName_webPathway);
+					}
+					else
+					{
+						const webPathwayLineGeometry = new THREE.BufferGeometry().setFromPoints( webPathwayPoints );
+						const webPathwayLineMaterial = new THREE.LineBasicMaterial( { color: webPathwayColor } );
+						const webPathwayLine = new THREE.Line( webPathwayLineGeometry, webPathwayLineMaterial );
+						webPathwayLine.name = sceneObjectName_webPathway;
+						scene.add( webPathwayLine );
+					}
+				}
+
+				// PAIR 4 VEGETABLES
+				else if ( task_id == 2 )
+				{
+					// session start and end z-axis coordinates
+					const sessionStartZ = zStartOffset;
+					const sessionEndZ = getZForForTimeInMilliseconds(646.7631 - 84.79364);
+
+					// VR user pathway
+					//
+					const vrPathwayPoints = [];
+
+					// start vertex
+					vrPathwayPoints.push(new THREE.Vector3(vrUserStartLocation.x + vrUserXOffset, vrUserStartLocation.y, sessionStartZ) );
+
+					// all user movements go here...
+					pathwayMove(vrPathwayPoints, vrUserXOffset, "Malta", 14.85189);
+					pathwayMove(vrPathwayPoints, vrUserXOffset, "Portugal", 16.81376);
+					pathwayMove(vrPathwayPoints, vrUserXOffset, "Spain", 294.37546);
+					pathwayMove(vrPathwayPoints, vrUserXOffset, "France", 311.62026);
+					pathwayMove(vrPathwayPoints, vrUserXOffset, "Belgium", 318.78606);
+					pathwayMove(vrPathwayPoints, vrUserXOffset, "Denmark", 322.30266);
+					pathwayMove(vrPathwayPoints, vrUserXOffset, "Sweden", 324.35556);
+					pathwayMove(vrPathwayPoints, vrUserXOffset, "Moldova", 469.03116);
+
+					// end vertex
+					vrPathwayPoints.push(new THREE.Vector3(vrPathwayPoints[vrPathwayPoints.length-1].x, vrPathwayPoints[vrPathwayPoints.length-1].y, sessionEndZ) );
+
+					// instantiate 3D object (line)
+					if (isUsingLine2ForPathways)
+					{
+						createFatLinePathway( vrPathwayPoints, vrPathwayColor, line2PathwayWidth, sceneObjectName_vrPathway);
+					}
+					else
+					{
+						const vrPathwayLineGeometry = new THREE.BufferGeometry().setFromPoints( vrPathwayPoints );
+						const vrPathwayLineMaterial = new THREE.LineBasicMaterial( { color: vrPathwayColor } );
+						const vrPathwayLine = new THREE.Line( vrPathwayLineGeometry, vrPathwayLineMaterial );
+						vrPathwayLine.name = sceneObjectName_vrPathway;
+						scene.add( vrPathwayLine );
+					}
+
+
+					// desktop user pathway
+					//
+					const webPathwayPoints = [];
+
+					// start vertex
+					webPathwayPoints.push(new THREE.Vector3(countryCentroids["CzechRep"].x + webUserXOffset, countryCentroids["CzechRep"].y, sessionStartZ) );
+
+					// all user movements go here...
+					pathwayMove(webPathwayPoints, webUserXOffset, "Portugal", 2.86922);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Spain", 286.14826);
+					pathwayMove(webPathwayPoints, webUserXOffset, "France", 291.77396);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Ireland", 294.23206);
+					pathwayMove(webPathwayPoints, webUserXOffset, "UnitedKingdom", 297.28896);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Ireland", 299.04156);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Finland", 303.26596);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Sweden", 304.73476);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Iceland", 443.11546);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Spain", 446.17126);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Malta", 447.72216);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Turkey", 451.49956);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Bulgaria", 453.12236);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Romania", 454.44466);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Moldova", 460.53176);
+
+					// end vertex
+					webPathwayPoints.push(new THREE.Vector3(webPathwayPoints[webPathwayPoints.length-1].x, webPathwayPoints[webPathwayPoints.length-1].y, sessionEndZ) );
+
+					// instantiate 3D object (line)
+					if (isUsingLine2ForPathways)
+					{
+						createFatLinePathway( webPathwayPoints, webPathwayColor, line2PathwayWidth, sceneObjectName_webPathway);
+					}
+					else
+					{
+						const webPathwayLineGeometry = new THREE.BufferGeometry().setFromPoints( webPathwayPoints );
+						const webPathwayLineMaterial = new THREE.LineBasicMaterial( { color: webPathwayColor } );
+						const webPathwayLine = new THREE.Line( webPathwayLineGeometry, webPathwayLineMaterial );
+						webPathwayLine.name = sceneObjectName_webPathway;
+						scene.add( webPathwayLine );
+					}
+				}
+			}
+
+			// PAIR 5 PATHWAYS
+			function createPathwaysPair5( task_id )
+			{
+				// PAIR 5 FRUITS
+				if ( task_id == 1 )
+				{
+					// session start and end z-axis coordinates
+					const sessionStartZ = zStartOffset;
+					const sessionEndZ = getZForForTimeInMilliseconds(2113.726 - 164.926);
+
+					// VR user pathway
+					//
+					const vrPathwayPoints = [];
+
+					// start vertex
+					vrPathwayPoints.push(new THREE.Vector3(vrUserStartLocation.x + vrUserXOffset, vrUserStartLocation.y, sessionStartZ) );
+
+					// all user movements go here...
+					pathwayMove(vrPathwayPoints, vrUserXOffset, "BosniaandHerz", 97.7779);
+					pathwayMove(vrPathwayPoints, vrUserXOffset, "Poland", 100.1877);
+					pathwayMove(vrPathwayPoints, vrUserXOffset, "Belarus", 427.2979);
+					pathwayMove(vrPathwayPoints, vrUserXOffset, "Ukraine", 830.5668);
+					pathwayMove(vrPathwayPoints, vrUserXOffset, "Turkey", 1128.733);
+					pathwayMove(vrPathwayPoints, vrUserXOffset, "Greece", 1187.975);
+					pathwayMove(vrPathwayPoints, vrUserXOffset, "Albania", 1194.577);
+					pathwayMove(vrPathwayPoints, vrUserXOffset, "BosniaandHerz", 1527.183);
+					pathwayMove(vrPathwayPoints, vrUserXOffset, "Moldova", 1537.09);
+					pathwayMove(vrPathwayPoints, vrUserXOffset, "BosniaandHerz", 1546.727);
+					pathwayMove(vrPathwayPoints, vrUserXOffset, "Poland", 1796.213);
+					pathwayMove(vrPathwayPoints, vrUserXOffset, "Bulgaria", 1814.441);
+					pathwayMove(vrPathwayPoints, vrUserXOffset, "Slovakia", 1906.622);
+					pathwayMove(vrPathwayPoints, vrUserXOffset, "Denmark", 1907.97);
+					pathwayMove(vrPathwayPoints, vrUserXOffset, "Norway", 1917.031);
+
+					// end vertex
+					vrPathwayPoints.push(new THREE.Vector3(vrPathwayPoints[vrPathwayPoints.length-1].x, vrPathwayPoints[vrPathwayPoints.length-1].y, sessionEndZ) );
+
+					// instantiate 3D object (line)
+					if (isUsingLine2ForPathways)
+					{
+						createFatLinePathway( vrPathwayPoints, vrPathwayColor, line2PathwayWidth, sceneObjectName_vrPathway);
+					}
+					else
+					{
+						const vrPathwayLineGeometry = new THREE.BufferGeometry().setFromPoints( vrPathwayPoints );
+						const vrPathwayLineMaterial = new THREE.LineBasicMaterial( { color: vrPathwayColor } );
+						const vrPathwayLine = new THREE.Line( vrPathwayLineGeometry, vrPathwayLineMaterial );
+						vrPathwayLine.name = sceneObjectName_vrPathway;
+						scene.add( vrPathwayLine );
+					}
+
+
+					// desktop user pathway
+					//
+					const webPathwayPoints = [];
+
+					// start vertex
+					webPathwayPoints.push(new THREE.Vector3(countryCentroids["Croatia"].x + webUserXOffset, countryCentroids["Croatia"].y, sessionStartZ) ); 
+
+					// all user movements go here...
+					pathwayMove(webPathwayPoints, webUserXOffset, "Belgium", 61.203);
+					pathwayMove(webPathwayPoints, webUserXOffset, "UnitedKingdom", 63.1814);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Ireland", 64.5438);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Portugal", 71.0748);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Spain", 72.8101);
+					pathwayMove(webPathwayPoints, webUserXOffset, "France", 74.6968);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Belgium", 76.0055);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Germany", 77.5422);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Poland", 79.2409);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Belarus", 241.8708);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Poland", 244.1554);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Belarus", 390.2087);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Poland", 422.6022);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Belarus", 424.9921);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Lithuania", 825.3429);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Ukraine", 831.5876);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Belarus", 1080.887);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Ukraine", 1082.637);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Lithuania", 1118.757);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Latvia", 1120.014);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Estonia", 1121.429);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Lithuania", 1123.948);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Turkey", 1126.492);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Greece", 1165.631);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Albania", 1166.744);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Macedonia", 1168.941);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Kosovo", 1170.379);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Montenegro", 1171.41);
+					pathwayMove(webPathwayPoints, webUserXOffset, "BosniaandHerz", 1172.669);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Croatia", 1173.798);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Italy", 1175.092);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Switzerland", 1176.596);
+					pathwayMove(webPathwayPoints, webUserXOffset, "France", 1178.137);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Spain", 1179.496);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Portugal", 1180.636);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Malta", 1182.134);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Greece", 1183.374);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Albania", 1184.475);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Macedonia", 1187.61);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Albania", 1189.023);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Italy", 1388.657);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Slovenia", 1398.004);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Austria", 1406.922);
+					pathwayMove(webPathwayPoints, webUserXOffset, "CzechRep", 1408.751);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Albania", 1455.825);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Croatia", 1528.986);
+					pathwayMove(webPathwayPoints, webUserXOffset, "BosniaandHerz", 1536.382);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Croatia", 1539.342);
+					pathwayMove(webPathwayPoints, webUserXOffset, "BosniaandHerz", 1541.155);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Romania", 1546.521);
+					pathwayMove(webPathwayPoints, webUserXOffset, "BosniaandHerz", 1548.476);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Ireland", 1771.731);
+					pathwayMove(webPathwayPoints, webUserXOffset, "UnitedKingdom", 1773.655);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Ireland", 1776.536);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Iceland", 1785.446);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Norway", 1788.62);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Sweden", 1789.803);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Finland", 1791.02);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Estonia", 1792.458);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Latvia", 1793.776);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Lithuania", 1795.59);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Belarus", 1796.847);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Ukraine", 1797.903);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Turkey", 1799.46);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Bulgaria", 1800.638);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Greece", 1804.277);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Malta", 1806.256);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Bulgaria", 1808.114);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Norway", 1896.143);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Sweden", 1902.667);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Norway", 1904.527);
+
+					// end vertex
+					webPathwayPoints.push(new THREE.Vector3(webPathwayPoints[webPathwayPoints.length-1].x, webPathwayPoints[webPathwayPoints.length-1].y, sessionEndZ) );
+
+					// instantiate 3D object (line)
+					if (isUsingLine2ForPathways)
+					{
+						createFatLinePathway( webPathwayPoints, webPathwayColor, line2PathwayWidth, sceneObjectName_webPathway);
+					}
+					else
+					{
+						const webPathwayLineGeometry = new THREE.BufferGeometry().setFromPoints( webPathwayPoints );
+						const webPathwayLineMaterial = new THREE.LineBasicMaterial( { color: webPathwayColor } );
+						const webPathwayLine = new THREE.Line( webPathwayLineGeometry, webPathwayLineMaterial );
+						webPathwayLine.name = sceneObjectName_webPathway;
+						scene.add( webPathwayLine );
+					}
+				}
+
+				// PAIR 5 VEGETABLES
+				else if ( task_id == 2 )
+				{
+					// session start and end z-axis coordinates
+					const sessionStartZ = zStartOffset;
+					const sessionEndZ = getZForForTimeInMilliseconds(1858.725 - (1359.87 - 1286.774) - 72.84479);
+
+					// VR user pathway
+					//
+					const vrPathwayPoints = [];
+
+					// start vertex
+					vrPathwayPoints.push(new THREE.Vector3(vrUserStartLocation.x + vrUserXOffset, vrUserStartLocation.y, sessionStartZ) );
+
+					// all user movements go here...
+					pathwayMove(vrPathwayPoints, vrUserXOffset, "Greece", 0.401409);
+					pathwayMove(vrPathwayPoints, vrUserXOffset, "Bulgaria", 4.88367);
+					pathwayMove(vrPathwayPoints, vrUserXOffset, "Moldova", 23.63889);
+					pathwayMove(vrPathwayPoints, vrUserXOffset, "Hungary", 73.96101);
+					pathwayMove(vrPathwayPoints, vrUserXOffset, "Austria", 75.27741);
+					pathwayMove(vrPathwayPoints, vrUserXOffset, "Slovakia", 323.93041);
+					pathwayMove(vrPathwayPoints, vrUserXOffset, "Ukraine", 492.83331);
+					pathwayMove(vrPathwayPoints, vrUserXOffset, "Lithuania", 707.94991);
+					pathwayMove(vrPathwayPoints, vrUserXOffset, "Sweden", 710.04831);
+					pathwayMove(vrPathwayPoints, vrUserXOffset, "Slovenia", 922.28701);
+					pathwayMove(vrPathwayPoints, vrUserXOffset, "Bulgaria", 925.34531);
+					pathwayMove(vrPathwayPoints, vrUserXOffset, "Hungary", 930.68821);
+					pathwayMove(vrPathwayPoints, vrUserXOffset, "Ukraine", 948.06621);
+					pathwayMove(vrPathwayPoints, vrUserXOffset, "Lithuania", 959.22821);
+					pathwayMove(vrPathwayPoints, vrUserXOffset, "Norway", 967.60021);
+					pathwayMove(vrPathwayPoints, vrUserXOffset, "Sweden", 974.51821);
+					pathwayMove(vrPathwayPoints, vrUserXOffset, "Norway", 979.95721);
+					pathwayMove(vrPathwayPoints, vrUserXOffset, "Sweden", 1286.58621);
+					pathwayMove(vrPathwayPoints, vrUserXOffset, "Latvia", 1297.31921);
+					pathwayMove(vrPathwayPoints, vrUserXOffset, "Belarus", 1313.17921);
+					pathwayMove(vrPathwayPoints, vrUserXOffset, "Ukraine", 1314.33921);
+					pathwayMove(vrPathwayPoints, vrUserXOffset, "BosniaandHerz", 1345.17221);
+					pathwayMove(vrPathwayPoints, vrUserXOffset, "Croatia", 1352.10521);
+					pathwayMove(vrPathwayPoints, vrUserXOffset, "Kosovo", 1441.08821);
+					pathwayMove(vrPathwayPoints, vrUserXOffset, "Greece", 1442.44021);
+					pathwayMove(vrPathwayPoints, vrUserXOffset, "Romania", 1617.11921);
+
+					// end vertex
+					vrPathwayPoints.push(new THREE.Vector3(vrPathwayPoints[vrPathwayPoints.length-1].x, vrPathwayPoints[vrPathwayPoints.length-1].y, sessionEndZ) );
+
+					// instantiate 3D object (line)
+					if (isUsingLine2ForPathways)
+					{
+						createFatLinePathway( vrPathwayPoints, vrPathwayColor, line2PathwayWidth, sceneObjectName_vrPathway);
+					}
+					else
+					{
+						const vrPathwayLineGeometry = new THREE.BufferGeometry().setFromPoints( vrPathwayPoints );
+						const vrPathwayLineMaterial = new THREE.LineBasicMaterial( { color: vrPathwayColor } );
+						const vrPathwayLine = new THREE.Line( vrPathwayLineGeometry, vrPathwayLineMaterial );
+						vrPathwayLine.name = sceneObjectName_vrPathway;
+						scene.add( vrPathwayLine );
+					}
+
+
+					// desktop user pathway
+					//
+					const webPathwayPoints = [];
+
+					// start vertex
+					webPathwayPoints.push(new THREE.Vector3(countryCentroids["Netherlands"].x + webUserXOffset, countryCentroids["Netherlands"].y, sessionStartZ) );
+
+					// all user movements go here...
+					pathwayMove(webPathwayPoints, webUserXOffset, "France", 7.61291);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Germany", 9.430169);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Poland", 11.07615);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Ukraine", 12.65249);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Poland", 16.96708);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Ukraine", 18.36231);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Moldova", 19.34876);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Ukraine", 20.94945);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Spain", 22.80951);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Portugal", 24.3536);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Malta", 26.06419);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Turkey", 27.96881);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Bulgaria", 30.34331);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Serbia", 32.47231);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Macedonia", 34.26661);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Albania", 36.78491);
+					pathwayMove(webPathwayPoints, webUserXOffset, "CzechRep", 38.15691);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Austria", 39.53661);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Estonia", 292.74131);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Latvia", 294.93831);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Lithuania", 297.58071);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Belarus", 301.41271);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Poland", 304.80991);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Ukraine", 307.21471);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Germany", 310.16251);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Denmark", 312.82201);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Norway", 315.15791);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Sweden", 319.42531);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Norway", 321.72461);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Spain", 324.85781);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Portugal", 326.69001);
+					pathwayMove(webPathwayPoints, webUserXOffset, "France", 328.37761);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Italy", 329.53641);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Norway", 332.70951);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Slovakia", 338.08181);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Poland", 475.03821);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Ukraine", 477.28041);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Finland", 693.49971);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Sweden", 695.01481);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Norway", 866.61221);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Sweden", 879.16391);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Norway", 880.38511);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Greece", 1279.66721);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Albania", 1284.81521);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Macedonia", 1286.79021);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Kosovo", 1289.10821);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Montenegro", 1292.17621);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Serbia", 1294.33721);
+					pathwayMove(webPathwayPoints, webUserXOffset, "BosniaandHerz", 1296.06921);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Croatia", 1297.20621);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Slovenia", 1300.20421);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Croatia", 1302.15021);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Greece", 1431.64921);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Bulgaria", 1543.07921);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Turkey", 1544.69721);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Moldova", 1546.79021);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Ukraine", 1548.76321);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Italy", 1550.65921);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Greece", 1553.22521);
+					pathwayMove(webPathwayPoints, webUserXOffset, "Romania", 1609.29921);
+
+					// end vertex
+					webPathwayPoints.push(new THREE.Vector3(webPathwayPoints[webPathwayPoints.length-1].x, webPathwayPoints[webPathwayPoints.length-1].y, sessionEndZ) );
+
+					// instantiate 3D object (line)
+					if (isUsingLine2ForPathways)
+					{
+						createFatLinePathway( webPathwayPoints, webPathwayColor, line2PathwayWidth, sceneObjectName_webPathway);
+					}
+					else
+					{
+						const webPathwayLineGeometry = new THREE.BufferGeometry().setFromPoints( webPathwayPoints );
+						const webPathwayLineMaterial = new THREE.LineBasicMaterial( { color: webPathwayColor } );
+						const webPathwayLine = new THREE.Line( webPathwayLineGeometry, webPathwayLineMaterial );
+						webPathwayLine.name = sceneObjectName_webPathway;
+						scene.add( webPathwayLine );
+					}
+				}
+			}
+
+
+			// === Keyboard and Mouse Event setup === 
+			//
+			// add event listener for keyboard keydown event
+			document.addEventListener("keydown", onKeyboardKeyDown, false);
+			function onKeyboardKeyDown( event )
+			{
+				let keyDownCode = event.which;
+				//console.log(keyDownCode);
+
+				switch(keyDownCode)
+				{
+					/*
+					case 48:
+						//console.log("key pressed: 0");
+						removePathwaysFromScene();
+						break;
+
+					case 49:
+						//console.log("key pressed: 1");
+						displayPathwaysForPair( 1 );
+						break;
+
+					case 50:
+						//console.log("key pressed: 2");
+						displayPathwaysForPair( 2 );
+						break;
+
+					case 51:
+						//console.log("key pressed: 3");
+						displayPathwaysForPair( 3 );
+						break;
+
+					case 52:
+						//console.log("key pressed: 4");
+						displayPathwaysForPair( 4 );
+						break;
+
+					case 53:
+						//console.log("key pressed: 5");
+						displayPathwaysForPair( 5 );
+						break;
+					*/
+					case 70:
+						//console.log("key pressed: f");
+						resetCamera();
+						break;
+
+					default:
+						// do nothing
+						break;
+				}
+			}
+
+			// function to remove all pathways from the scene
+			function removePathwaysFromScene()
+			{
+				// remove vr user pathway
+				let pathwayVR = scene.getObjectByName( sceneObjectName_vrPathway );
+				if (pathwayVR != null) scene.remove( pathwayVR );
+
+				// remove desktop user pathway
+				let pathwayWeb = scene.getObjectByName( sceneObjectName_webPathway );
+				if (pathwayWeb != null) scene.remove( pathwayWeb );
+
+				return true;
+			}
+
+			// display data for specified pair with id
+			window.displayPathwaysForPair = function ( pair_id, task_id )
+			{
+				let arePathwaysRemoved = removePathwaysFromScene();
+				if (arePathwaysRemoved == true)
+				{
+
+					switch(pair_id)
+					{
+						case 1:
+							createPathwaysPair1( task_id );
+							break;
+
+						case 2:
+							createPathwaysPair2( task_id );
+							break;
+
+						case 3:
+							createPathwaysPair3( task_id );
+							break;
+
+						case 4:
+							createPathwaysPair4( task_id );
+							break;
+
+						case 5:
+							createPathwaysPair5( task_id );
+							break;
+
+						default:
+							// do nothing
+							break;
+					}
+				}
+
+				let dataInfoLabelElement = document.getElementById( "datainfolabel" );
+				let taskLabel = "Fruits";
+				if (task_id == 2) taskLabel = "Vegetables";
+				dataInfoLabelElement.innerHTML = "Pair " + pair_id + " : " + taskLabel;
+			}
+
+			// function to set the camera to the front top down view
+			window.resetCamera = function ()
+			{
+				controls.reset();	
+			}
+
+			// function for front down camera preset (default)
+			window.cameraDefault = function ()
+			{
+				// default reset
+				controls.reset();
+
+				// set and backup initial camera controls (orthographic)
+				controls.target = boundingBoxCenterFocusPoint;
+				
+				// (default) set camera to look at the front, centered, slightly from above looking down at the boundingBoxCenterFocusPoint
+				camera.position.set(boundingBoxCenterFocusPoint.x, boundingBoxCenterFocusPoint.y - 100, (boundingBoxDepth * 0.5) * 5.0);	
+
+				camera.zoom = 10.0;
+				controls.update();
+			}
+
+			// function for angled camera preset
+			window.cameraAngled = function()
+			{
+				// default reset
+				controls.reset();
+
+				// set and backup initial camera controls (orthographic)
+				controls.target = boundingBoxCenterFocusPoint;
+				
+				// set camera to look at the focus point slightly angled ("isometric")
+				camera.position.set(boundingBoxCenterFocusPoint.x - 30, - 30, (boundingBoxDepth * 0.5) * 5.0);	
+
+				camera.zoom = 10.0;
+				controls.update();
+			}
+
+			// function for top down camera preset
+			window.cameraTopDown = function()
+			{
+				// default reset
+				controls.reset();
+
+				// set and backup initial camera controls (orthographic)
+				controls.target = boundingBoxCenterFocusPoint;
+				
+				// set camera to look from the top down
+				camera.position.set(boundingBoxCenterFocusPoint.x, boundingBoxCenterFocusPoint.y, (boundingBoxDepth * 0.5) * 6.0);	
+
+				camera.zoom = 10.0;
+				controls.update();
+			}
+
+			// function for side view camera preset
+			window.cameraSideView = function()
+			{
+				// default reset
+				controls.reset();
+
+				// set and backup initial camera controls (orthographic)
+				controls.target = boundingBoxCenterFocusPoint;
+				
+				// set camera to look from the top down
+				//camera.position.set(boundingBoxCenterFocusPoint.x, boundingBoxCenterFocusPoint.y, (boundingBoxDepth * 0.5) * 6.0);	
+				//camera.translateZ((boundingBoxDepth * 0.5) * -12.0)
+
+				// NOTE: For some reason, the above is looking from the north to the south (i.e., the land mass is flipped). Some further debugging
+				// to fix this is required. As a temporary alternative: Apply hardcoded desired camera position setting.
+				camera.position.set(8.448, -157.947, 22.0);
+
+				// console.log(camera.position);  // debug camera position
+
+				camera.zoom = 10.0;
+				controls.update();
+			}
+
+			// handle camera controls auto rotation via on/off toggle
+			let isAutoRotateEnabled = false;
+			controls.autoRotateSpeed = 4.0; 	// default: 2.0 --> 30 seconds per orbit at 60fps
+			window.toggleAutoRotate = function ()
+			{
+				isAutoRotateEnabled = !isAutoRotateEnabled;	// reverse current state
+				
+				controls.autoRotate = isAutoRotateEnabled;
+				let buttonElement = document.getElementById( "button_toggleAutoRotate" );
+				buttonElement.innerHTML = ( isAutoRotateEnabled ) ? "auto rotate on" : "auto rotate off";
+			}
+
+		</script>
+	</body>
+</html>

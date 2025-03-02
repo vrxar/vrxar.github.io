@@ -1,0 +1,602 @@
+<!--
+#	VRxAR Labs | 3D Radar Chart: Spatiotemporal Referencing - Study Operation Interface
+#
+#	Author: Nico Reski
+#	Email: nico.reski@lnu.se
+#	Web: https://vrxar.lnu.se/apps/tdrc-ext-ref/
+#
+#	Dependencies:
+#	* JavaScript WebSocket WebAPI: https://developer.mozilla.org/en-US/docs/Web/API/WebSocket
+#
+-->
+
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+	<meta charset="utf-8">
+	<title>VRxAR Labs - 3D Radar Chart: Spatiotemporal Referencing - Study Operation Interface</title>
+
+	<style>
+		/* CSS Tutorial: [https://www.w3schools.com/css/] */
+		text {
+			font-family: "Avenir Next", "Helvetica  Neue", Helvetica, Arial, sans-serif;
+			font-size: 11px;
+	  		text-anchor: middle;
+		}
+
+		h1, h2, h3, h4 {
+			font-family: "Avenir Next", "Helvetica  Neue", Helvetica, Arial, sans-serif;
+		}
+
+		table {
+			font-family: "Avenir Next", "Helvetica  Neue", Helvetica, Arial, sans-serif;
+		}
+
+		label {
+			font-family: "Avenir Next", "Helvetica  Neue", Helvetica, Arial, sans-serif;
+		}
+
+		li {
+			font-family: "Avenir Next", "Helvetica  Neue", Helvetica, Arial, sans-serif;
+		}
+
+		.title {
+			font-family: "Avenir Next", "Helvetica  Neue", Helvetica, Arial, sans-serif;
+			font-size: 18px;
+		}
+
+		.button {
+			border: none;
+			color: white;
+			padding: 14px 30px;
+			text-align: center;
+			text-decoration: none;
+			display: inline-block;
+			font-size: 16px;
+			margin: 4px 2px;
+			transition-duration: 0.4s;
+			cursor: pointer;
+		}
+
+		.button4reference {
+			background-color: white; 
+			color: black; 
+			border: 2px solid #6baed6;
+		}
+
+		.button4reference:hover {
+			background-color: #6baed6;
+			color: white;
+		}
+
+		.button4remove {
+			background-color: white; 
+			color: black; 
+			border: 2px solid #fb6a4a;
+		}
+
+		.button4remove:hover {
+			background-color: #fb6a4a;
+			color: white;
+		}
+	</style>
+</head>
+
+<body>
+	
+	<!-- Initialize HTML DOM tree elements. -->
+	<div class="title">3D Radar Chart: Spatiotemporal Referencing - Study Operation Interface</div>	
+
+	<h3>============================================================</h3>
+
+	<h3>Spatial Referencing</h3>
+	<div>
+		<table>
+			<tr>
+				<th style="padding-right: 200px;"></th>
+				<th style="padding-right: 50px;"></th>
+				<th style="padding-right: 50px;"></th>
+				<th style="padding-right: 50px;"></th>
+			</tr>
+			<tr>
+				<td>Elementary Task</td>
+				<td><button class="button button4reference" onclick="spatialReference_elemetaryTask('spatRef_a')">sAe</button></td>
+				<td><button class="button button4reference" onclick="spatialReference_elemetaryTask('spatRef_b')">sBe</button></td>
+				<td><button class="button button4reference" onclick="spatialReference_elemetaryTask('spatRef_c')">sCe</button></td>
+			</tr>
+			<tr>
+				<td>Synoptic Task</td>
+				<td><button class="button button4reference" onclick="spatialReference_synopticTask('spatRef_a')">sAs</button></td>
+				<td><button class="button button4reference" onclick="spatialReference_synopticTask('spatRef_b')">sBs</button></td>
+				<td><button class="button button4reference" onclick="spatialReference_synopticTask('spatRef_c')">sCs</button></td>
+			</tr>
+		</table>
+	</div>
+
+	<h3>============================================================</h3>
+
+	<h3>Temporal Referencing</h3>
+	<div>
+		<table>
+			<tr>
+				<th style="padding-right: 200px;"></th>
+				<th style="padding-right: 50px;"></th>
+				<th style="padding-right: 50px;"></th>
+				<th style="padding-right: 50px;"></th>
+				<th style="padding-right: 50px;"></th>
+			</tr>
+			<tr>
+				<td>Elementary Task</td>
+				<td><button class="button button4reference" onclick="temporalReference_elemetaryTask('tempRef_a')">tAe</button></td>
+				<td><button class="button button4reference" onclick="temporalReference_elemetaryTask('tempRef_b')">tBe</button></td>
+				<td><button class="button button4reference" onclick="temporalReference_elemetaryTask('tempRef_c')">tCe</button></td>
+				<td><button class="button button4reference" onclick="temporalReference_elemetaryTask('tempRef_d')">tDe</button></td>
+			</tr>
+			<tr>
+				<td>Synoptic Task</td>
+				<td><button class="button button4reference" onclick="temporalReference_synopticTask('tempRef_a')">tAs</button></td>
+				<td><button class="button button4reference" onclick="temporalReference_synopticTask('tempRef_b')">tBs</button></td>
+				<td><button class="button button4reference" onclick="temporalReference_synopticTask('tempRef_c')">tCs</button></td>
+				<td><button class="button button4reference" onclick="temporalReference_synopticTask('tempRef_d')">tDs</button></td>
+			</tr>
+		</table>
+	</div>
+
+	<h3>============================================================</h3>
+
+	<h3>Temporal Referencing (Individual Dimension)</h3>
+	<div>
+		<table>
+			<tr>
+				<th style="padding-right: 200px;"></th>
+				<th style="padding-right: 50px;"></th>
+				<th style="padding-right: 50px;"></th>
+				<th style="padding-right: 50px;"></th>
+				<th style="padding-right: 50px;"></th>
+			</tr>
+			<tr>
+				<td>Elementary Task</td>
+				<td></td>
+				<td></td>
+				<td><button class="button button4reference" onclick="temporalReference_elemetaryTask_individualDimension('tempRef_c')">tCei</button></td>
+				<td><button class="button button4reference" onclick="temporalReference_elemetaryTask_individualDimension('tempRef_d')">tDei</button></td>
+			</tr>
+			<tr>
+				<td>Synoptic Task</td>
+				<td><button class="button button4reference" onclick="temporalReference_synopticTask_individualDimension('tempRef_a')">tAsi</button></td>
+				<td><button class="button button4reference" onclick="temporalReference_synopticTask_individualDimension('tempRef_b')">tBsi</button></td>
+				<td><button class="button button4reference" onclick="temporalReference_synopticTask_individualDimension('tempRef_c')">tCsi</button></td>
+				<td><button class="button button4reference" onclick="temporalReference_synopticTask_individualDimension('tempRef_d')">tDsi</button></td>
+			</tr>
+		</table>
+	</div>
+
+	<h3>============================================================</h3>
+
+	<h3>Temporal Referencing (Reference Indicator)</h3>
+	<div>
+		<table>
+			<tr>
+				<th style="padding-right: 200px;"></th>
+				<th style="padding-right: 50px;"></th>
+				<th style="padding-right: 50px;"></th>
+				<th style="padding-right: 50px;"></th>
+			</tr>
+			<tr>
+				<td>Elementary Task (tCr)</td>
+				<td><button class="button button4reference" onclick="temporalReference_elemetaryTask_referenceIndicator('tempRef_c', 'neutral')">tCer ( neutral )</button></td>
+				<td><button class="button button4reference" onclick="temporalReference_elemetaryTask_referenceIndicator('tempRef_c', 'positive')">tCer ( positive )</button></td>
+				<td><button class="button button4reference" onclick="temporalReference_elemetaryTask_referenceIndicator('tempRef_c', 'negative')">tCer ( negative )</button></td>
+			</tr>
+			<tr>
+				<td>Synoptic Task (tCr)</td>
+				<td><button class="button button4reference" onclick="temporalReference_synopticTask_referenceIndicator('tempRef_c', 'neutral')">tCsr ( neutral )</button></td>
+				<td><button class="button button4reference" onclick="temporalReference_synopticTask_referenceIndicator('tempRef_c', 'positive')">tCsr ( positive )</button></td>
+				<td><button class="button button4reference" onclick="temporalReference_synopticTask_referenceIndicator('tempRef_c', 'negative')">tCsr ( negative )</button></td>
+			</tr>
+			<tr>
+				<td colspan="4">____________________________________________________________________________________________________</td>
+			</tr>
+			<tr>
+				<td>Elementary Task (tDr)</td>
+				<td><button class="button button4reference" onclick="temporalReference_elemetaryTask_referenceIndicator('tempRef_d', 'investigate')">tDer ( investigate )</button></td>
+				<td><button class="button button4reference" onclick="temporalReference_elemetaryTask_referenceIndicator('tempRef_d', 'exciting')">tDer ( exciting )</button></td>
+				<td><button class="button button4reference" onclick="temporalReference_elemetaryTask_referenceIndicator('tempRef_d', 'letstalk')">tDer ( let's talk )</button></td>
+			</tr>
+			<tr>
+				<td>Synoptic Task (tDr)</td>
+				<td><button class="button button4reference" onclick="temporalReference_synopticTask_referenceIndicator('tempRef_d', 'investigate')">tDsr ( investigate )</button></td>
+				<td><button class="button button4reference" onclick="temporalReference_synopticTask_referenceIndicator('tempRef_d', 'exciting')">tDsr ( exciting )</button></td>
+				<td><button class="button button4reference" onclick="temporalReference_synopticTask_referenceIndicator('tempRef_d', 'letstalk')">tDsr ( let's talk )</button></td>
+			</tr>
+		</table>
+	</div>
+
+	<h3>============================================================</h3>
+
+	<h3>Reference Removal</h3>
+	<div>
+		<table>
+			<tr>
+				<th style="padding-right: 200px;"></th>
+				<th style="padding-right: 50px;"></th>
+				<th style="padding-right: 50px;"></th>
+			</tr>
+			<tr>
+				<td>Reference Removal</td>
+				<td><button class="button button4remove" onclick="spatialReference_removeAll()">Remove All Spatial References</button></td>
+				<td><button class="button button4remove" onclick="temporalReference_removeAll()">Remove All Temporal References</button></td>
+			</tr>
+		</table>
+	</div>
+
+	<!-- Implementation via JavaScript. -->
+	<script>
+
+		// ===== WEBSOCKET MESSAGE API =====
+
+		// Define string variables for WebSocket event listeners.
+
+		// WebClient (out) -> WebSocketServer (inc/out) -> Unity3D (inc)
+		var js2unitySpatialRefElementaryTask 	= "js_to_unity-spatial_ref-elementary_task";
+		var js2unitySpatialRefSynopticTask 		= "js_to_unity-spatial_ref-synoptic_task";
+		var js2unityTemporalRefElementaryTask 	= "js_to_unity-temporal_ref-elementary_task";
+		var js2unityTemporalRefSynopticTask 	= "js_to_unity-temporal_ref-synopticelementary_task";
+		var js2unityRemoveAllSpatialRef			= "js_to_unity-remove_all_spatial_ref";
+		var js2unityRemoveAllTemporalRef		= "js_to_unity-remove_all_temporal_ref";
+
+		// ===== WEBSOCKET SETUP AND EVENT LISTERNERS =====
+
+		// create websocket instance
+		//const socket = new WebSocket('wss://MY_SERVER_URL:MY_SERVER_PORT/');
+		const socket = new WebSocket('wss://vrxar.lnu.se:4247/');;
+
+		var shouldConnectToWebSocketServer = false;		// default setting: do not connnect to websocket server
+
+		// decide whether the web app should connect to the websocket server or not via url argument
+		// standard (no websocket server connection): 	[ https://vrxar.lnu.se/apps/tdrc-ext-ref/ ]
+		// with websocket server connection: 			[ https://vrxar.lnu.se/apps/tdrc-ext-ref/?wssconnect=true ]
+
+		var appURLString = window.location.href;						// grab url that was used to open this web app
+		var appURL = new URL(appURLString);								// create URL object
+		var wssConnect = appURL.searchParams.get("wssconnect");			// extract url argument "wssconnect"
+		if(wssConnect == "true") shouldConnectToWebSocketServer = true;	// set connect to websocket server flag if url argument was set accordingly
+
+		if(shouldConnectToWebSocketServer)
+		{
+			// Event Handler: Open
+			socket.addEventListener('open', function (event) {
+				console.log("Connection established to WSS Server.");
+			});
+
+			/*
+			// Event Handler: Message
+			socket.addEventListener('message', function (event) {
+
+				console.log("Message recevied with data: " + event.data);
+			});
+			*/
+		}
+
+  		// === BUTTON FUNCTIONS ===
+
+  		function spatialReference_elemetaryTask(referenceVariant)
+  		{
+  			// Reference Variant Definitions:
+			// spatRef_a, spatRef_b, spatRef_c
+
+			// study configuration
+			//const location = "Sweden";
+			const location = "Romania";
+
+			// WEBSOCKET CONNECTION
+			if (shouldConnectToWebSocketServer && socket.readyState == WebSocket.OPEN)
+			{
+				// construct an example DefaultMessage (see properties in class WebSockerServerConnector.MessageJSONAPI.DefaultMessage in Unity3D source code)
+				var jsonDefaultMessage = { 'sender' : 'JS_Web_External_Referencing_client',
+										   'receiver' : 'Unity3D_3D_Radar_Chart_client',
+										   'api': js2unitySpatialRefElementaryTask,
+										   'referenceVariant' : referenceVariant,
+										   'tdrcWithName' : location };
+
+				// create JSON string based on message object's keys and values
+				var jsonString = JSON.stringify(jsonDefaultMessage);
+
+				// send string to WebSocket server
+				socket.send(jsonString);
+			}
+  		}
+
+  		function spatialReference_synopticTask(referenceVariant)
+  		{
+  			// Reference Variant Definitions:
+			// spatRef_a, spatRef_b, spatRef_c
+
+			// study configuration
+			//const locationsCSVString = "Sweden,Norway,Finland";
+			const locationsCSVString = "Romania,Moldova,Serbia,Hungary";
+
+			// WEBSOCKET CONNECTION
+				if (shouldConnectToWebSocketServer && socket.readyState == WebSocket.OPEN)
+				{
+					// construct an example DefaultMessage (see properties in class WebSockerServerConnector.MessageJSONAPI.DefaultMessage in Unity3D source code)
+					var jsonDefaultMessage = { 'sender' : 'JS_Web_External_Referencing_client',
+											   'receiver' : 'Unity3D_3D_Radar_Chart_client',
+											   'api': js2unitySpatialRefSynopticTask,
+											   'referenceVariant' : referenceVariant,
+											   'tdrcWithNamesAsCSVString' : locationsCSVString };
+
+					// create JSON string based on message object's keys and values
+					var jsonString = JSON.stringify(jsonDefaultMessage);
+
+					// send string to WebSocket server
+					socket.send(jsonString);
+				}
+  		}
+
+		function temporalReference_elemetaryTask(referenceVariant)
+		{
+			// Reference Variant Definitions:
+			// tempRef_a, tempRef_b, tempRef_c, tempRef_d
+
+			// study configuration
+			//const location = "Sweden";
+			const location = "Switzerland";
+			const pointInTime = "day 100";
+			const dimension = "all";
+			var indicator = "";
+			if (referenceVariant == "tempRef_c") indicator = "neutral";
+			else if (referenceVariant == "tempRef_d") indicator = "investigate";
+
+			// WEBSOCKET CONNECTION
+			if (shouldConnectToWebSocketServer && socket.readyState == WebSocket.OPEN)
+			{
+				// construct an example DefaultMessage (see properties in class WebSockerServerConnector.MessageJSONAPI.DefaultMessage in Unity3D source code)
+				var jsonDefaultMessage = { 'sender' : 'JS_Web_External_Referencing_client',
+										   'receiver' : 'Unity3D_3D_Radar_Chart_client',
+										   'api': js2unityTemporalRefElementaryTask,
+										   'referenceVariant' : referenceVariant,
+										   'tdrcWithName' : location,
+										   'pointInTime' : pointInTime,
+										   'dimension' : dimension,
+										   'referenceIndicator' : indicator };
+
+				// create JSON string based on message object's keys and values
+				var jsonString = JSON.stringify(jsonDefaultMessage);
+
+				// send string to WebSocket server
+				socket.send(jsonString);
+			}
+		}
+
+		function temporalReference_synopticTask(referenceVariant)
+		{
+			// Reference Variant Definitions:
+			// tempRef_a, tempRef_b, tempRef_c, tempRef_d
+
+			// study configuration
+			//const location = "Sweden";
+			const location = "Switzerland";
+			const pointInTimeFrom = "day 040";
+			const pointInTimeTo = "day 120";
+			const dimension = "all";
+			var indicator = "";
+			if (referenceVariant == "tempRef_c") indicator = "neutral";
+			else if (referenceVariant == "tempRef_d") indicator = "investigate";
+
+			// WEBSOCKET CONNECTION
+			if (shouldConnectToWebSocketServer && socket.readyState == WebSocket.OPEN)
+			{
+				// construct an example DefaultMessage (see properties in class WebSockerServerConnector.MessageJSONAPI.DefaultMessage in Unity3D source code)
+				var jsonDefaultMessage = { 'sender' : 'JS_Web_External_Referencing_client',
+										   'receiver' : 'Unity3D_3D_Radar_Chart_client',
+										   'api': js2unityTemporalRefSynopticTask,
+										   'referenceVariant' : referenceVariant,
+										   'tdrcWithName' : location,
+										   'pointInTimeFrom' : pointInTimeFrom, 
+										   'pointInTimeTo' : pointInTimeTo,
+										   'dimension' : dimension,
+										   'referenceIndicator' : indicator };
+
+				// create JSON string based on message object's keys and values
+				var jsonString = JSON.stringify(jsonDefaultMessage);
+
+				// send string to WebSocket server
+				socket.send(jsonString);
+			}
+		}
+
+		function temporalReference_elemetaryTask_individualDimension(referenceVariant)
+		{
+			// Reference Variant Definitions:
+			// tempRef_a, tempRef_b, tempRef_c, tempRef_d
+
+			// study configuration
+			//const location = "Sweden";
+			const location = "Switzerland";
+			const pointInTime = "day 100";
+			const dimension = "Bananas";
+			var indicator = "";
+			if (referenceVariant == "tempRef_c") indicator = "neutral";
+			else if (referenceVariant == "tempRef_d") indicator = "investigate";
+
+			// WEBSOCKET CONNECTION
+			if (shouldConnectToWebSocketServer && socket.readyState == WebSocket.OPEN)
+			{
+				// construct an example DefaultMessage (see properties in class WebSockerServerConnector.MessageJSONAPI.DefaultMessage in Unity3D source code)
+				var jsonDefaultMessage = { 'sender' : 'JS_Web_External_Referencing_client',
+										   'receiver' : 'Unity3D_3D_Radar_Chart_client',
+										   'api': js2unityTemporalRefElementaryTask,
+										   'referenceVariant' : referenceVariant,
+										   'tdrcWithName' : location,
+										   'pointInTime' : pointInTime,
+										   'dimension' : dimension,
+										   'referenceIndicator' : indicator };
+
+				// create JSON string based on message object's keys and values
+				var jsonString = JSON.stringify(jsonDefaultMessage);
+
+				// send string to WebSocket server
+				socket.send(jsonString);
+			}
+		}
+
+		function temporalReference_synopticTask_individualDimension(referenceVariant)
+		{
+			// Reference Variant Definitions:
+			// tempRef_a, tempRef_b, tempRef_c, tempRef_d
+
+			// study configuration
+			//const location = "Sweden";
+			const location = "Switzerland";
+			const pointInTimeFrom = "day 040";
+			const pointInTimeTo = "day 120";
+			const dimension = "Bananas";
+			var indicator = "";
+			if (referenceVariant == "tempRef_c") indicator = "neutral";
+			else if (referenceVariant == "tempRef_d") indicator = "investigate";
+
+			// WEBSOCKET CONNECTION
+			if (shouldConnectToWebSocketServer && socket.readyState == WebSocket.OPEN)
+			{
+				// construct an example DefaultMessage (see properties in class WebSockerServerConnector.MessageJSONAPI.DefaultMessage in Unity3D source code)
+				var jsonDefaultMessage = { 'sender' : 'JS_Web_External_Referencing_client',
+										   'receiver' : 'Unity3D_3D_Radar_Chart_client',
+										   'api': js2unityTemporalRefSynopticTask,
+										   'referenceVariant' : referenceVariant,
+										   'tdrcWithName' : location,
+										   'pointInTimeFrom' : pointInTimeFrom, 
+										   'pointInTimeTo' : pointInTimeTo,
+										   'dimension' : dimension,
+										   'referenceIndicator' : indicator };
+
+				// create JSON string based on message object's keys and values
+				var jsonString = JSON.stringify(jsonDefaultMessage);
+
+				// send string to WebSocket server
+				socket.send(jsonString);
+			}
+		}
+
+		function temporalReference_elemetaryTask_referenceIndicator(referenceVariant, referenceIndicator)
+		{
+			// Reference Variant Definitions:
+			// tempRef_a, tempRef_b, tempRef_c, tempRef_d
+
+			// Reference Indicator Definitions:
+			// tempRef_c: neutral, positive, negative
+			// tempRef_d: investigate, exciting, letstalk
+
+			// study configuration
+			//const location = "Sweden";
+			const location = "Switzerland";
+			const pointInTime = "day 100";
+			const dimension = "all";
+
+			// WEBSOCKET CONNECTION
+			if (shouldConnectToWebSocketServer && socket.readyState == WebSocket.OPEN)
+			{
+				// construct an example DefaultMessage (see properties in class WebSockerServerConnector.MessageJSONAPI.DefaultMessage in Unity3D source code)
+				var jsonDefaultMessage = { 'sender' : 'JS_Web_External_Referencing_client',
+										   'receiver' : 'Unity3D_3D_Radar_Chart_client',
+										   'api': js2unityTemporalRefElementaryTask,
+										   'referenceVariant' : referenceVariant,
+										   'tdrcWithName' : location,
+										   'pointInTime' : pointInTime,
+										   'dimension' : dimension,
+										   'referenceIndicator' : referenceIndicator };
+
+				// create JSON string based on message object's keys and values
+				var jsonString = JSON.stringify(jsonDefaultMessage);
+
+				// send string to WebSocket server
+				socket.send(jsonString);
+			}
+		}
+
+		function temporalReference_synopticTask_referenceIndicator(referenceVariant, referenceIndicator)
+		{
+			// Reference Variant Definitions:
+			// tempRef_a, tempRef_b, tempRef_c, tempRef_d
+
+			// Reference Indicator Definitions:
+			// tempRef_c: neutral, positive, negative
+			// tempRef_d: investigate, exciting, letstalk
+
+			// study configuration
+			//const location = "Sweden";
+			const location = "Switzerland";
+			const pointInTimeFrom = "day 040";
+			const pointInTimeTo = "day 100";
+			const dimension = "all";
+
+			// WEBSOCKET CONNECTION
+			if (shouldConnectToWebSocketServer && socket.readyState == WebSocket.OPEN)
+			{
+				// construct an example DefaultMessage (see properties in class WebSockerServerConnector.MessageJSONAPI.DefaultMessage in Unity3D source code)
+				var jsonDefaultMessage = { 'sender' : 'JS_Web_External_Referencing_client',
+										   'receiver' : 'Unity3D_3D_Radar_Chart_client',
+										   'api': js2unityTemporalRefSynopticTask,
+										   'referenceVariant' : referenceVariant,
+										   'tdrcWithName' : location,
+										   'pointInTimeFrom' : pointInTimeFrom, 
+										   'pointInTimeTo' : pointInTimeTo,
+										   'dimension' : dimension,
+										   'referenceIndicator' : referenceIndicator };
+
+				// create JSON string based on message object's keys and values
+				var jsonString = JSON.stringify(jsonDefaultMessage);
+
+				// send string to WebSocket server
+				socket.send(jsonString);
+			}
+		}
+
+		function spatialReference_removeAll()
+		{
+			// WEBSOCKET CONNECTION
+			if (shouldConnectToWebSocketServer && socket.readyState == WebSocket.OPEN)
+			{
+				// construct an example DefaultMessage (see properties in class WebSockerServerConnector.MessageJSONAPI.DefaultMessage in Unity3D source code)
+				var jsonDefaultMessage = { 'sender' : 'JS_Web_External_Referencing_client',
+										   'receiver' : 'Unity3D_3D_Radar_Chart_client',
+										   'api': js2unityRemoveAllSpatialRef };
+
+				// create JSON string based on message object's keys and values
+				var jsonString = JSON.stringify(jsonDefaultMessage);
+
+				// send string to WebSocket server
+				socket.send(jsonString);
+			}
+		}
+
+		function temporalReference_removeAll()
+		{
+			// study configuration
+			//const location = "Sweden";
+			const location = "Switzerland";
+			
+			// WEBSOCKET CONNECTION
+			if (shouldConnectToWebSocketServer && socket.readyState == WebSocket.OPEN)
+			{
+				// construct an example DefaultMessage (see properties in class WebSockerServerConnector.MessageJSONAPI.DefaultMessage in Unity3D source code)
+				var jsonDefaultMessage = { 'sender' : 'JS_Web_External_Referencing_client',
+										   'receiver' : 'Unity3D_3D_Radar_Chart_client',
+										   'api': js2unityRemoveAllTemporalRef,
+										   'tdrcWithName' : location };
+
+				// create JSON string based on message object's keys and values
+				var jsonString = JSON.stringify(jsonDefaultMessage);
+
+				// send string to WebSocket server
+				socket.send(jsonString);
+			}
+		}
+	</script>
+	<!-- Implementation via JavaScript END. -->
+
+</body>
+
+</html>

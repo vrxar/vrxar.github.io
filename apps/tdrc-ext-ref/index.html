@@ -1,0 +1,599 @@
+<!--
+#	VRxAR Labs | 3D Radar Chart: External Referencing (spatiotemporal)
+#
+#	Author: Nico Reski
+#	Email: nico.reski@lnu.se
+#	Web: https://vrxar.lnu.se/apps/tdrc-ext-ref/
+#
+#	Dependencies:
+#	* JavaScript WebSocket WebAPI: https://developer.mozilla.org/en-US/docs/Web/API/WebSocket
+#
+-->
+
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+	<meta charset="utf-8">
+	<title>VRxAR Labs - 3D Radar Chart: External Referencing (spatiotemporal)</title>
+
+	<style>
+		/* CSS Tutorial: [https://www.w3schools.com/css/] */
+		text {
+			font-family: "Avenir Next", "Helvetica  Neue", Helvetica, Arial, sans-serif;
+			font-size: 11px;
+	  		text-anchor: middle;
+		}
+
+		h1, h2, h3, h4 {
+			font-family: "Avenir Next", "Helvetica  Neue", Helvetica, Arial, sans-serif;
+		}
+
+		table {
+			font-family: "Avenir Next", "Helvetica  Neue", Helvetica, Arial, sans-serif;
+		}
+
+		label {
+			font-family: "Avenir Next", "Helvetica  Neue", Helvetica, Arial, sans-serif;
+		}
+
+		li {
+			font-family: "Avenir Next", "Helvetica  Neue", Helvetica, Arial, sans-serif;
+		}
+
+		.title {
+			font-family: "Avenir Next", "Helvetica  Neue", Helvetica, Arial, sans-serif;
+			font-size: 18px;
+		}
+
+		.button {
+			border: none;
+			color: white;
+			padding: 14px 30px;
+			text-align: center;
+			text-decoration: none;
+			display: inline-block;
+			font-size: 16px;
+			margin: 4px 2px;
+			transition-duration: 0.4s;
+			cursor: pointer;
+		}
+
+		.button4reference {
+			background-color: white; 
+			color: black; 
+			border: 2px solid #6baed6;
+		}
+
+		.button4reference:hover {
+			background-color: #6baed6;
+			color: white;
+		}
+
+		.button4remove {
+			background-color: white; 
+			color: black; 
+			border: 2px solid #6baed6;
+			padding: 80px 30px;
+		}
+
+		.button4remove:hover {
+			background-color: #6baed6;
+			color: white;
+		}
+	</style>
+</head>
+
+<body>
+	
+	<!-- Initialize HTML DOM tree elements. -->
+	<div class="title">3D Radar Chart: External Referencing (spatiotemporal)</div>	
+
+	<h3>============================================================</h3>
+
+	<h3>[Lvl 1] Spatial Referencing</h3>
+	<div id="spatialreferencingtable">
+		<table>
+			<tr>
+				<th style="padding-right: 200px;">Variant</th>
+				<th style="padding-right: 100px;">Elementary Task</th>
+				<th style="padding-right: 100px;">Synoptic Task</th>
+				<th></th>
+			</tr>
+
+			<tr>
+				<td>(A) Pillar of Light</td>
+				<td><button class="button button4reference" onclick="spatialReferenceSingle('spatRef_a')">Single</button></td>
+				<td><button class="button button4reference" onclick="spatialReferenceMultiple('spatRef_a')">Multiple</button></td>
+				<td rowspan="3"><button class="button button4remove" onclick="removeAllSpatialReferences()">Remove All References</button></td>
+			</tr>
+
+			<tr>
+				<td>(B) Location-based Link</td>
+				<td><button class="button button4reference" onclick="spatialReferenceSingle('spatRef_b')">Single</button></td>
+				<td><button class="button button4reference" onclick="spatialReferenceMultiple('spatRef_b')">Multiple</button>
+			</tr>
+
+			<tr>
+				<td>(C) 3D Radar Chart</td>
+				<td><button class="button button4reference" onclick="spatialReferenceSingle('spatRef_c')">Single</button></td>
+				<td><button class="button button4reference" onclick="spatialReferenceMultiple('spatRef_c')">Multiple</button>
+			</tr>
+		</table>
+	</div>
+
+	<h4>Configuration</h4>
+	<div>
+		<form id="selection_spatialreference_elementarytask_form">
+			<label for="selection_spatialreference_elementarytask"><b>Elementary Task</b> - Choose a 3D Radar Chart to refer to:</label>
+			<select id="selection_spatialreference_elementarytask" name="selection_spatialreference_elementarytask">
+			</select>
+		</form>
+	</div>
+	<br>
+	<div>
+		<form id="selection_spatialreference_synoptictask_form">
+			<label for="selection_spatialreference_synoptictask"><b>Synoptic Task</b> - Choose multiple 3D Radar Charts to refer to:</label>
+			<br>
+			<select id="selection_spatialreference_synoptictask" name="selection_spatialreference_synoptictask" multiple size="10">
+			</select>
+		</form>
+	</div>
+
+	<h3>============================================================</h3>
+
+	<h3>[Lvl 2] Temporal Referencing</h3>
+	<div id="temporalreferencingtable">
+		<table>
+			<tr>
+				<th style="padding-right: 200px;">Variant</th>
+				<th style="padding-right: 100px;">Elementary Task</th>
+				<th style="padding-right: 100px;">Synoptic Task</th>
+				<th></th>
+			</tr>
+
+			<tr>
+				<td>(A) Ghost Time Slice</td>
+				<td><button class="button button4reference" onclick="temporalReferenceSingle('tempRef_a')">Single</button></td>
+				<td><button class="button button4reference" onclick="temporalReferenceRange('tempRef_a')">Multiple</button></td>
+				<td rowspan="4"><button class="button button4remove" onclick="removeAllTemporalReferences()">Remove All References</button></td>
+			</tr>
+
+			<tr>
+				<td>(B) Outline</td>
+				<td><button class="button button4reference" onclick="temporalReferenceSingle('tempRef_b')">Single</button></td>
+				<td><button class="button button4reference" onclick="temporalReferenceRange('tempRef_b')">Multiple</button></td>
+			</tr>
+
+			<tr>
+				<td>(C) Pointer</td>
+				<td><button class="button button4reference" onclick="temporalReferenceSingle('tempRef_c')">Single</button></td>
+				<td><button class="button button4reference" onclick="temporalReferenceRange('tempRef_c')">Multiple</button></td>
+			</tr>
+
+			<tr>
+				<td>(D) Image</td>
+				<td><button class="button button4reference" onclick="temporalReferenceSingle('tempRef_d')">Single</button></td>
+				<td><button class="button button4reference" onclick="temporalReferenceRange('tempRef_d')">Multiple</button></td>
+			</tr>
+		</table>
+	</div>
+
+	<h4>Configuration</h4>
+	<div>
+		<form id="selection_temporalreference_location_form">
+			<label for="selection_temporalreference_location"><b>Location Select</b> - Choose a 3D Radar Chart to make a temporal reference in:</label>
+			<select id="selection_temporalreference_location" name="selection_temporalreference_location">
+			</select>
+		</form>
+	</div>
+	<br>
+	<div>
+		<form id="selection_temporalreference_elementarytask_form">
+			<label for="selection_temporalreference_elementarytask"><b>Elementary Task</b> - Choose a point in time to refer to:</label>
+			<select id="selection_temporalreference_elementarytask" name="selection_temporalreference_elementarytask">
+			</select>
+		</form>
+	</div>
+	<br>
+	<div>
+		<form id="selection_temporalreference_synoptictask_form">
+			<label for="selection_temporalreference_synoptictask"><b>Synoptic Task</b> - Choose a time range to refer to:</label>
+			<select id="selection_temporalreference_synoptictask_from" name="selection_temporalreference_synoptictask_from">
+			</select>
+			<label>-- to --</label>
+			<select id="selection_temporalreference_synoptictask_to" name="selection_temporalreference_synoptictask_to">
+			</select>
+		</form>
+	</div>
+
+	<h3>============================================================</h3>
+
+	<h3>[Lvl 3] Dimension (Data Variable) Referencing</h3>
+
+	<div>
+		<form id="selection_temporalreference_dimension_form">
+			<label for="selection_temporalreference_dimension"><b>Dimension</b> - Choose the dimension for the [Lvl 2] Temporal Reference (default: all):</label>
+			<select id="selection_temporalreference_dimension" name="selection_temporalreference_dimension">
+			</select>
+		</form>
+		<br />
+		<label>Currently supported [Lvl 2] Temporal Reference Variants for individual [Lvl 3] Dimension Referencing:</label>
+		<ul>
+			<li>(A) Synoptic Task</li>
+			<li>(B) Synoptic Task</li>
+			<li>(C) Elementary Task, Synoptic Task</li>
+			<li>(D) Elementary Task, Synoptic Task</li>
+		</ul>
+	</div>
+
+	<h3>============================================================</h3>
+
+	<h3>[Lvl 4] Additional Reference Indicator</h3>
+
+	<div>
+		<form id="selection_temporalreference_indicator_form">
+			<label for="selection_temporalreference_indicator"><b>Indicator</b> - Choose an indicator for the [Lvl 2] Temporal Reference to convey additional information:</label>
+			<br />
+			<label for="selection_temporalreference_indicator_pointer">(C) Elementary Task, Synoptic Task:</label>
+			<select id="selection_temporalreference_indicator_pointer" name="selection_temporalreference_indicator_pointer">
+			</select>
+			<br />
+			<label for="selection_temporalreference_indicator_imageplane">(D) Elementary Task, Synoptic Task:</label>
+			<select id="selection_temporalreference_indicator_imageplane" name="selection_temporalreference_indicator_imageplane">
+			</select>
+		</form>
+	</div>
+
+
+	<!-- Implementation via JavaScript. -->
+	<script>
+
+		// ===== WEBSOCKET MESSAGE API =====
+
+		// Define string variables for WebSocket event listeners.
+
+		// WebClient (out) -> WebSocketServer (inc/out) -> Unity3D (inc)
+		var js2unitySpatialRefElementaryTask 	= "js_to_unity-spatial_ref-elementary_task";
+		var js2unitySpatialRefSynopticTask 		= "js_to_unity-spatial_ref-synoptic_task";
+		var js2unityTemporalRefElementaryTask 	= "js_to_unity-temporal_ref-elementary_task";
+		var js2unityTemporalRefSynopticTask 	= "js_to_unity-temporal_ref-synopticelementary_task";
+		var js2unityRemoveAllSpatialRef			= "js_to_unity-remove_all_spatial_ref";
+		var js2unityRemoveAllTemporalRef		= "js_to_unity-remove_all_temporal_ref";
+
+		// ===== WEBSOCKET SETUP AND EVENT LISTERNERS =====
+
+		// create websocket instance
+		//const socket = new WebSocket('wss://MY_SERVER_URL:MY_SERVER_PORT/');
+		const socket = new WebSocket('wss://vrxar.lnu.se:4247/');
+
+		var shouldConnectToWebSocketServer = false;		// default setting: do not connnect to websocket server
+
+		// decide whether the web app should connect to the websocket server or not via url argument
+		// standard (no websocket server connection): 	[ https://vrxar.lnu.se/apps/tdrc-ext-ref/ ]
+		// with websocket server connection: 			[ https://vrxar.lnu.se/apps/tdrc-ext-ref/?wssconnect=true ]
+
+		var appURLString = window.location.href;						// grab url that was used to open this web app
+		var appURL = new URL(appURLString);								// create URL object
+		var wssConnect = appURL.searchParams.get("wssconnect");			// extract url argument "wssconnect"
+		if(wssConnect == "true") shouldConnectToWebSocketServer = true;	// set connect to websocket server flag if url argument was set accordingly
+
+		if(shouldConnectToWebSocketServer)
+		{
+			// Event Handler: Open
+			socket.addEventListener('open', function (event) {
+				console.log("Connection established to WSS Server.");
+			});
+
+/*
+			// Event Handler: Message
+			socket.addEventListener('message', function (event) {
+
+				console.log("Message recevied with data: " + event.data);
+			});
+*/
+		}
+
+		// === SPATIOTEMPORAL REFERENCE VALUE SETUP ===
+
+		//var tdrcLocationCollection = [ "TDRCInterface_1", "TDRCInterface_2", "TDRCInterface_3", "TDRCInterface_4", "TDRCInterface_5"];
+		var tdrcLocationCollection = [ "Sweden", "Norway", "Finland", "Denmark", "Iceland"];
+
+		const tdrcTimeValueCollection = [];
+  		const startYear = 1930;
+  		const displayedRange = 40;
+  		for (var i = 0; i < displayedRange; i++)
+  		{
+  			tdrcTimeValueCollection[i] = startYear + i;
+  		}
+
+  		var tdrcDimensionCollection = [ "all", "Swedish", "Norwegian", "Finnish", "Danish", "Icelandic", "English" ];
+
+  		var tdrcTemporalReferenceIndicatorsPointer = [ "neutral", "positive", "negative" ];
+  		var tdrcTemporalReferenceIndicatorsImagePlane = [ "investigate", "exciting", "letstalk" ];
+  		//var tdrcTemporalReferenceIndicatorsImagePlane = [ "duh", "happy", "confused" ];
+
+
+		// === HTML DOM: SPATIAL REFERENCING ===
+
+		function spatialReferenceAppendElementaryTaskConfiguration(item, index, arr) {
+			const sect = document.getElementById('selection_spatialreference_elementarytask');
+
+  			const currentOption = document.createElement('option');
+  			currentOption.value = item;
+  			currentOption.textContent = item;
+			sect.appendChild(currentOption);
+  		}
+
+  		function spatialReferenceAppendSynopticTaskConfiguration(item, index, arr) {
+			const sect = document.getElementById('selection_spatialreference_synoptictask');
+
+  			const currentOption = document.createElement('option');
+  			currentOption.value = item;
+  			currentOption.textContent = item;
+			sect.appendChild(currentOption);
+  		}
+
+		tdrcLocationCollection.forEach(spatialReferenceAppendElementaryTaskConfiguration);
+		tdrcLocationCollection.forEach(spatialReferenceAppendSynopticTaskConfiguration);
+
+
+		// === HTML DOM: TEMPORAL REFERENCING ===
+
+		function temporalReferenceAppendLocationSelectConfiguration(item, index, arr) {
+			const sect = document.getElementById('selection_temporalreference_location');
+
+  			const currentOption = document.createElement('option');
+  			currentOption.value = item;
+  			currentOption.textContent = item;
+			sect.appendChild(currentOption);
+  		}
+
+  		function temporalReferenceAppendElementaryTaskConfiguration(item, index, arr) {
+  			const sect = document.getElementById('selection_temporalreference_elementarytask');
+
+  			const currentOption = document.createElement('option');
+  			currentOption.value = item;
+  			currentOption.textContent = item;
+			sect.appendChild(currentOption);
+  		}
+
+  		function temporalReferenceAppendSynopticTaskConfiguration(item, index, arr) {
+  			const fromSect = document.getElementById('selection_temporalreference_synoptictask_from');
+  			const toSect = document.getElementById('selection_temporalreference_synoptictask_to');
+
+  			const currentOption = document.createElement('option');
+  			currentOption.value = item;
+  			currentOption.textContent = item;
+
+			fromSect.appendChild(currentOption);
+			toSect.appendChild(currentOption.cloneNode(true));
+  		}
+
+  		function temporalReferenceAppendDimensionConfiguration(item, index, arr) {
+  			const sect = document.getElementById('selection_temporalreference_dimension');
+
+  			const currentOption = document.createElement('option');
+  			currentOption.value = item;
+  			currentOption.textContent = item;
+			sect.appendChild(currentOption);
+  		}
+
+  		function temporalReferenceAppendIndicatorPointerConfiguration(item, index, arr) {
+  			const sect = document.getElementById('selection_temporalreference_indicator_pointer');
+
+  			const currentOption = document.createElement('option');
+  			currentOption.value = item;
+  			currentOption.textContent = item;
+			sect.appendChild(currentOption);
+  		}
+
+  		 function temporalReferenceAppendIndicatorImagePlaneConfiguration(item, index, arr) {
+  			const sect = document.getElementById('selection_temporalreference_indicator_imageplane');
+
+  			const currentOption = document.createElement('option');
+  			currentOption.value = item;
+  			currentOption.textContent = item;
+			sect.appendChild(currentOption);
+  		}
+
+  		tdrcLocationCollection.forEach(temporalReferenceAppendLocationSelectConfiguration);
+
+  		tdrcTimeValueCollection.forEach(temporalReferenceAppendElementaryTaskConfiguration);
+  		tdrcTimeValueCollection.forEach(temporalReferenceAppendSynopticTaskConfiguration);
+
+  		tdrcDimensionCollection.forEach(temporalReferenceAppendDimensionConfiguration);
+
+  		tdrcTemporalReferenceIndicatorsPointer.forEach(temporalReferenceAppendIndicatorPointerConfiguration);
+  		tdrcTemporalReferenceIndicatorsImagePlane.forEach(temporalReferenceAppendIndicatorImagePlaneConfiguration);
+
+  		// === BUTTON FUNCTIONS ===
+
+		function spatialReferenceSingle(referenceVariant)
+		{
+			// Reference Variant Definitions:
+			// spatRef_a, spatRef_b, spatRef_c
+			// console.log("Reference Type: " + referenceVariant);
+
+			const selectedLocation = document.getElementById("selection_spatialreference_elementarytask").value;
+			// console.log("Single Spatial Ref to: " + selectedLocation);
+
+			// WEBSOCKET CONNECTION
+			if (shouldConnectToWebSocketServer && socket.readyState == WebSocket.OPEN)
+			{
+				// construct an example DefaultMessage (see properties in class WebSockerServerConnector.MessageJSONAPI.DefaultMessage in Unity3D source code)
+				var jsonDefaultMessage = { 'sender' : 'JS_Web_External_Referencing_client',
+										   'receiver' : 'Unity3D_3D_Radar_Chart_client',
+										   'api': js2unitySpatialRefElementaryTask,
+										   'referenceVariant' : referenceVariant,
+										   'tdrcWithName' : selectedLocation };
+
+				// create JSON string based on message object's keys and values
+				var jsonString = JSON.stringify(jsonDefaultMessage);
+
+				// send string to WebSocket server
+				socket.send(jsonString);
+			}
+		}
+
+		function spatialReferenceMultiple(referenceVariant)
+		{
+			const selectedLocations = Array.from(document.getElementById("selection_spatialreference_synoptictask").querySelectorAll("option:checked"),e=>e.value);
+
+			// only allow if two or more locations are selected
+			if (selectedLocations.length >= 2)
+			{
+				var selectedLocationsAsCSVString = "";
+				for (var i = 0; i < selectedLocations.length; i ++)
+				{
+					selectedLocationsAsCSVString += selectedLocations[i];
+					if (i != selectedLocations.length-1) selectedLocationsAsCSVString += ",";
+				}
+
+				// console.log("Multiple Spatial Refs to: " + selectedLocationsAsCSVString);
+
+				// WEBSOCKET CONNECTION
+				if (shouldConnectToWebSocketServer && socket.readyState == WebSocket.OPEN)
+				{
+					// construct an example DefaultMessage (see properties in class WebSockerServerConnector.MessageJSONAPI.DefaultMessage in Unity3D source code)
+					var jsonDefaultMessage = { 'sender' : 'JS_Web_External_Referencing_client',
+											   'receiver' : 'Unity3D_3D_Radar_Chart_client',
+											   'api': js2unitySpatialRefSynopticTask,
+											   'referenceVariant' : referenceVariant,
+											   'tdrcWithNamesAsCSVString' : selectedLocationsAsCSVString };
+
+					// create JSON string based on message object's keys and values
+					var jsonString = JSON.stringify(jsonDefaultMessage);
+
+					// send string to WebSocket server
+					socket.send(jsonString);
+				}
+			}
+		}
+
+		function temporalReferenceSingle(referenceVariant)
+		{
+			// Reference Variant Definitions:
+			// tempRef_a, tempRef_b, tempRef_c
+			//console.log("Reference Type: " + referenceVariant);
+
+			const selectedLocation = document.getElementById("selection_temporalreference_location").value;
+			const selectedPointInTime = document.getElementById("selection_temporalreference_elementarytask").value;
+			const selectedDimension = document.getElementById("selection_temporalreference_dimension").value;
+
+			const selectedIndicatorPoint = document.getElementById("selection_temporalreference_indicator_pointer").value;
+			const selectedIndicatorImagePlane = document.getElementById("selection_temporalreference_indicator_imageplane").value;
+			var selectedIndicator = "";
+			if (referenceVariant == "tempRef_c") selectedIndicator = selectedIndicatorPoint;
+			else if (referenceVariant == "tempRef_d") selectedIndicator = selectedIndicatorImagePlane;
+
+			// console.log("Single Temporal Ref to: " + selectedPointInTime + " | in 3D Radar Chart: " + selectedLocation);
+
+			// WEBSOCKET CONNECTION
+			if (shouldConnectToWebSocketServer && socket.readyState == WebSocket.OPEN)
+			{
+				// construct an example DefaultMessage (see properties in class WebSockerServerConnector.MessageJSONAPI.DefaultMessage in Unity3D source code)
+				var jsonDefaultMessage = { 'sender' : 'JS_Web_External_Referencing_client',
+										   'receiver' : 'Unity3D_3D_Radar_Chart_client',
+										   'api': js2unityTemporalRefElementaryTask,
+										   'referenceVariant' : referenceVariant,
+										   'tdrcWithName' : selectedLocation,
+										   'pointInTime' : selectedPointInTime,
+										   'dimension' : selectedDimension,
+										   'referenceIndicator' : selectedIndicator };
+
+				// create JSON string based on message object's keys and values
+				var jsonString = JSON.stringify(jsonDefaultMessage);
+
+				// send string to WebSocket server
+				socket.send(jsonString);
+			}
+		}
+
+		function temporalReferenceRange(referenceVariant)
+		{
+			const selectedLocation = document.getElementById("selection_temporalreference_location").value;
+			const selectedPointInTimeFrom = document.getElementById("selection_temporalreference_synoptictask_from").value;
+			const selectedPointInTimeTo = document.getElementById("selection_temporalreference_synoptictask_to").value;
+			const selectedDimension = document.getElementById("selection_temporalreference_dimension").value;
+
+			const selectedIndicatorPoint = document.getElementById("selection_temporalreference_indicator_pointer").value;
+			const selectedIndicatorImagePlane = document.getElementById("selection_temporalreference_indicator_imageplane").value;
+			var selectedIndicator = "";
+			if (referenceVariant == "tempRef_c") selectedIndicator = selectedIndicatorPoint;
+			else if (referenceVariant == "tempRef_d") selectedIndicator = selectedIndicatorImagePlane;
+
+			// console.log("Range Temporal Ref from " + selectedPointInTimeFrom + " to: " + selectedPointInTimeTo + " | in 3D Radar Chart: " + selectedLocation);
+
+			// only allow if selected points in time are valid (= from is less than to)
+			if (selectedPointInTimeFrom < selectedPointInTimeTo)
+			{
+				// WEBSOCKET CONNECTION
+				if (shouldConnectToWebSocketServer && socket.readyState == WebSocket.OPEN)
+				{
+					// construct an example DefaultMessage (see properties in class WebSockerServerConnector.MessageJSONAPI.DefaultMessage in Unity3D source code)
+					var jsonDefaultMessage = { 'sender' : 'JS_Web_External_Referencing_client',
+											   'receiver' : 'Unity3D_3D_Radar_Chart_client',
+											   'api': js2unityTemporalRefSynopticTask,
+											   'referenceVariant' : referenceVariant,
+											   'tdrcWithName' : selectedLocation,
+											   'pointInTimeFrom' : selectedPointInTimeFrom, 
+											   'pointInTimeTo' : selectedPointInTimeTo,
+											   'dimension' : selectedDimension,
+											   'referenceIndicator' : selectedIndicator };
+
+					// create JSON string based on message object's keys and values
+					var jsonString = JSON.stringify(jsonDefaultMessage);
+
+					// send string to WebSocket server
+					socket.send(jsonString);
+				}	
+			}
+		}
+
+		function removeAllSpatialReferences()
+		{
+			// WEBSOCKET CONNECTION
+			if (shouldConnectToWebSocketServer && socket.readyState == WebSocket.OPEN)
+			{
+				// construct an example DefaultMessage (see properties in class WebSockerServerConnector.MessageJSONAPI.DefaultMessage in Unity3D source code)
+				var jsonDefaultMessage = { 'sender' : 'JS_Web_External_Referencing_client',
+										   'receiver' : 'Unity3D_3D_Radar_Chart_client',
+										   'api': js2unityRemoveAllSpatialRef };
+
+				// create JSON string based on message object's keys and values
+				var jsonString = JSON.stringify(jsonDefaultMessage);
+
+				// send string to WebSocket server
+				socket.send(jsonString);
+			}
+		}
+
+		function removeAllTemporalReferences()
+		{
+			const selectedLocation = document.getElementById("selection_temporalreference_location").value;
+
+			// WEBSOCKET CONNECTION
+			if (shouldConnectToWebSocketServer && socket.readyState == WebSocket.OPEN)
+			{
+				// construct an example DefaultMessage (see properties in class WebSockerServerConnector.MessageJSONAPI.DefaultMessage in Unity3D source code)
+				var jsonDefaultMessage = { 'sender' : 'JS_Web_External_Referencing_client',
+										   'receiver' : 'Unity3D_3D_Radar_Chart_client',
+										   'api': js2unityRemoveAllTemporalRef,
+										   'tdrcWithName' : selectedLocation };
+
+				// create JSON string based on message object's keys and values
+				var jsonString = JSON.stringify(jsonDefaultMessage);
+
+				// send string to WebSocket server
+				socket.send(jsonString);
+			}
+		}
+
+	</script>
+	<!-- Implementation via JavaScript END. -->
+
+</body>
+
+</html>

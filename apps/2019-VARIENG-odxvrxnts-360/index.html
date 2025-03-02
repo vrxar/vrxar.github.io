@@ -1,0 +1,228 @@
+<!--
+#   Visualizing Rich Corpus Data in Virtual Reality: 360 Viewer
+#
+#   Academic Reference:
+#   Aris Alissandrakis, Nico Reski, Mikko Laitinen, Jukka Tyrkkö, Jonas Lundberg, and Magnus Levin. 2019. Visualizing rich corpus data using virtual reality. Corpus Approaches into World Englishes and Language Contrasts: Studies in Variation, Contacts and Change in English 20, eds. by Hanna Parviainen, Mark Kaunisto, and Päivi Pahta, Helsinki: VARIENG e-Series. Source: https://varieng.helsinki.fi/series/volumes/20/alissandrakis_et_al/
+#
+#   Developed using:
+#   Pannellum version: 2.4.0
+-->
+
+<!DOCTYPE HTML>
+
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Visualizing Rich Corpus Data in Virtual Reality: 360&#176; Viewer</title>
+    <link rel="stylesheet" href="lib/pannellum.css"/>
+    <script type="text/javascript" src="lib/pannellum.js" charset="utf-8"></script>
+
+    <style type="text/css">
+        #panorama {
+            width:  100%;
+            height: 500px;
+        }
+
+        /* Panorama element size adjustment based on device's screen size. */
+        @media not screen and (max-width: 1024px) {
+            #panorama {
+                height: 576px;
+            }
+        }
+
+        @media not screen and (max-width: 1280px) {
+            #panorama {
+                height: 720px;
+            }
+        }
+
+        @media not screen and (max-width: 1600px) {
+            #panorama {
+                height: 900px;
+            }
+        }
+
+        @media not screen and (max-width: 1920px) {
+            #panorama {
+                height: 1080px;
+            }
+        }
+
+
+        html, body
+        {
+            font: normal 14px menlo,'andale mono','courier new',sans-serif;
+            /*font: normal 12px Helvetica Neue, Helvetica, Arial, sans-serif;*/
+            line-height: 1.8em;
+            letter-spacing: 0px;
+            font-weight: 400;
+            font-style: normal;
+            background: #ffffff;
+            color: #333333;
+            display: block;
+        }
+
+        a:link
+        {
+            color:#7D7D7D;
+            text-decoration: none;
+        }
+
+        a:visited
+        {
+            color:#7D7D7D;
+            text-decoration: none;
+        }
+
+        a:hover
+        {
+            color:#AFAFAF;
+            text-decoration: none;
+        }
+
+        a:active
+        {
+            color:#AFAFAF;
+            text-decoration: none;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="title">
+        <p>
+            Visualizing Rich Corpus Data in Virtual Reality: 360&#176; Viewer
+        </p>
+    </div>
+
+    <div id="panorama"></div>
+
+    <div id="links">
+        <p>
+            <b>Available Scenes:</b> <br />
+            1. <a href="index.html">Load Default Scene</a>: Overview of the VR application with all elements annotated (<i>as described in Section 5.1</i>). <br />
+            2. <a href="time.html">Load Time Scene</a>: Illustration of moving forward and backward in time (<i>as described in Section 5.1</i>). <br />
+        </p>
+    </div>
+
+    <hr>
+
+    <div id="academicreference">
+        <p>
+            <b>Academic Reference:</b> <br />
+            Aris Alissandrakis, Nico Reski, Mikko Laitinen, Jukka Tyrkkö, Jonas Lundberg, and Magnus Levin. 2019. Visualizing rich corpus data using virtual reality. Corpus Approaches into World Englishes and Language Contrasts: Studies in Variation, Contacts and Change in English 20, eds. by Hanna Parviainen, Mark Kaunisto, and Päivi Pahta, Helsinki: VARIENG e-Series. Source: <a href="https://varieng.helsinki.fi/series/volumes/20/alissandrakis_et_al/" target="_BLANK">varieng.helsinki.fi/series/volumes/20/alissandrakis_et_al/</a>
+        </p>
+    </div>
+
+    <div id="authorstatement">
+        <p>
+            <b>Author Statement:</b> <br />
+            This web page features supplemental media material referred to in the scientific publication listed above.
+        </p>
+    </div>
+
+    <div id="researchgroupreferences">
+        <p>
+            <b>Author Research Groups:</b> <br />
+            <a href="../../index.html" target="_blank">VRxAR Labs</a>, Linnaeus University, Sweden.
+        </p>
+    </div>
+
+    <script>
+
+        // load image
+        //
+        var imageFilePath = "images/2019-01-25_ODXVRxNTS_360.jpg";
+
+
+        // prepare hotspot data
+        //             
+        var hotspotData = [
+            {
+                "pitch": -10.0,
+                "yaw": -133.0,
+                "type": "info",
+                "text": "3D gestural input: The hands of the VR user are detected, then displayed, and translated into the virtual 3D space accordingly, live and in real-time, enabling interaction using hand postures and gestures."
+            },
+            {
+                "pitch": -25.0,
+                "yaw": -105.0,
+                "type": "info",
+                "text": "Time Menu: Attached to the VR user's left-hand palm is a menu with two buttons, allowing the VR user to explore the displayed dataset forward and backward in time."
+            },
+            {
+                "pitch": 6.0,
+                "yaw": -94.0,
+                "type": "info",
+                "text": "Information Panel - Center: Display the detailed language distribution of the selected cluster (language name and its assigned color, share in percentage, amount of tweets)."
+            },
+            {
+                "pitch": 5.5,
+                "yaw": -133.0,
+                "type": "info",
+                "text": "Information Panel - Left: Display additional information about the currently selected cluster, for instance the total amount of tweets and time."
+            },
+            {
+                "pitch": 6.5,
+                "yaw": -50.0,
+                "type": "info",
+                "text": "Information Panel - Right: Display all unique location names that are contained within the currently selected cluster."
+            },
+            {
+                "pitch": -30.0,
+                "yaw": -90.0,
+                "type": "info",
+                "text": "Selected cluster: The cluster selected by the VR user is outlined with a red wire frame, while all other clusters feature a black wire frame."
+            },
+            {
+                "pitch": -30.0,
+                "yaw": -49.0,
+                "type": "info",
+                "text": "Cluster: A cluster represents all Twitter traffic within a radius of 60 km as 'stacked cuboids'. Each stacked cuboid consists of four parts: the size of the top three stacks of the cuboid represent, in order, the three most frequent languages detected within the cluster, while the size of the fourth stack represents the sum of all remaining tweets in other languages than the top three."
+            },
+            {
+                "pitch": -27.0,
+                "yaw": -17.5,
+                "type": "info",
+                "text": "Elevated cluster: Clusters in close proximity will get raised up approximately to the VR user's chest height to facilitate interaction under consideration of human factors and ergonomics. The cluster's shadow is projected to the virtual floor in order to keep a visual indication of its exact location."
+            },
+            {
+                "pitch": -40.0,
+                "yaw": -35.5,
+                "type": "info",
+                "text": "Nordic countries: The five Nordic countries (Denmark, Finland, Iceland, Norway, Sweden) are displayed, color-coded, on the floor within the virtual three-dimensional (3D) space."
+            },
+            {
+                "pitch": -15.0,
+                "yaw": 3.0,
+                "type": "info",
+                "text": "Cluster height: Each stacked cuboid's height is scaled according to the total amount of tweets within that cluster (the more tweets, the higher the cuboid, using a logarithmic scale)."
+            }
+        ];
+
+
+        // load 360 image
+        //
+
+        // determine whether the page is viewn in portrait (typical for mobile) or landscape (typical for desktop) mode
+        // and adjust field of view accordingly
+        var computedHFOV = (screen.width > screen.height) ? 110 : 40;
+
+        // create 360 viewer and load image
+        pannellum.viewer('panorama', {
+            "type": "equirectangular",
+            "panorama": imageFilePath,
+            "autoLoad": true,
+            "orientationOnByDefault": true,
+            "yaw" : -90,                // default: 0
+            "pitch": -10,                 // default: 0
+            "hfov": computedHFOV,       // default: 100
+            "hotSpots": hotspotData
+        });
+    </script>
+</body>
+
+</html>

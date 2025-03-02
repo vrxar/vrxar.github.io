@@ -1,0 +1,172 @@
+<!--
+#   VRxAR Labs | ODXVRxValet 360 Viewer
+#
+#   Author: Nico Reski
+#   Email: nico.reski@lnu.se
+#   Web: https://vrxar.lnu.se/apps/odxvrxnts-360/
+#
+#   Pannellum version: 2.4.0
+-->
+
+<!DOCTYPE HTML>
+
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ODXVR x Sverige Valet: 360 Viewer - VRxAR Labs</title>
+    <link rel="stylesheet" href="lib/pannellum.css"/>
+    <script type="text/javascript" src="lib/pannellum.js" charset="utf-8"></script>
+
+    <style type="text/css">
+        #panorama {
+            width:  100%;
+            height: 500px;
+        }
+
+        /* Panorama element size adjustment based on device's screen size. */
+        @media not screen and (max-width: 1024px) {
+            #panorama {
+                height: 576px;
+            }
+        }
+
+        @media not screen and (max-width: 1280px) {
+            #panorama {
+                height: 720px;
+            }
+        }
+
+        @media not screen and (max-width: 1600px) {
+            #panorama {
+                height: 900px;
+            }
+        }
+
+        @media not screen and (max-width: 1920px) {
+            #panorama {
+                height: 1080px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div id="panorama"></div>
+
+    <script>
+
+        // determine which image to load via url parameter
+        //
+
+        var appURLString = window.location.href;        // grab url that was used to open this web app
+        var appURL = new URL(appURLString);             // create URL object
+        var ino = appURL.searchParams.get("ino");       // extract url argument "ino" (= image number)
+        var imageFilePath = "";                         // string to store file path of loaded image
+        switch(ino)
+        {
+            case "1":
+            default:
+                imageFilePath = "images/2019-02-14_techdemo.jpg";
+                break;
+        }
+
+
+        // prepare hotspot data
+        //
+        
+        var hotspotData = null;                                 // variable potentially holding hotspot data
+        
+        var annotated = appURL.searchParams.get("annot");       // extract url argument "annot" (= annotation)
+        if (annotated != "false")
+        {
+            imageFilePath = "images/2019-02-14_techdemo.jpg";
+
+            // hotspot data for file: images/2019-01-25_ODXVRxNTS_360_07.jpg
+            hotspotData = [
+                {
+                    "pitch": -11.0,
+                    "yaw": -21.0,
+                    "type": "info",
+                    "text": "3D gestural input: The hands of the VR user are detected, then displayed, and translated into the virtual 3D space accordingly, live and in real-time, enabling interaction using hand postures and gestures."
+                },
+                {
+                    "pitch": -26.0,
+                    "yaw": 2.0,
+                    "type": "info",
+                    "text": "Time Menu: Attached to the VR user's left-hand palm is a menu with two buttons, allowing the VR user to explore the displayed data set forward and backward in time. Data of the 2018, 2014, and 2010 Swedish elections are available."
+                },
+                {
+                    "pitch": 9.0,
+                    "yaw": 16.0,
+                    "type": "info",
+                    "text": "Information Panel - Center: Display the detailed distribution of votes of the selected municipality (political party name and its assigned color, share in percentage, amount of votes). The data is obtained from Valmyndigheten."
+                },
+                {
+                    "pitch": 9.0,
+                    "yaw": -24.0,
+                    "type": "info",
+                    "text": "Information Panel - Left: Display additional information about the currently selected municipality, for instance the total amount of votes and the voter participation."
+                },
+                {
+                    "pitch": 9.5,
+                    "yaw": 56.0,
+                    "type": "info",
+                    "text": "Information Panel - Right: Display additional information about the the data set and its source."
+                },
+                {
+                    "pitch": -25.0,
+                    "yaw": 16.0,
+                    "type": "info",
+                    "text": "Selected municipality: The municipality selected by the VR user is outlined with a red wire frame, while all other municipalities feature a black wire frame."
+                },
+                {
+                    "pitch": -24.0,
+                    "yaw": 28.5,
+                    "type": "info",
+                    "text": "Municipality: A municipality represents all votes within that municipality (kommun) as 'stacked cuboids'. Each stacked cuboid consists of four parts: the size of the top three stacks of the cuboid represent, in order, the three most voted for political parties within the municipality, while the size of the fourth stack represents the sum of all remaining votes for other political parties than the top three."
+                },
+                {
+                    "pitch": -25.0,
+                    "yaw": 61.0,
+                    "type": "info",
+                    "text": "Elevated municipality: Municipalities in close proximity will get raised up approximately to the VR user's chest height to facilitate interaction under consideration of human factors and ergonomics. The municipality's shadow is projected to the virtual floor in order to keep a visual indication of its exact location."
+                },
+                {
+                    "pitch": -36.0,
+                    "yaw": 48.0,
+                    "type": "info",
+                    "text": "Municipality boundaries: All individual municipality boundaries are displayed on the floor within the virtual three-dimensional (3D) space. The data is obtained from Sweden's Statistiska Centralbyrån (SCB). The shade is based on the voter participation in each municipality (the brighter the shade, the more participation, and vice versa)."
+                },
+                {
+                    "pitch": -12.5,
+                    "yaw": 90.5,
+                    "type": "info",
+                    "text": "Municipality height: Each stacked cuboid's height is scaled according to the total amount of votes within the municipality (the more votes, the higher the cuboid, using a logarithmic scale)."
+                }
+            ];
+        } 
+
+        // load 360 image
+        //
+
+        // determine whether the page is viewn in portrait (typical for mobile) or landscape (typical for desktop) mode
+        // and adjust field of view accordingly
+        var computedHFOV = (screen.width > screen.height) ? 110 : 40;
+
+        // create 360 viewer and load image
+        pannellum.viewer('panorama', {
+            "type": "equirectangular",
+            "panorama": imageFilePath,
+            "autoLoad": true,
+            "orientationOnByDefault": true,
+            "yaw" : 20,                // default: 0
+            "pitch": -10,                 // default: 0
+            "hfov": computedHFOV,       // default: 100
+            "hotSpots": hotspotData
+        });
+    </script>
+</body>
+
+</html>

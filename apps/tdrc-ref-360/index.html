@@ -1,0 +1,399 @@
+<!--
+#   User Preferences of Spatio-Temporal Referencing Approaches For Immersive 3D Radar Charts: 360 Viewer
+#
+#   Academic reference:
+#   Nico Reski, Aris Alissandrakis and Andreas Kerren. In review. User Preferences of Spatio-Temporal Referencing Approaches For Immersive 3D Radar Charts.
+#
+#   Developed using:
+#   Pannellum version: 2.4.0
+-->
+
+<!DOCTYPE HTML>
+
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Preferences of Spatio-Temporal Referencing Approaches For Immersive 3D Radar Charts: 360&#176; Viewer</title>
+    <link rel="stylesheet" href="lib/pannellum.css"/>
+    <script type="text/javascript" src="lib/pannellum.js" charset="utf-8"></script>
+
+    <style type="text/css">
+        #panorama {
+            width:  100%;
+            height: 500px;
+        }
+
+        /* Panorama element size adjustment based on device's screen size. */
+        @media not screen and (max-width: 1024px) {
+            #panorama {
+                height: 576px;
+            }
+        }
+
+        @media not screen and (max-width: 1280px) {
+            #panorama {
+                height: 720px;
+            }
+        }
+
+        @media not screen and (max-width: 1600px) {
+            #panorama {
+                height: 900px;
+            }
+        }
+
+        @media not screen and (max-width: 1920px) {
+            #panorama {
+                height: 1080px;
+            }
+        }
+
+
+        html, body
+        {
+            font: normal 14px menlo,'andale mono','courier new',sans-serif;
+            /*font: normal 12px Helvetica Neue, Helvetica, Arial, sans-serif;*/
+            line-height: 1.8em;
+            letter-spacing: 0px;
+            font-weight: 400;
+            font-style: normal;
+            background: #ffffff;
+            color: #333333;
+            display: block;
+        }
+
+        a:link
+        {
+            color:#7D7D7D;
+            text-decoration: none;
+        }
+
+        a:visited
+        {
+            color:#7D7D7D;
+            text-decoration: none;
+        }
+
+        a:hover
+        {
+            color:#AFAFAF;
+            text-decoration: none;
+        }
+
+        a:active
+        {
+            color:#AFAFAF;
+            text-decoration: none;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="title">
+        <p>
+            User Preferences of Spatio-Temporal Referencing Approaches For Immersive 3D Radar Charts: 360&#176; Viewer
+        </p>
+    </div>
+
+    <div id="panorama"></div>
+
+    <div id="label">
+        <p id="label-text">
+        </p>
+    </div>
+
+    <div id="links">
+        <p>
+            <b>Spatial References:</b> <br />
+            [<a href="javascript:loadReferenceWithId('sAe');">sAe</a>]
+            [<a href="javascript:loadReferenceWithId('sBe');">sBe</a>]
+            [<a href="javascript:loadReferenceWithId('sCe');">sCe</a>]
+            [<a href="javascript:loadReferenceWithId('sAs');">sAs</a>]
+            [<a href="javascript:loadReferenceWithId('sBs');">sBs</a>]
+            [<a href="javascript:loadReferenceWithId('sCs');">sCs</a>]<br />
+
+            <b>Temporal References:</b> <br />
+            [<a href="javascript:loadReferenceWithId('tAe');">tAe</a>]
+            [<a href="javascript:loadReferenceWithId('tBe');">tBe</a>]
+            [<a href="javascript:loadReferenceWithId('tCe');">tCe</a>]
+            [<a href="javascript:loadReferenceWithId('tDe');">tDe</a>]
+            [<a href="javascript:loadReferenceWithId('tAs');">tAs</a>]
+            [<a href="javascript:loadReferenceWithId('tBs');">tBs</a>]
+            [<a href="javascript:loadReferenceWithId('tCs');">tCs</a>]
+            [<a href="javascript:loadReferenceWithId('tDs');">tDs</a>]<br />
+
+            <b>Temporal References (Individual Dimension):</b> <br />
+            [<a href="javascript:loadReferenceWithId('tCei');">tCei</a>]
+            [<a href="javascript:loadReferenceWithId('tDei');">tDei</a>]
+            [<a href="javascript:loadReferenceWithId('tAsi');">tAsi</a>]
+            [<a href="javascript:loadReferenceWithId('tBsi');">tBsi</a>]
+            [<a href="javascript:loadReferenceWithId('tCsi');">tCsi</a>]
+            [<a href="javascript:loadReferenceWithId('tDsi');">tDsi</a>]<br />
+
+            <b>Temporal References (Variant C Indicator - tCr):</b> <br />
+            [<a href="javascript:loadReferenceWithId('tCer-neu');">tCer (neutral)</a>]
+            [<a href="javascript:loadReferenceWithId('tCer-pos');">tCer (positive)</a>]
+            [<a href="javascript:loadReferenceWithId('tCer-neg');">tCer (negative)</a>]
+            [<a href="javascript:loadReferenceWithId('tCsr-neu');">tCsr (neutral)</a>]
+            [<a href="javascript:loadReferenceWithId('tCsr-pos');">tCsr (positive)</a>]
+            [<a href="javascript:loadReferenceWithId('tCsr-neg');">tCsr (negative)</a>]<br />
+
+            <b>Temporal References (Variant D Indicator - tDr):</b> <br />
+            [<a href="javascript:loadReferenceWithId('tDer-inv');">tDer (investigate)</a>]
+            [<a href="javascript:loadReferenceWithId('tDer-exc');">tDer (exciting)</a>]
+            [<a href="javascript:loadReferenceWithId('tDer-let');">tDer (let's talk)</a>]
+            [<a href="javascript:loadReferenceWithId('tDsr-inv');">tDsr (investigate)</a>]
+            [<a href="javascript:loadReferenceWithId('tDsr-exc');">tDsr (exciting)</a>]
+            [<a href="javascript:loadReferenceWithId('tDsr-let');">tDsr (let's talk)</a>]<br />
+        </p>
+    </div>
+
+    <hr>
+
+    <div id="academicreference">
+        <p>
+            <b>Academic Reference:</b> <br />
+            Nico Reski, Aris Alissandrakis and Andreas Kerren. In review. User Preferences of Spatio-Temporal Referencing Approaches For Immersive 3D Radar Charts.</a>
+        </p>
+    </div>
+
+    <div id="authorstatement">
+        <p>
+            <b>Author Statement:</b> <br />
+            This web page features supplemental media material referred to in the scientific publication listed above.
+        </p>
+    </div>
+
+    <!--<div id="researchgroupreferences">
+        <p>
+            <b>Author Research Groups:</b> <br />
+            <a href="https://vrxar.lnu.se" target="_blank">VRxAR Labs</a>, Linnaeus University, Sweden.<br />
+            <a href="https://cs.lnu.se/isovis/" target="_blank">ISOVIS</a>, Linneaus University, Sweden.
+        </p>
+    </div>-->
+
+    <script>
+
+        // retrieve URL parameter references
+        //
+
+        var appURLString = window.location.href;        // grab url that was used to open this web app
+        var appURL = new URL(appURLString);             // create URL object
+
+
+        // determine which screenshot (= scene) to load
+        var sceneID = appURL.searchParams.get("sid");           // extract url argument "sid" (= scene id)
+
+        // prepare image file path and hotspot data according to determine scene id
+        var imageFilePath = "";                                 // string to store file path of loaded image
+        var hotspotData = null;                                 // variable potentially holding hotspot data
+
+        // load 360 image
+        //
+
+        // determine whether the page is viewn in portrait (typical for mobile) or landscape (typical for desktop) mode
+        // and adjust field of view accordingly
+        var viewer = null;
+        var computedHFOV = (screen.width > screen.height) ? 110 : 40;
+
+        // yaw and pitch presents
+        var sYaw = 90.0;
+        var sPitch = -5.0;
+        var tYaw = -15.0;
+        var tPitch = -15.0;
+
+        // create 360 viewer and load (initial) image
+        displayReferenceWithId(sceneID);
+
+
+        // FUNCTIONS
+        //
+
+        // function call to handle different image loading without reloading the entire web page
+        function displayReferenceWithId ( ref_id )
+        {
+            switch(ref_id)
+            {
+                default:
+                    updatePanellumViewerWithImage( "images/none.jpg", tYaw, tPitch );
+                    updateLabelText("none");
+                    break;
+
+                // SPATIAL REFERENCES
+                case "sAe":
+                    updatePanellumViewerWithImage( "images/spatial/sAe.jpg", sYaw, sPitch );
+                    updateLabelText("sAe | spatial reference, variant A (pillar), elementary task");
+                    break;
+                case "sBe":
+                    updatePanellumViewerWithImage( "images/spatial/sBe.jpg", sYaw, sPitch );
+                    updateLabelText("sBe | spatial reference, variant B (location), elementary task");
+                    break;
+                case "sCe":
+                    updatePanellumViewerWithImage( "images/spatial/sCe.jpg", sYaw, sPitch );
+                    updateLabelText("sCe | spatial reference, variant C (node), elementary task");
+                    break;
+                case "sAs":
+                    updatePanellumViewerWithImage( "images/spatial/sAs.jpg", sYaw, sPitch );
+                    updateLabelText("sAs | spatial reference, variant A (pillar), synoptic task");
+                    break;
+                case "sBs":
+                    updatePanellumViewerWithImage( "images/spatial/sBs.jpg", sYaw, sPitch );
+                    updateLabelText("sBs | spatial reference, variant B (location), synoptic task");
+                    break;
+                case "sCs":
+                    updatePanellumViewerWithImage( "images/spatial/sCs.jpg", sYaw, sPitch );
+                    updateLabelText("sCs | spatial reference, variant C (node), synoptic task");
+                    break;
+
+                // TEMPORAL REFERENCES
+                case "tAe":
+                    updatePanellumViewerWithImage( "images/temporal/tAe.jpg", tYaw, tPitch );
+                    updateLabelText("tAe | temporal reference, variant A (highlight), elementary task");
+                    break;
+                case "tBe":
+                    updatePanellumViewerWithImage( "images/temporal/tBe.jpg", tYaw, tPitch );
+                    updateLabelText("tBe | temporal reference, variant B (outline), elementary task");
+                    break;
+                case "tCe":
+                    updatePanellumViewerWithImage( "images/temporal/tCe.jpg", tYaw, tPitch );
+                    updateLabelText("tCe | temporal reference, variant C (pointer), elementary task");
+                    break;
+                case "tDe":
+                    updatePanellumViewerWithImage( "images/temporal/tDe.jpg", tYaw, tPitch );
+                    updateLabelText("tDe | temporal reference, variant D (symbol), elementary task");
+                    break;
+                case "tAs":
+                    updatePanellumViewerWithImage( "images/temporal/tAs.jpg", tYaw, tPitch );
+                    updateLabelText("tAs | temporal reference, variant A (highlight), synoptic task");
+                    break;
+                case "tBs":
+                    updatePanellumViewerWithImage( "images/temporal/tBs.jpg", tYaw, tPitch );
+                    updateLabelText("tBs | temporal reference, variant B (outline), synoptic task");
+                    break;
+                case "tCs":
+                    updatePanellumViewerWithImage( "images/temporal/tCs.jpg", tYaw, tPitch );
+                    updateLabelText("tCs | temporal reference, variant C (pointer), synoptic task");
+                    break;
+                case "tDs":
+                    updatePanellumViewerWithImage( "images/temporal/tDs.jpg", tYaw, tPitch );
+                    updateLabelText("tDs | temporal reference, variant D (symbol), synoptic task");
+                    break;
+
+                // TEMPORAL REFERENCES INDIVIDUAL
+                case "tCei":
+                    updatePanellumViewerWithImage( "images/temporal-individual/tCei.jpg", tYaw, tPitch );
+                    updateLabelText("tCei | temporal reference, variant C (pointer), elementary task, individual data dimension");
+                    break;
+                case "tDei":
+                    updatePanellumViewerWithImage( "images/temporal-individual/tDei.jpg", tYaw, tPitch );
+                    updateLabelText("tDei | temporal reference, variant D (symbol), elementary task, individual data dimension");
+                    break;
+                case "tAsi":
+                    updatePanellumViewerWithImage( "images/temporal-individual/tAsi.jpg", tYaw, tPitch );
+                    updateLabelText("tAsi | temporal reference, variant A (highlight), synoptic task, individual data dimension");
+                    break;
+                case "tBsi":
+                    updatePanellumViewerWithImage( "images/temporal-individual/tBsi.jpg", tYaw, tPitch );
+                    updateLabelText("tBsi | temporal reference, variant B (outline), synoptic task, individual data dimension");
+                    break;
+                case "tCsi":
+                    updatePanellumViewerWithImage( "images/temporal-individual/tCsi.jpg", tYaw, tPitch );
+                    updateLabelText("tCsi | temporal reference, variant C (pointer), synoptic task, individual data dimension");
+                    break;
+                case "tDsi":
+                    updatePanellumViewerWithImage( "images/temporal-individual/tDsi.jpg", tYaw, tPitch );
+                    updateLabelText("tDsi | temporal reference, variant D (symbol), synoptic task, individual data dimension");
+                    break;
+
+
+                // TEMPORAL REFERENCES INDICATOR Variant C 
+                case "tCer-neu":
+                    updatePanellumViewerWithImage( "images/temporal-indicator/tCer-neu.jpg", tYaw, tPitch );
+                    updateLabelText("tCer-neu | temporal reference, variant C (pointer), elementary task, 'neutral' indicator");
+                    break;
+                case "tCer-pos":
+                    updatePanellumViewerWithImage( "images/temporal-indicator/tCer-pos.jpg", tYaw, tPitch );
+                    updateLabelText("tCer-pos | temporal reference, variant C (pointer), elementary task, 'positive' indicator");
+                    break;
+                case "tCer-neg":
+                    updatePanellumViewerWithImage( "images/temporal-indicator/tCer-neg.jpg", tYaw, tPitch );
+                    updateLabelText("tCer-neg | temporal reference, variant C (pointer), elementary task, 'negative' indicator");
+                    break;
+                case "tCsr-neu":
+                    updatePanellumViewerWithImage( "images/temporal-indicator/tCsr-neu.jpg", tYaw, tPitch );
+                    updateLabelText("tCer-neu | temporal reference, variant C (pointer), synoptic task, 'neutral' indicator");
+                    break;
+                case "tCsr-pos":
+                    updatePanellumViewerWithImage( "images/temporal-indicator/tCsr-pos.jpg", tYaw, tPitch );
+                    updateLabelText("tCer-pos | temporal reference, variant C (pointer), synoptic task, 'positive' indicator");
+                    break;
+                case "tCsr-neg":
+                    updatePanellumViewerWithImage( "images/temporal-indicator/tCsr-neg.jpg", tYaw, tPitch );
+                    updateLabelText("tCer-neg | temporal reference, variant C (pointer), synoptic task, 'negative' indicator");
+                    break;
+
+                // TEMPORAL REFERENCES INDICATOR Variant D 
+                case "tDer-inv":
+                    updatePanellumViewerWithImage( "images/temporal-indicator/tDer-inv.jpg", tYaw, tPitch );
+                    updateLabelText("tDer-inv | temporal reference, variant D (symbol), elementary task, 'investigate' indicator");
+                    break;
+                case "tDer-exc":
+                    updatePanellumViewerWithImage( "images/temporal-indicator/tDer-exc.jpg", tYaw, tPitch );
+                    updateLabelText("tDer-exc | temporal reference, variant D (symbol), elementary task, 'exciting' indicator");
+                    break;
+                case "tDer-let":
+                    updatePanellumViewerWithImage( "images/temporal-indicator/tDer-let.jpg", tYaw, tPitch );
+                    updateLabelText("tDer-let | temporal reference, variant D (symbol), elementary task, 'let us talk' indicator");
+                    break;
+                case "tDsr-inv":
+                    updatePanellumViewerWithImage( "images/temporal-indicator/tDsr-inv.jpg", tYaw, tPitch );
+                    updateLabelText("tDsr-inv | temporal reference, variant D (symbol), synoptic task, 'investigate' indicator");
+                    break;
+                case "tDsr-exc":
+                    updatePanellumViewerWithImage( "images/temporal-indicator/tDsr-exc.jpg", tYaw, tPitch );
+                    updateLabelText("tDsr-exc | temporal reference, variant D (symbol), synoptic task, 'exciting' indicator");
+                    break;
+                case "tDsr-let":
+                    updatePanellumViewerWithImage( "images/temporal-indicator/tDsr-let.jpg", tYaw, tPitch );
+                    updateLabelText("tDsr-let | temporal reference, variant D (symbol), synoptic task, 'let us talk' indicator");
+                    break;
+            }
+        }
+
+        // function to update the description for the currenly displayed reference
+        function updateLabelText( ref_label )
+        {
+            document.getElementById("label-text").innerHTML = "<i>Displayed Reference Design</i>: " + ref_label;
+        }
+
+        // function call to update the panellum viewer element
+        function updatePanellumViewerWithImage( imageFilePath, yaw, pitch )
+        {
+            // keep track of user's interaction (horizontal field of view)
+            var hofv = (viewer == null) ? computedHFOV : viewer.getHfov();
+
+            viewer = pannellum.viewer('panorama', {
+                "type": "equirectangular",
+                "panorama": imageFilePath,
+                "autoLoad": true,
+                "orientationOnByDefault": true,
+                "yaw" : yaw,                    // default: 0
+                "pitch": pitch,                 // default: 0
+                "hfov": hofv,                   // default: 100
+                "hotSpots": null
+            });
+        }
+
+        // window wrapper function call to handle image loading
+        window.loadReferenceWithId = function ( ref_id )
+        {
+            displayReferenceWithId(ref_id);
+        }
+    </script>
+
+</body>
+
+</html>

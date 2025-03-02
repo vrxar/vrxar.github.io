@@ -1,0 +1,242 @@
+<!--
+#	VRxAR Labs | ODXVR Annotation Report
+#
+#	Author: Nico Reski
+#	Email: nico.reski@lnu.se
+#	Web: https://vrxar.lnu.se/apps/odxvr-annoration-report/
+#	Web (via http redirect): https://vrxar.lnu.se/report
+#
+#   D3.js version: 5.0.0
+-->
+
+
+<!DOCTYPE html>
+<html>
+<body>
+
+<head>
+	<meta name="description" content="Annotation report of latest Open Data Exploration in Virtual Reality session -- developed by VRxAR Labs research group at Department of Computer Science and Media Technology (CM) at Linnaeus University">
+	<meta name="keywords" content="VRxAR, VR, AR, MR, virtual reality, HCI, human-computer interaction, interface design, interaction design, immersive analytics, 3D UI, 3D user interface, CSCW, computer-supported cooperative work">
+	<meta name="author" content="Nico Reski">
+	<meta charset="UTF-8">
+
+	<link rel="stylesheet" href="css/vrxar.css" type="text/css" media="screen" />
+	<script src="lib/d3/d3.min.js" charset="utf-8"></script>
+
+
+	<title>ODXVR Annotation Report (by VRxAR Labs)</title>
+
+	<!-- FAVICON related entries -->
+	<link rel="apple-touch-icon" sizes="180x180" href="favicon/apple-touch-icon.png">
+	<link rel="icon" type="image/png" sizes="32x32" href="favicon/favicon-32x32.png">
+	<link rel="icon" type="image/png" sizes="16x16" href="favicon/favicon-16x16.png">
+	<link rel="manifest" href="favicon/manifest.json">
+	<link rel="mask-icon" href="favicon/safari-pinned-tab.svg" color="#5bbad5">
+	<link rel="shortcut icon" href="favicon/favicon.ico">
+	<meta name="msapplication-config" content="favicon/browserconfig.xml">
+	<meta name="theme-color" content="#ffffff">
+</head>
+
+<body>
+	<div id="site">
+
+		<div id="canvas">
+
+			<div id="headerWrapper">
+
+					<div id="navBlock">
+					</div>
+
+			</div><!-- #headerWrapper END -->
+
+
+			<div id="page">
+
+				<div class="block">
+					<div class="block-content">
+						<h1 class="text-align-center">Annotation Report (ODXVR)</h1>
+						<p> Please find below the annotations captured / recorded during the latest Open Data Exploration in Virtual Reality (ODXVR) session. <i>Note: Please view this site using Google Chrome.</i>
+						</p>
+					</div>
+				</div>
+
+				<!--
+				<div class="block">
+					<div class="block-content">
+						<h1 class="text-align-center">Captured Annotations</h1>
+						<div class="block-content">
+							<ul>
+								<h3 class="text-align-left">Annotation No.: 1</h3>
+								<li>
+									<audio controls>
+										<source src="https://vrxar.lnu.se:4246/ac/getfile/2020-02-19_06-42-57/1.wav" type="audio/wav">
+									</audio>
+								</li>
+								<li>
+									<a href="https://vrxar.lnu.se:4246/ac/getfile/2020-02-19_06-42-57/1a.png" target="_blank"><img src="https://vrxar.lnu.se:4246/ac/getfile/2020-02-19_06-42-57/1a.png" style="width:600px;"></a>
+								</li>
+								<li>
+									<a href="https://vrxar.lnu.se:4246/ac/getfile/2020-02-19_06-42-57/1b.png" target="_blank"><img src="https://vrxar.lnu.se:4246/ac/getfile/2020-02-19_06-42-57/1b.png" style="width:600px;"></a>
+								</li>
+							</ul>
+						</div>
+					</div>
+				</div>
+				-->
+
+
+				<div class="block">
+					<div class="block-content" id="annotationslist">
+						<h1 class="text-align-center">Captured Annotations</h1>
+					</div>
+				</div>
+
+
+
+			</div><!-- #page END -->
+
+
+			<div id="footerWrapper">
+			    <div id="socialFooter">
+					<ul>
+						<li>
+							<a href='https://lnu.se/en/vrxar' target="_blank" title='VRxAR Labs at LNU'><span class='symbol'>roundedwww</span></a>
+						</li>
+						<li>
+							<a href='https://twitter.com/vrxar' target="_blank" title='VRxAR Labs at Twitter'><span class='symbol'>roundedtwitter</span></a>
+						</li>
+						<li>
+							<a href='https://vimeo.com/vrxar' target="_blank" title='VRxAR Labs at Vimeo'><span class='symbol'>roundedvimeo</span></a>
+						</li>
+					 	<li>
+					 		<a href='https://www.facebook.com/vrxarlabs/' target="_blank" title='VRxAR Labs at Facebook'><span class='symbol'>roundedfacebook</span></a>
+					 	</li>
+					 	<li>
+					 		<a href='mailto:nico.reski@lnu.se' target="_blank" title='email to Nico Reski'><span class='symbol'>roundedemail</span></a>
+					 	</li>
+					</ul>
+				 </div>
+
+			</div><!-- #footerWrapper END -->
+
+		</div><!-- #canvas END -->
+
+	</div><!-- #site END -->
+
+
+
+	<!-- D3.js code to connect to data server and load the latest annotation content -->
+	<script>
+
+	// execute script beneath automatically
+
+
+	// by default: load data for latest annotation session
+	var capturedContentURL = "https://vrxar.lnu.se:4246/ac/getlatestcapturecontent";
+
+	// optional: hand over session id (= directory) for a specific session via url parameter
+	var appURLString = window.location.href;			// grab url that was used to open this web app
+	var appURL = new URL(appURLString);					// create URL object
+	var session_id = appURL.searchParams.get("id");		// extract url argument "wssconnect"
+	if(session_id) capturedContentURL = "https://vrxar.lnu.se:4246/ac/getcapturecontentfordirectory/" + session_id;
+
+
+	// get information about the latest annotation content
+	//d3.json("https://vrxar.lnu.se:4246/ac/getlatestcapturecontent").then(function(data){
+	//fetch("https://vrxar.lnu.se:4246/ac/getlatestcapturecontent").then(response => {
+	fetch(capturedContentURL).then(response => {
+		if(!response.ok){
+			throw new Error("Unable to connect to server.");
+		}
+		return response.json();
+	}).then(function(data){
+
+		// DEBUG
+		//console.log(data);
+		//console.log(data.session_id);
+		//console.log(data.files);
+		//console.log(data.files.length);
+		//console.log(data.files[0]);
+
+
+		// parse session id into nicely readable string
+		var dt = data.session_id.split("_");
+		var d = dt[0].split("-");
+		var t = dt[1].split("-");
+
+		var dString = d[2] + "." + d[1] + "." + d[0];
+		var tString = t[0] + ":" + t[1];	// for the sake of the interface display we can ignore the seconds
+		var dtString = dString + ", " + tString;
+
+		// update report caption
+		d3.select('#annotationslist').append('h2')
+			.attr('class', 'text-align-center')
+			.text('Session: ' + dtString);
+
+
+		// annotation content logic:
+		// - annotations (n) are grouped as three files per annotation (x): 1) x.wav audio 2) xa.png image 3) xb.png image
+		// - annotations are ordered temporarily
+
+
+		// determine amount of annotations and iterate through them
+		var amountOfAnnotations = data.files.length / 3;
+		for(var i = 0; i < amountOfAnnotations; i++)
+		{
+			// fetch content for current annotation
+			var currentAudioFile = data.files[(i*3)];
+			var currentImageFileA = data.files[(i*3)+1];
+			var currentImageFileB = data.files[(i*3)+2];
+
+
+			// create HTML DOM entries for current annotation content
+			//
+
+			// header
+			d3.select('#annotationslist').append('h3')
+				.attr('class', 'text-align-center')
+				.text("Annotation No. " + (i+1));
+
+
+
+			// create div for list
+			var currentAnnotationEntry = d3.select('#annotationslist').append('div')
+				.attr('class', 'block-content');
+
+			// create list
+			var currentAnnotationList = currentAnnotationEntry.append('ul');
+			
+			// insert list entry for audio x
+			currentAnnotationList.insert('li').insert('audio')
+				.attr('controls', '')
+				.append('source')
+				.attr('src', currentAudioFile)
+				.attr('type', 'audio/wav');
+
+			// insert list entry for image xa
+			currentAnnotationList.insert('li').insert('a')
+				.attr('href', currentImageFileA)
+				.attr('target', '_blank')
+				.append('img')
+				.attr('src', currentImageFileA)
+				.attr('width', '600px');
+
+			// insert list entry for image xb
+			currentAnnotationList.insert('li').insert('a')
+				.attr('href', currentImageFileB)
+				.attr('target', '_blank')
+				.append('img')
+				.attr('src', currentImageFileB)
+				.attr('width', '600px');
+			}
+	})
+	.catch((error) => {
+		// error handling
+		d3.select('#annotationslist').append('h2')
+			.attr('class', 'text-align-center')
+			.text("Unable to connect to server.");
+	});
+	</script>
+
+</body>
+</html>

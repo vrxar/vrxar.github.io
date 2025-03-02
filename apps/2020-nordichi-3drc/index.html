@@ -1,0 +1,382 @@
+<!--
+#   Exploration of Time-Oriented Data in Immersive Virtual Reality Using a 3D Radar Chart Approach: 360 Viewer
+#
+#   Academic reference:
+#   Nico Reski, Aris Alissandrakis and Andreas Kerren. 2020. Exploration of Time-Oriented Data in Immersive Virtual Reality Using a 3D Radar Chart Approach. In NordiCHI 2020: The 11th Nordic Conference on Human-Computer Interaction, October 25–29, 2020, Tallinn, Estonia. ACM, New York, NY, USA, 11 pages. DOI: 10.1145/3419249.3420171
+#
+#   Developed using:
+#   Pannellum version: 2.4.0
+-->
+
+<!DOCTYPE HTML>
+
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exploration of Time-Oriented Data in Immersive Virtual Reality Using a 3D Radar Chart Approach: 360&#176; Viewer</title>
+    <link rel="stylesheet" href="lib/pannellum.css"/>
+    <script type="text/javascript" src="lib/pannellum.js" charset="utf-8"></script>
+
+    <style type="text/css">
+        #panorama {
+            width:  100%;
+            height: 500px;
+        }
+
+        /* Panorama element size adjustment based on device's screen size. */
+        @media not screen and (max-width: 1024px) {
+            #panorama {
+                height: 576px;
+            }
+        }
+
+        @media not screen and (max-width: 1280px) {
+            #panorama {
+                height: 720px;
+            }
+        }
+
+        @media not screen and (max-width: 1600px) {
+            #panorama {
+                height: 900px;
+            }
+        }
+
+        @media not screen and (max-width: 1920px) {
+            #panorama {
+                height: 1080px;
+            }
+        }
+
+
+        html, body
+        {
+            font: normal 14px menlo,'andale mono','courier new',sans-serif;
+            /*font: normal 12px Helvetica Neue, Helvetica, Arial, sans-serif;*/
+            line-height: 1.8em;
+            letter-spacing: 0px;
+            font-weight: 400;
+            font-style: normal;
+            background: #ffffff;
+            color: #333333;
+            display: block;
+        }
+
+        a:link
+        {
+            color:#7D7D7D;
+            text-decoration: none;
+        }
+
+        a:visited
+        {
+            color:#7D7D7D;
+            text-decoration: none;
+        }
+
+        a:hover
+        {
+            color:#AFAFAF;
+            text-decoration: none;
+        }
+
+        a:active
+        {
+            color:#AFAFAF;
+            text-decoration: none;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="title">
+        <p>
+            Exploration of Time-Oriented Data in Immersive Virtual Reality Using a 3D Radar Chart Approach: 360&#176; Viewer
+        </p>
+    </div>
+
+    <div id="panorama"></div>
+
+    <div id="links">
+        <p>
+            <b>Available Scenes:</b> <br />
+            1. <a href="index.html">Load Default Scene</a>: Overview of the VR application with all elements annotated (<i>as illustrated in Figures 1b, 2b, and 3c</i>).  <br />
+            2. <a href="index.html?sid=ts">Load Time Slice Scene</a>: Illustration of direct interaction with the Time Slice in order to navigate and explore time (<i>as illustrated in Figure 2a</i>). <br />
+            3. <a href="index.html?sid=trp">Load Time Range Selection via Pinch Scene</a>: Illustration of the time range selection functionality using two hand pinching (<i>as illustrated in Figure 3a</i>). <br />
+            4. <a href="index.html?sid=trm">Load Time Range Selection via Menu Scene</a>: Illustration of the time range selection functionality using the graphical hand menu (<i>as illustrated in Figure 3b</i>). <br />
+            5. <a href="index.html?sid=trs">Load Time Range Selected Scene</a>: Illustration of the view once a time range was selected (<i>as partially illustrated in Figure 3c</i>). <br />
+        </p>
+    </div>
+
+    <hr>
+
+    <div id="academicreference">
+        <p>
+            <b>Academic Reference:</b> <br />
+            Nico Reski, Aris Alissandrakis and Andreas Kerren. 2020. Exploration of Time-Oriented Data in Immersive Virtual Reality Using a 3D Radar Chart Approach, in <i> Proceedings of the 11 Nordic Conference on Human-Computer Interaction: Shaping Experiences, Shaping Society</i> (NordiCHI 2020). October 25–29, 2020, Tallinn, Estonia. pp 33:1-33:11. DOI: <a href="https://doi.org/10.1145/3419249.3420171" target="_BLANK">10.1145/3419249.3420171</a>
+        </p>
+    </div>
+
+    <div id="authorstatement">
+        <p>
+            <b>Author Statement:</b> <br />
+            This web page features supplemental media material referred to in the scientific publication listed above.
+        </p>
+    </div>
+
+    <div id="researchgroupreferences">
+        <p>
+            <b>Author Research Groups:</b> <br />
+            <a href="../../index.html" target="_blank">VRxAR Labs</a>, Linnaeus University, Sweden.<br />
+            <a href="https://cs.lnu.se/isovis/" target="_blank">ISOVIS</a>, Linneaus University, Sweden.
+        </p>
+    </div>
+
+    <script>
+
+        // retrieve URL parameter references
+        //
+
+        var appURLString = window.location.href;        // grab url that was used to open this web app
+        var appURL = new URL(appURLString);             // create URL object
+
+
+        // determine which screenshot (= scene) to load
+        var sceneID = appURL.searchParams.get("sid");           // extract url argument "sid" (= scene id)
+
+        // prepare image file path and hotspot data according to determine scene id
+        var imageFilePath = "";                                 // string to store file path of loaded image
+        var hotspotData = null;                                 // variable potentially holding hotspot data
+
+        switch(sceneID)
+        {
+            // time slice interaction scene: illustrating interaction with time slice based on grasping metaphor
+            case "ts":
+                imageFilePath = "images/360-timeslice.png";
+                hotspotData = [
+                    {
+                        "pitch": -42.0,
+                        "yaw": 20.0,
+                        "type": "info",
+                        "text": "3D gestural input: The hands of the VR user are detected, then displayed, and translated into the virtual 3D space accordingly, live and in real-time, enabling interaction using hand postures and gestures."
+                    },
+                    {
+                        "pitch": -26.0,
+                        "yaw": -7.0,
+                        "type": "info",
+                        "text": "Time Slice: A 2D mesh created from the 3D vertices based on the individual values in all the data variable spokes at the currently selected point in time. It represents the traditional interpretable pattern of a radar chart, and can be moved along the vertical time axis by grabbing it with one hand (grasping metaphor), and moving it up and down."
+                    },
+                    {
+                        "pitch": -60.0,
+                        "yaw": 3.0,
+                        "type": "info",
+                        "text": "Time Axis: In 3D, the vertical dimension represents time, and is visualized through a black axis with start and end points."
+                    },
+                    {
+                        "pitch": -26.0,
+                        "yaw": 12.0,
+                        "type": "info",
+                        "text": "Navigation / Exploration in Time: 3D gestural input allows the VR user to simply grab the Time Slice and move it up and down in order to move forward and backward in time."
+                    }
+                ];
+                break;
+
+            // time range selection menu scene: illustrating preview highlight in time range selection (state 2) based on system-control menu
+            case "trm":
+                imageFilePath = "images/360-timerangemenu.png";
+                hotspotData = [
+                    {
+                        "pitch": -30.0,
+                        "yaw": 40.0,
+                        "type": "info",
+                        "text": "3D gestural input: The hands of the VR user are detected, then displayed, and translated into the virtual 3D space accordingly, live and in real-time, enabling interaction using hand postures and gestures."
+                    },
+                    {
+                        "pitch": -30.0,
+                        "yaw": 20.0,
+                        "type": "info",
+                        "text": "Time Range Selection Menu: A one-button graphical menu attached to the VR user's right hand palm, iterating through three states to allow the selection of a time range in the 3D radar chart to temporally focus the investigation of a period determined as interesting."
+                    },
+                    {
+                        "pitch": -24.0,
+                        "yaw": 2.0,
+                        "type": "info",
+                        "text": "Time Range Selection Preview: Once a start point is selected, a visual highlight provides a preview of the to be selected time range as user feedback."
+                    }
+                ];
+                break;
+
+            // time range selection pinch scene: illustrating direct interaction using two hand pinch for time range selection
+            case "trp":
+                imageFilePath = "images/360-timerangepinch.png";
+                hotspotData = [
+                    {
+                        "pitch": -8.0,
+                        "yaw": 20.0,
+                        "type": "info",
+                        "text": "3D gestural input: The hands of the VR user are detected, then displayed, and translated into the virtual 3D space accordingly, live and in real-time, enabling interaction using hand postures and gestures."
+                    },
+                    {
+                        "pitch": -24.0,
+                        "yaw": 2.0,
+                        "type": "info",
+                        "text": "Direct Time Range Selection: Following the concept of direct manipulation through a grasping metaphor, the VR user can perform a pinch hand posture with each of the two hands, and then selecting a desired time range in real-time by moving both hands apart."
+                    },
+                    {
+                        "pitch": -30.0,
+                        "yaw": -6.5,
+                        "type": "info",
+                        "text": "Pinch Hand Posture: Index finger and thumb of a hand are close to one another."
+                    }
+                ];
+                break;
+
+            // time range selected scene: illustrating the view when a time range was selected
+            case "trs":
+                imageFilePath = "images/360-timerangeselected.png";
+                hotspotData = [
+                    {
+                        "pitch": -20.0,
+                        "yaw": -50.0,
+                        "type": "info",
+                        "text": "3D gestural input: The hands of the VR user are detected, then displayed, and translated into the virtual 3D space accordingly, live and in real-time, enabling interaction using hand postures and gestures."
+                    },
+                    {
+                        "pitch": -26.0,
+                        "yaw": -18.0,
+                        "type": "info",
+                        "text": "Time Menu: Attached to the VR user's left-hand palm is a two-buttoned graphical menu, allowing for stepwise exploration forward and backward in time."
+                    },
+                    {
+                        "pitch": -10.0,
+                        "yaw": 0.0,
+                        "type": "info",
+                        "text": "Time Range Selection: A time range was selected, allowing to temporally focus the investigation of a period determined as interesting."
+                    }
+                ];
+                break;
+
+            // default scene: overview of the VR application with all elements annotated
+            case "default":
+            default:
+                imageFilePath = "images/360-overview.png";
+                hotspotData = [
+                    {
+                        "pitch": -26.0,
+                        "yaw": -40.0,
+                        "type": "info",
+                        "text": "3D gestural input: The hands of the VR user are detected, then displayed, and translated into the virtual 3D space accordingly, live and in real-time, enabling interaction using hand postures and gestures."
+                    },
+                    {
+                        "pitch": -40.0,
+                        "yaw": -14.0,
+                        "type": "info",
+                        "text": "Time Menu: Attached to the VR user's left-hand palm is a two-buttoned graphical menu, allowing for stepwise exploration forward and backward in time."
+                    },
+                    {
+                        "pitch": -22.0,
+                        "yaw": -5.0,
+                        "type": "info",
+                        "text": "Time Slice: A 2D mesh created from the 3D vertices based on the individual values in all the data variable spokes at the currently selected point in time. It represents the traditional interpretable pattern of a radar chart, and can be moved along the vertical time axis by grabbing it with one hand (grasping metaphor), and moving it up and down."
+                    },
+                    {
+                        "pitch": -10.0,
+                        "yaw": -30.0,
+                        "type": "info",
+                        "text": "Information Window: One-panel window that displays further details about the selected point in time and numerical values for all data variables. It provides a more classical 2D visualization as a radar chart for the currently selected data."
+                    },
+                    {
+                        "pitch": 6.0,
+                        "yaw": 6.0,
+                        "type": "info",
+                        "text": "On/Off Toggle: Can be touched in order to display/hide the Time-Slice and Information Window."
+                    },
+                    {
+                        "pitch": -4.0,
+                        "yaw": 14.0,
+                        "type": "info",
+                        "text": "Rotation Handle: Can be used to rotate the 3D radar chart conveniently in place."
+                    },
+                    {
+                        "pitch": -15.0,
+                        "yaw": -1.0,
+                        "type": "info",
+                        "text": "3D Radar Chart: Visual interactable representation of time-oriented data at a specific (geo-)location, i.e., a data node."
+                    },
+                    {
+                        "pitch": -10.0,
+                        "yaw": 10.0,
+                        "type": "info",
+                        "text": "Data Variables as 2D Frequency Polygons: Data variables are organized as individual spokes in a radial arrangement around the time axis, i.e., the time-series data for each variable is visualized as a 2D frequency polygon."
+                    },
+                    {
+                        "pitch": -36.0,
+                        "yaw": 55.0,
+                        "type": "info",
+                        "text": "Nordic countries: The five Nordic countries (Denmark, Finland, Iceland, Norway, Sweden) are displayed, color-coded, on the floor within the virtual three-dimensional (3D) space."
+                    },
+                    {
+                        "pitch": -56.0,
+                        "yaw": 3.0,
+                        "type": "info",
+                        "text": "Time Axis: In 3D, the vertical dimension represents time, and is visualized through a black axis with start and end points."
+                    },
+                    {
+                        "pitch": -35.0,
+                        "yaw": 29.0,
+                        "type": "info",
+                        "text": "Time Range Selection Menu: A one-button graphical menu attached to the VR user's right hand palm, iterating through three states to allow the selection of a time range in the 3D radar chart to temporally focus the investigation of a period determined as interesting."
+                    },
+                    {
+                        "pitch": -48.0,
+                        "yaw": 35.0,
+                        "type": "info",
+                        "text": "Annotation Menu: A one-button graphical menu attached to the VR user's right hand palm, allowing the user to capture annotations (screenshots and speak aloud audio recordings) about interesting observations during the explorative analysis activity in VR. (Note: Captured annotations can be revisited outside the VR environment via web browser.)"
+                    },
+                    {
+                        "pitch": -2.0,
+                        "yaw": 47.0,
+                        "type": "info",
+                        "text": "Other Data Nodes: Data from other (geo-)locations represented as 3D radar charts in the background (unselected / toggled off)."
+                    }
+                ];
+                break;
+        }
+
+
+        // reset hotspot data (if it should not be displayed)
+        //
+        
+        var annotated = appURL.searchParams.get("annot");       // extract url argument "annot" (= annotation)
+        if (annotated == "false")
+        {
+            hotspotData = null;
+        }
+
+
+        // load 360 image
+        //
+
+        // determine whether the page is viewn in portrait (typical for mobile) or landscape (typical for desktop) mode
+        // and adjust field of view accordingly
+        var computedHFOV = (screen.width > screen.height) ? 110 : 40;
+
+        // create 360 viewer and load image
+        pannellum.viewer('panorama', {
+            "type": "equirectangular",
+            "panorama": imageFilePath,
+            "autoLoad": true,
+            "orientationOnByDefault": true,
+            "yaw" : 0.0,               // default: 0
+            "pitch": -25.0,            // default: 0
+            "hfov": computedHFOV,           // default: 100
+            "hotSpots": hotspotData
+        });
+    </script>
+
+</body>
+
+</html>

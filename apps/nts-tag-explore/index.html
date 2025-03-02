@@ -1,0 +1,1903 @@
+<!--
+#	VRxAR Labs | NTS Hashtag Explorer
+#
+#	Author: Nico Reski
+#	Email: nico.reski@lnu.se
+#	Web: https://vrxar.lnu.se/apps/nts-tag-explore/
+#
+#   D3.js version: 5.0.0
+#	socket.io-client version: 2.1.1
+-->
+
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+	<meta charset="utf-8">
+	<title>VRxAR Labs - NTS Hashtag Explorer</title>
+	<script src="lib/d3/d3.min.js" charset="utf-8"></script>
+	<!-- <script src="lib/topojson@1.js" charset="utf-8"></script> -->
+	<script src="lib/topojson/topojson@3.js" charset="utf-8"></script> 
+	<script src="lib/socket.io-client/socket.io.js" charset="utf-8"></script> 
+
+
+	<style>
+		/* CSS Tutorial: [https://www.w3schools.com/css/] */
+		text {
+			font-family: "Avenir Next", "Helvetica  Neue", Helvetica, Arial, sans-serif;
+			font-size: 11px;
+	  		text-anchor: middle;
+		}
+
+		.title {
+			font-family: "Avenir Next", "Helvetica  Neue", Helvetica, Arial, sans-serif;
+			font-size: 18px;
+		}
+
+		/* SVG Attribute reference: [https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute] */
+		svg {
+			font-family: "Avenir Next", "Helvetica  Neue", Helvetica, Arial, sans-serif;
+			font-size: 11px;
+		}
+
+
+		/* MAP VIEW */
+		.country {
+            fill: #ebebeb80;
+            stroke: #c0c0c0;
+            stroke-width: 0.5px;
+        } 
+
+        .nordiccountry {
+            fill: #ebebeb;
+            stroke: #c0c0c0;
+            stroke-width: 0.5px;
+        } 
+
+		.clustercircle {
+	  		fill-opacity: .8;
+	  		stroke: #FFFFFF;
+	  		stroke-width: 1px;
+		}
+
+		.clustercircle:hover {
+			fill: #5e5e5e;
+	  		fill-opacity: 1;
+		}
+
+		.clustercirclecapital {
+	  		fill-opacity: .8;
+	  		stroke: #000000;
+	  		stroke-width: 2px;
+		}
+
+		.clustercirclecapital:hover {
+			fill: #5e5e5e;
+	  		fill-opacity: 1;
+		}
+
+		#selectedClusterCircle {
+			stroke: #66bd63;
+			stroke-width: 3px;
+		}
+
+		.clustercirclebookmark {
+	  		fill-opacity: .8;
+	  		stroke: #66bd63;
+	  		/*stroke: #1a9850; // 2nd shade */	
+	  		stroke-width: 4px;
+	  		stroke-dasharray: 2.0;
+		}
+
+		.vrusercircle {
+	  		fill-opacity: .8;
+	  		stroke: #000000;
+	  		stroke-width: 1px;
+		}
+
+		.vrUserSelectedClusterCircle {
+			stroke: #f46d43;
+			stroke-width: 3px;
+		}
+
+		.vrUserBookmarkedClusterCircle {
+			fill-opacity: .8;
+			stroke: #f46d43;
+			/* stroke: #d73027; // 2nd shade */
+			stroke-width: 4px;
+			stroke-dasharray: 2.0;
+		}
+
+
+		/* HASHTAG VIEW */
+		/* Table CSS Tutorial: [https://www.w3schools.com/css/css_table.asp] */
+		table {
+			font-family: "Avenir Next", "Helvetica  Neue", Helvetica, Arial, sans-serif;
+			font-size: 14px;
+			border-collapse: collapse;
+			float: left;
+			table-layout: fixed;
+			width: 100%; /* need to be set for table-layout: fixed; to work */
+		}
+
+		th {
+			height: 28px;
+			text-align: left;
+			border-bottom: 1px solid #808080;
+		}
+
+		td {
+			height: 24px;
+
+			/* lang hashtags are cut of with an ellipsis (...) and can be viewed in their entirety using the pointer's tooltip (hover over the hashtag and wait for the tooltip to appear) */
+			max-width: 272px;
+    		overflow: hidden;
+    		text-overflow: ellipsis;
+    		white-space: nowrap;
+		}
+
+		th, td {
+			padding: 4px;
+			border-bottom: 1px solid #808080;
+		}
+
+		tr:nth-child(even) {
+			/*background-color: #F0F0F0;*/
+		}
+
+
+		/* INFO VIEW */
+		#language-legend {
+			width: 150px;
+			height: 300px;
+			float: right;
+			margin: 0;
+			padding-left: 100px;
+			/*margin-top: 0px;
+  			margin-bottom: 0px;
+  			margin-right: 0px;
+  			margin-left: 860px;*/
+		}
+
+		#language-legend table {
+			border-collapse: collapse;
+			float: left;
+			table-layout: fixed;
+			width: 100%; /* need to be set for table-layout: fixed; to work */
+		}
+
+		#language-legend th, td {
+			font-family: "Avenir Next", "Helvetica  Neue", Helvetica, Arial, sans-serif;
+			font-weight: normal;
+			font-size: 14px;
+			padding: 2px;
+			border: 1px solid #808080;
+		}
+
+		#info-time {
+			font-family: "Avenir Next", "Helvetica  Neue", Helvetica, Arial, sans-serif;
+			font-size: 14px;
+			font-weight: bold;
+	  		text-anchor: middle;
+	  		margin: 0;
+			margin-bottom: 40px;
+		}
+
+		#info-places-selected {
+			font-family: "Avenir Next", "Helvetica  Neue", Helvetica, Arial, sans-serif;
+			font-size: 14px;
+			color: #66bd63;
+	  		text-anchor: middle;
+	  		margin: 0;
+			margin-bottom: 6px;
+			border: 3px solid #66bd63;
+			width: 600px;
+			padding: 6px 6px 6px 6px;
+		}
+
+		#info-places-bookmarked {
+			font-family: "Avenir Next", "Helvetica  Neue", Helvetica, Arial, sans-serif;
+			font-size: 14px;
+			color: #66bd63;
+	  		text-anchor: middle;
+	  		margin: 0;
+			margin-bottom: 40px;
+			border: 3px dashed #66bd63;
+			/*border: 3px dashed #1a9850; // 2nd shade */
+			width: 600px;
+			padding: 6px 6px 6px 6px;
+		}
+
+		#info-places-vr-selected {
+			font-family: "Avenir Next", "Helvetica  Neue", Helvetica, Arial, sans-serif;
+			font-size: 14px;
+			color: #f46d43;
+	  		text-anchor: middle;
+	  		margin: 0;
+			margin-bottom: 6px;
+			border: 3px solid #f46d43;
+			width: 600px;
+			padding: 6px 6px 6px 6px;
+		}
+
+		#info-places-vr-bookmarked {
+			font-family: "Avenir Next", "Helvetica  Neue", Helvetica, Arial, sans-serif;
+			font-size: 14px;
+			color: #f46d43;
+	  		text-anchor: middle;
+	  		margin: 0;
+			margin-bottom: 40px;
+			border: 3px dashed #f46d43;
+			/*border: 3px dashed #d73027; // 2nd shade */
+			width: 600px;
+			padding: 6px 6px 6px 6px;
+		}
+
+
+		/* DIV styling for arranging all views */
+		#mapview {
+			width: 850px;
+			float: left;
+			margin: 0;
+			margin-left: 10px;
+			margin-bottom: 10px;
+		}
+
+		#infoview {
+			width: 852px;
+			float: left;
+			margin: 0;
+			margin-left: 0px;
+			margin-right: 10px;
+		}
+
+		#hashtagview {
+			width: 415px;
+			float: left;
+			margin: 0;
+			border: 3px solid #66bd63;
+			margin-left: 0px;
+			/*margin-top: 0px;
+  			margin-bottom: 0px;
+  			margin-right: 0px;
+  			margin-left: 860px;*/
+		}
+
+		#hashtagview-content {
+			width: 415px;
+			height: 524px;
+			overflow: auto;
+		}
+
+		#hashtagbookmarkview {
+			width: 415px;
+			float: left;
+			margin: 0;
+			border: 3px dashed #66bd63;
+			/*border: 3px dashed #1a9850; // 2nd shade */
+			margin-left: 10px;
+			/*margin-top: 0px;
+  			margin-bottom: 0px;
+  			margin-right: 0px;
+  			margin-left: 10px;*/
+		}
+
+		#hashtagbookmarkview-content {
+			width: 415px;
+			height: 524px;
+			overflow: auto;
+		}
+
+		#vr-hashtagview {
+			width: 415px;
+			float: left;
+			margin: 850;
+			border: 3px solid #f46d43;
+			margin-left: 0px;
+			/*margin-top: 0px;
+  			margin-bottom: 0px;
+  			margin-right: 0px;
+  			margin-left: 860px;*/
+		}
+
+		#vr-hashtagview-content {
+			width: 415px;
+			height: 524px;
+			overflow: auto;
+		}
+
+		#vr-hashtagbookmarkview {
+			width: 415px;
+			float: left;
+			margin: 1260;
+			border: 3px dashed #f46d43;
+			/*border: 3px dashed #d73027; // 2nd shade */
+			margin-left: 10px;
+			/*margin-top: 0px;
+  			margin-bottom: 0px;
+  			margin-right: 0px;
+  			margin-left: 10px;*/
+		}
+
+		#vr-hashtagbookmarkview-content {
+			width: 415px;
+			height: 524px;
+			overflow: auto;
+		}
+
+	</style>
+</head>
+
+<body>
+	
+	<!-- Initialize HTML DOM tree elements. -->
+	<div class="title">VRxAR Labs | NTS Hashtag Explorer</div>
+	
+	<!-- anticipated resolution: 2560 x 1440 -->
+
+	<div id="row1">
+		<div id="hashtagview">
+			<table id="hashtagview-tableheader"></table>
+			<div id="hashtagview-content"></div>
+		</div>
+		<div id="hashtagbookmarkview">
+			<table id="hashtagbookmarkview-tableheader"></table>
+			<div id="hashtagbookmarkview-content"></div>
+		</div>
+		<div id="mapview"></div>
+	</div>
+
+	<div id="row2">
+		<div id="infoview">
+			<div id="language-legend"></div>
+			<div id="info-time"></div>
+			<div id="info-places-selected"></div>
+			<div id="info-places-bookmarked"></div>
+			<div id="info-places-vr-selected"></div>
+			<div id="info-places-vr-bookmarked"></div>
+		</div>
+		<div id="vr-hashtagview">
+			<table id="vr-hashtagview-tableheader"></table>
+			<div id="vr-hashtagview-content"></div>
+		</div>
+		<div id="vr-hashtagbookmarkview">
+			<table id="vr-hashtagbookmarkview-tableheader"></table>
+			<div id="vr-hashtagbookmarkview-content"></div>
+		</div>
+	</div>
+
+
+	<!-- D3.js visualization implementation. -->
+	<script>
+
+	// === WEBSOCKET MESSAGE API
+	// incoming (Unity3D -> WebSocker server -> WebClient)
+	var ODXVRUserTransformUpdate 	 = 'odxvr_user_transform_update';
+	var ODXVRUserNodeSelectionUpdate = 'odxvr_user_node_selection_update';
+	var ODXVRUserNodeBookmarkUpdate  = 'odxvr_user_node_bookmark_update';
+	var ODXVRUserTimeSelectionUpdate = 'odxvr_user_time_selection_update';
+
+	// outgoing (WebClient -> WebSocketServer -> Unity3D)
+	var WEBUserNodeSelectionUpdate = 'web_user_node_selection_update';
+	var WEBUserNodeBookmarkUpdate  = 'web_user_node_bookmark_update';
+	var WEBUserTimeSelectionUpdate = 'web_user_time_selection_update';
+	// ==========
+
+
+	// === NETWORK IMPLEMENTATION
+	//
+
+	var socket;										// global socket object, handling the connection to the websocket server
+	var shouldConnectToWebSocketServer = false;		// default setting: do not connnect to websocket server
+
+	// decide whether the web app should connect to the websocket server or not via url argument
+	// standard (no websocket server connection): 	[ https://vrxar.lnu.se/apps/nts-lang-explore/ ]
+	// with websocket server connection: 			[ https://vrxar.lnu.se/apps/nts-lang-explore/?wssconnect=true ]
+	
+	var appURLString = window.location.href;						// grab url that was used to open this web app
+	var appURL = new URL(appURLString);								// create URL object
+	var wssConnect = appURL.searchParams.get("wssconnect");			// extract url argument "wssconnect"
+	if(wssConnect == "true") shouldConnectToWebSocketServer = true;	// set connect to websocket server flag if url argument was set accordingly
+
+	if(shouldConnectToWebSocketServer)
+	{
+		// create WebSocket connection to server (using socket.io-client)
+		socket = io('wss://vrxar.lnu.se:4247/');
+
+
+		// == DEBUG ==
+		// send
+		socket.emit('message', 'Hej VRxAR Labs WebSocket server, this is the web NTS-TAG-EXPLORER client.');
+		/*
+		socket.emit('biip');
+
+		// retrieve
+		socket.on('buup', function(message) {
+                console.log('websocket event received: buup');
+                console.log(message);
+                console.log(message.hello);
+            });
+		*/
+		// == END DEBUG ==
+
+
+		// == Event listeners (incoming) ==
+
+		// VR user transform update
+		socket.on(ODXVRUserTransformUpdate, function(message) {
+			//console.log('websocket event received: odxvr_user_transform_update');
+			//console.log(message);
+
+			// update the VR user node
+			updateVRUserNode(message);
+		});
+
+		// VR user node selection update
+		socket.on(ODXVRUserNodeSelectionUpdate, function(message) {
+			//console.log('websocket event received: ' + ODXVRUserNodeSelectionUpdate);
+			//console.log(message);
+
+			// keep track of selected node by VR user
+			clusterIDOfVrUserSelectedNode = message.selectedNodeID;
+
+			// update the node that is currently selected by the VR user
+			highlightNodeSelectedByVRUser();
+		});
+
+		// VR user bookmark selection update
+		socket.on(ODXVRUserNodeBookmarkUpdate, function(message) {
+			//console.log('websocket event received: ' + ODXVRUserNodeSelectionUpdate);
+			//console.log(message);
+
+			// keep track of bookmarked node by VR user
+			clusterIDOfVrUserBookmarkedNode = message.bookmarkedNodeID;
+
+			// update the node that is currently bookmarked by the VR user
+			highlightNodeBookmarkedByVRUser();
+		});
+	}
+
+	var vrUserSelectedTimeDateLabel;
+	var vrUserSelectedTimeDateLabelPosition;
+
+
+	// == Socket messages (outgoing) ==
+	// Note: All function calls are tagged as 'NETWORKING' wherever applied (for better findability)
+
+	// web user selected a new node in the Map View
+	function socketMessageWEBUserNodeSelectionUpdate(nodeID)
+	{
+		// prepare JSON message that is going to be sent to the websocket server
+		var messageJSON = { 'selectedNodeID' : nodeID };
+
+		// send message
+		socket.emit(WEBUserNodeSelectionUpdate, messageJSON);
+	}
+
+	// web user bookmarked a new node in the Map View
+	function socketMessageWEBUserNodeBookmarkUpdate(nodeID)
+	{
+		// prepare JSON message that is going to be sent to the websocket server
+		var messageJSON = { 'bookmarkedNodeID' : nodeID };
+
+		// send message
+		socket.emit(WEBUserNodeBookmarkUpdate, messageJSON);
+	}
+
+	// web user selected a new time in the Time View
+	function socketMessageWEBUserTimeSelectionUpdate(time)
+	{
+		// prepare JSON message that is going to be sent to the websocket server
+		var messageJSON = { 'selectedTime' : time,
+							'year' : time.substring(0, 4),
+							'month' : time.substring(5, 7),
+							'day' : time.substring(8, 10)
+						  };
+
+		// send message
+		socket.emit(WEBUserTimeSelectionUpdate, messageJSON);
+	}
+
+
+	// === NETWORKING FEATURES 
+	//
+
+	// helper values of different attributes for components representing the VR user
+	var ODXVRUserRotLineLength 		= 42;
+	var ODXVRUserFovLenth 	   		= 40;
+	var ODXVRUserFovDegrees    		= 96;
+	var ODXVRUserNodeColor	   		= '#cc4c02';
+	var ODXVRUserNodeFovColor  		= '#fe9929' + '80';	// hex code + 80 (80 -> 50% transparency)
+	var ODXVRUserNodeSelectionColor	= '#cc4c02';
+
+	// helper values to determine which components of the VR user representation should be drawn
+	var shouldDrawODXVRUserRotationLine 				= true;
+	var shouldDrawODXVRUserFovArc 						= true;
+	var shouldVRUserTimeSelectionChangeWEBTimeSelection = false;
+
+	// function to represent the VR user visually as a node in the Map View
+	function drawVRUserNode()
+	{
+		// create a group inside the svg element of the Map View
+		var vrUserGroup = d3.select('#mapview').select('svg')
+							.append('g')
+							.attr('id', 'vrUser');
+
+		// select VR user element
+		var vrUserNode = vrUserGroup.selectAll('vrUser');
+
+		// initialize a 'line' element representing the VR user's rotation by adding it to the 'group' element representing the whole VR user 
+		if(shouldDrawODXVRUserRotationLine)
+		{
+			vrUserGroup.append('line')
+				.attr('stroke', 'black')
+				.attr('id', 'ODXVR_user_rot_line');
+		}
+
+		// initialize a 'path' element representing the VR user's field of view (FOV) by adding it to the 'group' element representing the whole VR user 
+		if(shouldDrawODXVRUserFovArc)
+		{
+			vrUserGroup.append('path')
+				.attr('fill', ODXVRUserNodeFovColor)
+				.attr('id', 'ODXVR_user_fov_path')
+				.attr('pointer-events', 'none');
+		}
+
+		// initial hard-coded VR user position
+		var vrUserPos = [18.000, 62.000];
+	    var vrUser = [vrUserPos];
+
+		// initialize VR user as 'circle' element and set its start up attributes accordingly
+		// note: draw node last so it is the top layer (thus putting it in front of rotation line and FOV arc)
+	    vrUserNode.data(vrUser).enter()
+			.append('circle')
+			.attr('cx', function(d, i) { return projection(d)[0]; })
+			.attr('cy', function(d, i) { return projection(d)[1]; })
+			.attr('r', '6px')
+			.attr('fill', ODXVRUserNodeColor)
+			.attr('class', 'vrusercircle')
+			.attr('id', 'ODXVR_user_pos_circle');
+	}
+
+	// function to return the transform attribute value for rotating the line representing the VR user's rotation
+	function getTransformStringForVRUserLineRotation(vrUser, angle)
+	{
+		// synchronize angle rotation between Unity3D and D3.js ( D3.js angle = Unity3D euler angle - 180 degrees)
+		angle = angle - 180;
+
+		// construct return value (for transform attribute)
+		return 'rotate(' + angle + ',' + vrUser.attr('cx') + ',' + vrUser.attr('cy') + ')';
+		
+		// return value =
+		// 'rotate(angle, x, y)'
+
+
+		/* OLD implementation using manual translation
+			// get numerical position values
+			var x = vrUser.attr('cx');
+			var y = vrUser.attr('cy');
+			x = +x;
+			y = +y;
+
+			return 'translate(' + x + ',' + y + ') ' +
+				   'rotate(' + angle + ') ' +
+				   'translate(' + (-x) + ',' + (-y) + ')';
+
+			// return value =
+			// 'translate(x, y) rotate(angle) translate(-x, -y)')
+		*/
+	}
+
+	// function to update the visual representation of the VR user node in the Map View
+	function updateVRUserNode(transform)
+	{
+		// select 'circle' element representing VR user by using its ID
+		var vrUserPosCircle = d3.select('#ODXVR_user_pos_circle');
+
+		// update position, accounting for the projection accordingly
+		vrUserPosCircle.attr('cx', function() { return projection([transform.posX, transform.posZ])[0]; })
+			  		   .attr('cy', function() { return projection([transform.posX, transform.posZ])[1]; });
+
+		// cache position attributes
+		var x = vrUserPosCircle.attr('cx');		// grab position attributes (returns a string)
+		var y = vrUserPosCircle.attr('cy');
+		x = +x;									// convert string attribute values to numerical (float/int)
+		y = +y;
+
+		if(shouldDrawODXVRUserRotationLine)
+		{
+			// select 'line' element representing the VR user's rotation
+			var vrUserRotLine = d3.select('#ODXVR_user_rot_line');
+
+			// update position
+			vrUserRotLine.attr('x1', x)
+						 .attr('y1', y)
+						 .attr('x2', x)
+						 .attr('y2', y + ODXVRUserRotLineLength);
+
+			// update rotation
+			vrUserRotLine.attr('transform', getTransformStringForVRUserLineRotation(vrUserPosCircle, transform.rotY));
+		}
+
+		if(shouldDrawODXVRUserFovArc)
+		{
+			// D3.js Shape Arc documentation: [ https://github.com/d3/d3-shape#arcs ]
+
+			// select 'path' element representing the VR user's field of view
+			var vrUserFovArc = d3.select('#ODXVR_user_fov_path');
+
+			// create ARC 		
+			var arc = d3.arc()
+			    .innerRadius(0)
+			    .outerRadius(ODXVRUserFovLenth)
+			    .startAngle(0 * (Math.PI/180) ) // converting from degrees to radians
+			    .endAngle(ODXVRUserFovDegrees * (Math.PI/180)); // converting from degrees to radians
+
+			// set position and rotation of arc
+			var arcTransform = 'translate(' + x + ',' + y + ')' +
+								'rotate(' + (transform.rotY - ODXVRUserFovDegrees * 0.5) + ')';
+
+			// update arc using the new attributes
+			vrUserFovArc.attr("d", arc)
+			    		.attr("transform", arcTransform);
+		}
+	}
+
+	// function to highlight the cluster (node) as currently selected by the VR user
+	var clusterIDOfVrUserSelectedNode;
+	function highlightNodeSelectedByVRUser()
+	{
+		// remove previously selected highlight ...
+		d3.selectAll(".vrUserSelectedClusterCircle").classed("vrUserSelectedClusterCircle", false);
+		// ... and add highlight (class attribute) to newly selected circle (as second class)
+
+		// get all nodes and highlight the one as selected by the VR user
+		d3.selectAll('.clustercircle')
+			.filter(function(d){
+				return (d.cluster_id == clusterIDOfVrUserSelectedNode);
+			})
+			.attr('class', function(d){
+
+				// default circle classes
+				var circleClasses = "clustercircle vrUserSelectedClusterCircle";
+				// check for other circle classes
+				if(d3.select(this).classed("clustercirclebookmark"))
+				{
+					if(d3.select(this).classed("clustercirclecapital"))
+						circleClasses = "clustercirclecapital clustercirclebookmark vrUserSelectedClusterCircle";
+					else
+						circleClasses = "clustercircle clustercirclebookmark vrUserSelectedClusterCircle";
+				}
+				else if(d3.select(this).classed("vrUserBookmarkedClusterCircle"))
+				{
+					if(d3.select(this).classed("clustercirclecapital"))
+						circleClasses = "clustercirclecapital vrUserBookmarkedClusterCircle vrUserSelectedClusterCircle";
+					else 
+						circleClasses = "clustercircle vrUserBookmarkedClusterCircle vrUserSelectedClusterCircle";
+				}
+				else
+				{
+					if(d3.select(this).classed("clustercirclecapital"))
+						circleClasses = "clustercirclecapital vrUserSelectedClusterCircle";
+				}
+				
+				// return determined classes for circle in svg
+				return circleClasses;
+
+				/*
+				// default circle classes
+				var circleClasses = "clustercircle vrUserSelectedClusterCircle";
+				// check if circle class was a capital
+				if (d3.select(this).classed("clustercirclecapital"))
+					circleClasses = "clustercirclecapital vrUserSelectedClusterCircle";
+				// return determined classes for circle in svg
+				return circleClasses;
+				*/
+			});
+
+		// update table view according to VR user's selection
+		updateHashtagViewForDate(clusterIDOfVrUserSelectedNode, currentlySelectedTimeDateLabel, "#vr-hashtagview");
+
+		// update places info view according to VR user's selection
+		updateInfoPlacesForTableViewDisplay("#info-places-vr-selected", "VR selected", clusterIDOfVrUserSelectedNode);
+	}
+
+	// function to highlight the cluster (node) as currently bookmarked by the VR user
+	var clusterIDOfVrUserBookmarkedNode;
+	function highlightNodeBookmarkedByVRUser()
+	{
+		// remove previously bookmarked highlight ...
+		d3.selectAll(".vrUserBookmarkedClusterCircle").classed("vrUserBookmarkedClusterCircle", false);
+		// ... and add highlight (class attribute) to newly bookmarked circle (as second class)
+
+		// get all nodes and highlight the one as bookmarked by the VR user
+		d3.selectAll('.clustercircle')
+			.filter(function(d){
+				return (d.cluster_id == clusterIDOfVrUserBookmarkedNode);
+			})
+			.attr('class', function(d){
+
+				// default circle classes
+				var circleClasses = "clustercircle vrUserBookmarkedClusterCircle";
+				// check for other circle classes
+				if(d3.select(this).classed("clustercirclebookmark"))
+				{
+					if(d3.select(this).classed("clustercirclecapital"))
+						circleClasses = "clustercirclecapital clustercirclebookmark vrUserBookmarkedClusterCircle";
+					else
+						circleClasses = "clustercircle clustercirclebookmark vrUserBookmarkedClusterCircle";
+				}
+				else if(d3.select(this).classed("vrUserSelectedClusterCircle"))
+				{
+					if(d3.select(this).classed("clustercirclecapital"))
+						circleClasses = "clustercirclecapital vrUserSelectedClusterCircle vrUserBookmarkedClusterCircle";
+					else 
+						circleClasses = "clustercircle vrUserSelectedClusterCircle vrUserBookmarkedClusterCircle";
+				}
+				else
+				{
+					if(d3.select(this).classed("clustercirclecapital"))
+						circleClasses = "clustercirclecapital vrUserBookmarkedClusterCircle";
+				}
+				
+				// return determined classes for circle in svg
+				return circleClasses;
+
+				/*
+				// default circle classes
+				var circleClasses = "clustercircle vrUserBookmarkedClusterCircle";
+				// check if circle class was a capital
+				if (d3.select(this).classed("clustercirclecapital"))
+					circleClasses = "clustercirclecapital vrUserBookmarkedClusterCircle";
+				// return determined classes for circle in svg
+				return circleClasses;
+				*/
+			});
+
+		// update table view according to VR user's bookmark
+		updateHashtagViewForDate(clusterIDOfVrUserBookmarkedNode, currentlySelectedTimeDateLabel, "#vr-hashtagbookmarkview");
+
+		// update places info view according to VR user's bookmark
+		updateInfoPlacesForTableViewDisplay("#info-places-vr-bookmarked", "VR bookmarked", clusterIDOfVrUserBookmarkedNode);
+	}
+
+
+	// function to update and display the time the VR user is currently browsing as dashed line and text in the Time View
+	function handleTimeViewDateSelectionByVRUser(svg, labelPos, dateLabel)
+	{
+		// update UI elements in time view
+		//
+
+		// remove previous line
+		svg.selectAll("#VRUserTimeViewSelectedDateLine").remove();
+
+		// draw new line
+		svg.append("line")
+			.attr("id", "VRUserTimeViewSelectedDateLine")
+			.attr("x1", function() {
+				return labelPos[0];
+			})
+			.attr("y1", 10)
+			.attr("x2", function() {
+				return labelPos[0];
+			})
+			.attr("y2", streamGraphHeight-sgYAxisPadding)
+			.attr("stroke", ODXVRUserNodeColor)
+
+		// remove previous date text label
+		svg.selectAll("#VRUserTimeViewSelectedDateText").remove();
+
+		// display date text label
+		svg.append("text")
+			.attr("id", "VRUserTimeViewSelectedDateText")
+			.attr("x", function() {
+				var xPos = labelPos[0] + 46;						// + 46 to position slightly to the right of the current mouse position
+				if(xPos > streamGraphWidth - 150) xPos = xPos - 70;	// border handling: when too far right, swap to left
+				return xPos;
+			})
+          	.attr("y", function() {
+          		return 14;			// position at static height below x-axis
+          	})
+         	.text( function () {
+         		return dateLabel + ' (VR)';
+         	})
+         	.attr("fill", ODXVRUserNodeColor);
+	}
+
+
+	// === VISUALIZATION IMPLEMENTATION
+	//
+
+	// === GLOBAL VARIABLES ACROSS VIEWS ===
+
+	var languageColors = d3.scaleOrdinal()
+		.domain([0, 1, 2, 3, 4, 5, 6, 7])
+	    .range(["#ffd92f",	// Swedish: 	ffd92f
+	    	"#fc8d62",		// Danish: 		fc8d62
+	    	"#8da0cb",		// Norwegian: 	8da0cb
+	    	"#a6d854",		// Finnish: 	a6d854
+	    	"#b3b3b3",		// Icelandic: 	b3b3b3
+	    	"#e78ac3",		// English: 	e78ac3
+	    	"#e5c494",		// Other: 		e5c494
+	    	"#66c2a5"]);	// Unknown: 	66c2a5
+
+
+	// === MAP VIEW ===
+
+	// === Note ===
+	// overall adapted from example demonstrated by Robert Jesionek via 
+	// 1) [ https://github.com/jesion/d3js-flight-connections-map ]
+	// 2) [ http://d3js.robertjesionek.com/flight-connections-map/ ]
+       
+	// helper values
+	var shouldHighlightCapitalClusters = true;		// indicates whether clusters containing capitals should be given a special visual cue
+
+    // overall map drawing
+    //  
+    var mapWidth  = 850;
+    var mapHeight = 600;
+    var mapCenter = [4, 71.7];
+    var mapScale  = 830;
+
+	var projection = d3.geoMercator()
+						.scale(mapScale)
+						.translate([mapWidth / 2, 0]).center(mapCenter);
+
+    var path = d3.geoPath().projection(projection);
+
+    var mapSVG = d3.select('#mapview')
+    				.append('svg')
+      				.attr('height', mapHeight)
+      				.attr('width', mapWidth)
+      				.style('background', '#387EB8');
+
+    var countries = mapSVG.append("g")
+    						.attr('class', 'mapViewCountries');
+
+    var clusterGroup = mapSVG.append("g")
+    							.attr('id', 'mapViewClusters');
+
+	//d3.json("data/geodata_nordic_countries_pretty.json").then(function(data){		// load only Nordic countries
+	d3.json("data/geodata_europe_pretty.json").then(function(data){					// load Europe countries
+      
+      //console.log("europe", data);
+
+      countries.selectAll('.country')
+      	.data(topojson.feature(data, data.objects.europe).features)
+      	.enter()
+      	.append('path')
+      	.attr('class', function(d,) {
+      		// classify countries drifferenly depending whether they are a Nordic country or not
+      		if( d.properties.NAME == "Sweden" ||
+      			d.properties.NAME == "Denmark" ||
+      			d.properties.NAME == "Norway" || 
+      			d.properties.NAME == "Finland" || 
+      			d.properties.NAME == "Iceland")
+      			return 'nordiccountry';
+      		else
+      			return 'country';
+      	})
+      	.attr('d', path);
+      	return;
+    });
+
+
+    // drawing clusters as circles
+    // 
+    var clusters;
+    function updateMapViewForDate(date)
+    {
+		// delete previous map data entries
+		clusterGroup.selectAll(".mapViewClusterCircles").remove();
+
+		// create current map data entries
+	    var clusterCirclesGroup = clusterGroup.append("g")
+	    										.attr("class", "mapViewClusterCircles");
+		clusters = clusterCirclesGroup.selectAll('cluster');
+
+		/*
+		// DEBUG (START) : circle for each capital
+	    var stockholmGeo  = [18.070, 59.330];
+	    var helsinkiGeo   = [24.940, 60.170];
+	    var osloGeo 	  = [10.750, 59.910];
+	    var copenhagenGeo = [12.570, 55.680];
+	    var reykjavikGeo  = [-21.920, 64.140];
+	    
+	    var nordicCapitals = [stockholmGeo, helsinkiGeo, osloGeo, copenhagenGeo, reykjavikGeo];
+
+	    clusters.data(nordicCapitals).enter()
+			.append('circle')
+			.attr('cx', function(d, i) { return projection(d)[0]; })
+			.attr('cy', function(d, i) { return projection(d)[1]; })
+			.attr('r', '6px')
+			.attr('fill', 'darkred')
+			.attr('class', 'clustercircle');
+		// DEBUG (END)
+		*/
+
+		var clusterFileForCurrentDate = grabClusterFileForDate(date);
+		//console.log("fileToLoadForMapView = " + clusterFileForCurrentDate);
+
+		// load csv file: https://github.com/d3/d3-fetch/blob/master/README.md#dsv
+		//d3.dsv(",", "data/daily/_nts_generated_clusters_demo_unique.csv").then(function(data) {
+		d3.dsv(",", clusterFileForCurrentDate)
+			.then(function(data) {
+					
+				// DEBUG - check loaded data set
+				//console.log(data);
+				//console.log(data[0]);
+				//console.log(data[0].cluster_x);
+				//console.log(data[0].Swedish);
+
+				clusters.data(data).enter()
+					.filter(function(d){	// only draw clusters if tweet data exists
+						//console.log(d.Total);
+						return d.Total > 0;
+					})	
+					.append('circle')
+					.attr('cx', function(d) {
+						//console.log(d);
+						//console.log(d.cluster_x);
+						//console.log(projection(d.cluster_x));
+						//console.log(projection(d.cluster_x)[0]);
+						//return d.cluster_x;
+						return projection([d.cluster_x, d.cluster_y])[0];
+					})
+					.attr('cy', function(d) {
+						//return projection(d.cluster_y)[1];
+						//return d.cluster_y;
+						return projection([d.cluster_x, d.cluster_y])[1];
+					})
+					.attr('r', '6px')
+					.attr('fill', function(d) {
+
+						// HASHTAG EXPLORER IMPLEMENTATION
+						return "#92c5de";
+						
+						/*
+						// LANGUAGE EXPLORER IMPLEMENTATION
+						// color circle based on most frequent language
+						var tweetValues = [d.Swedish, d.Danish, d.Norwegian, d.Finnish, d.Icelandic, d.English, d.Other, d.Unknown];
+						var max = Math.max(...tweetValues);
+						
+						//console.log(max + " = for cluster id " + d.cluster_id);
+
+						var clusterColor = "#FFFFFF";
+						if(d.Swedish == max ) clusterColor = languageColors(0);
+						else if (d.Danish == max ) clusterColor = languageColors(1);
+						else if (d.Norwegian == max ) clusterColor = languageColors(2);
+						else if (d.Finnish == max ) clusterColor = languageColors(3);
+						else if (d.Icelandic == max ) clusterColor = languageColors(4);
+						else if (d.English == max ) clusterColor = languageColors(5);
+						else if (d.Other == max ) clusterColor = languageColors(6);
+						else if (d.Unknown == max ) clusterColor = languageColors(7);
+
+						return clusterColor;
+						*/
+
+						/*
+						// DEBUG IMPLEMENTATION
+						// fill cluster based on country (hardcoded from sorted data structure / input data)
+						if(d.cluster_id >= 0 && d.cluster_id <= 18) return 'green';	// denmark
+						else if(d.cluster_id >= 19 && d.cluster_id <= 113) return 'yellow';	// sweden
+						else if(d.cluster_id >= 114 && d.cluster_id <= 225) return 'red';	// norway
+						else if(d.cluster_id >= 226 && d.cluster_id <= 308) return 'blue';	// finland
+						else return 'white';
+						*/
+					})
+					.attr('class', function(d, i){
+						// check whether clusters containing capitals should be handled differently
+						if(shouldHighlightCapitalClusters){
+							// check for capital cluster (IDs hardcoded based on data)
+							if( d.cluster_id ==   6 ||		// Copenhagen		
+								d.cluster_id ==  40 ||		// Stockholm
+								d.cluster_id == 118 ||		// Oslo
+								d.cluster_id == 233) {		// Helsinki
+								// current cluster contains a capital
+								return 'clustercirclecapital';
+							}
+							else if (d.cluster_id == bookmarkedClusterIDAtStart) {
+								// current cluster is the initially bookmarked one at the start of the application
+								return 'clustercircle clustercirclebookmark';
+							}
+							else {
+								// current cluster does not contain a capital
+								return 'clustercircle';
+							}
+						}
+						// all clusters are equally treated
+						else {
+							return 'clustercircle';
+						}
+					})
+					.attr('id', function(d, i){
+						// check if iterated circle is the currently selected one, and set it's ID accordingly
+						return (d.cluster_id == currentlySelectedClusterID) ? "selectedClusterCircle" : null;
+					})
+					.on("click", function(d) {
+
+						// mouse events documentation MOZ: https://developer.mozilla.org/en-US/docs/Web/API/MouseEvent
+						// mouse events documentation W3S: https://www.w3schools.com/jsref/obj_mouseevent.asp
+						// D3.js events documentation: https://github.com/d3/d3-selection/blob/master/README.md#handling-events
+
+						/*
+						// CTRL key pressed + mouse click
+						// note: on mac, this also triggers a 'right click' = contextmenu event trigger
+						if (d3.event.ctrlKey)
+						{
+							// console.log("CTRL key + click");
+
+						}
+						*/
+
+						// ALT / OPTION (Mac OS) key pressed + mouse click
+						if (d3.event.altKey)
+						{
+							//console.log("ALT / OPTION key + click");
+
+							/*
+							// WEBSOCKET NODE SELECTION DEBUG
+							var min=0; 
+    						var max=309;  
+    						var random =Math.floor(Math.random() * (+max - +min)) + +min; 
+
+							// keep track of selected node by VR user
+							clusterIDOfVrUserSelectedNode = random;
+
+							// update the node that is currently selected by the VR user
+							highlightNodeSelectedByVRUser();
+							*/
+						}
+						// META / COMMAND (Mac OS) key pressed + mouse click
+						else if (d3.event.metaKey)
+						{
+							//console.log("META / COMMAND key + click");
+
+
+							/*
+							// WEBSOCKET NODE BOOKMARK DEBUG
+							// keep track of bookmarked node by VR user
+							var min=0; 
+    						var max=309;  
+    						var random =Math.floor(Math.random() * (+max - +min)) + +min; 
+
+							clusterIDOfVrUserBookmarkedNode = random;
+
+							// update the node that is currently bookmarked by the VR user
+							highlightNodeBookmarkedByVRUser();
+							*/
+						}
+						// mouse click (without any key pressed on the keyboard)
+						else
+						{
+							// update clicked circle (representing the selected cluster)
+							d3.select("#selectedClusterCircle").attr("id", null);	// remove highlight (ID attribute) from previus selected one 
+							d3.select(this).attr("id", "selectedClusterCircle");	// add highlight (ID attribute) to newly selected one
+
+							// set global variable
+							currentlySelectedClusterID = d.cluster_id;
+
+							// update views
+			  				//updateClusterDetailViewForCluster(currentlySelectedClusterID, clusterFileForCurrentDate);
+			  				//updateTimeViewForCluster(currentlySelectedClusterID);
+			  				updateHashtagViewForDate(currentlySelectedClusterID, currentlySelectedTimeDateLabel, "#hashtagview");
+							updateInfoPlacesForTableViewDisplay("#info-places-selected", "selected", currentlySelectedClusterID);
+
+							/*
+			  				// NETWORKING
+			  				if(shouldConnectToWebSocketServer)
+			  					socketMessageWEBUserNodeSelectionUpdate(currentlySelectedClusterID);
+							*/
+
+							// LOGGING
+							if(shouldLog)
+							{
+								writeAOTMessageToServer("Node_selected", currentlySelectedClusterID, "MapView");
+			  					//logNumberOfNodeSelections();
+							}  					
+						}		
+					})
+					.on("contextmenu", function(d) {
+						// right click
+						// + prevent default browser context menu from appearing
+						d3.event.preventDefault();
+
+						// remove previously bookmarked highlight ...
+						d3.selectAll(".clustercirclebookmark").classed("clustercirclebookmark", false);
+						// ... and add highlight (class attribute) to newly bookmarked circle (as second class)
+						var circleClasses = "clustercircle clustercirclebookmark";
+						if(d3.select(this).classed("vrUserSelectedClusterCircle"))
+						{
+							if(d3.select(this).classed("clustercirclecapital"))
+								circleClasses = "clustercirclecapital clustercirclebookmark vrUserSelectedClusterCircle";
+							else
+								circleClasses = "clustercircle clustercirclebookmark vrUserSelectedClusterCircle";
+						}
+						else if(d3.select(this).classed("vrUserBookmarkedClusterCircle"))
+						{
+							if(d3.select(this).classed("clustercirclecapital"))
+								circleClasses = "clustercirclecapital clustercirclebookmark vrUserBookmarkedClusterCircle";
+							else
+								circleClasses = "clustercircle clustercirclebookmark vrUserBookmarkedClusterCircle";
+						}
+						else
+						{
+							if(d3.select(this).classed("clustercirclecapital"))
+								circleClasses = "clustercirclecapital clustercirclebookmark";
+						}
+						d3.select(this).attr("class", circleClasses);
+
+						/*
+						if(d3.select(this).classed("clustercirclecapital"))
+							d3.select(this).attr("class", "clustercirclecapital clustercirclebookmark");
+						else
+							d3.select(this).attr("class", "clustercircle clustercirclebookmark");
+						*/
+
+						// update hashtag bookmark view to show data of right clicked circle (representing the cluster)
+						updateHashtagViewForDate(d.cluster_id, currentlySelectedTimeDateLabel, "#hashtagbookmarkview");
+
+						// update places view
+						updateInfoPlacesForTableViewDisplay("#info-places-bookmarked", "bookmarked", d.cluster_id);
+
+						// NETWORKING
+			  			if(shouldConnectToWebSocketServer)
+			  				socketMessageWEBUserNodeBookmarkUpdate(d.cluster_id);
+
+		  				// LOGGING
+						if(shouldLog)
+						{
+							writeAOTMessageToServer("Bookmark_set", d.cluster_id, "MapView");
+						} 
+					})
+					.append("title")
+					.text(function(d) {
+						return "Cluster ID: " + d.cluster_id;
+					});
+
+					// update cluster detail view when map data was loaded
+					//updateClusterDetailViewForCluster(currentlySelectedClusterID, clusterFileForCurrentDate);
+
+					// NETWORKING
+					if(shouldConnectToWebSocketServer)
+    					highlightNodeSelectedByVRUser();
+			})
+			.catch(function(error) {
+				// update views according to "no data scenario"
+				updateViewsForNoDataAvailable();
+    		});
+    }
+
+
+	// === HASHTAG VIEW ===
+
+	// width values for individual table columns in px (should be in sync with #hashtagview and #hashtagview-content)
+	var tablePadding = 4;
+	var tableColumnWithForFrequency = 60 - tablePadding*2;
+	var tableColumnWithForHashtag = 240 - tablePadding*2;
+	var tableColumnWithForLang = 60 - tablePadding*2;
+
+	// helper function to interpret and display foreign language characters in input data format <U+XXXX>
+	function parseTextForForeignCharacters(text)
+	{	
+		// create result text variable
+		var resultText = text;
+		
+		// check if input text starts with '<'
+		if(text.charAt(0) == '<')
+		{
+			// reset result text
+			resultText = "";
+
+			// split input string at all '<'
+			var textElements = text.split("<");
+
+			// interate over all split elements
+			for(var i = 1; i < textElements.length; i++)
+			{
+				// split input string at all '>'
+				textElements[i] = textElements[i].split(">");
+
+				// String.fromCodePoint documentation [ https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/fromCodePoint ]
+
+				// 1. replace extracted 'U+'' by '0x' in order to create special character
+				// 2. create special character
+				// 3. append created charater to result string 
+				resultText = resultText + String.fromCodePoint(textElements[i][0].replace("U+", "0x")) + "";
+
+				// check it there were further characters after cut off '>' and append them to the result string if necessary
+				if(textElements[i][1].length > 0) resultText = resultText + textElements[i][1];
+			}
+		}
+		
+		// return result text
+		return resultText;
+	}
+
+	// filter function to return only unique values
+	// source: https://stackoverflow.com/a/14438954
+	function onlyUnique(value, index, self) { 
+		return self.indexOf(value) === index;
+	}
+
+	function updateHashtagViewForDate(cluster_id, date, hashtag_view_id)
+	{
+		// Note: If characters are not properly displayed in browser, the file needs to be saved with encoding "UTF-8 witm BOM"
+
+		// load sample data set
+		d3.dsv(",", "data/daily/hashtag_vt19/" + date + " cluster hashtags.csv")
+			.then(function(data) {
+				
+				// reset table element in hastagview DOM element
+				//d3.select('#hashtagview-tableheader').selectAll("thead").remove();
+				//d3.select('#hashtagview-content').selectAll("table").remove();
+				d3.select(hashtag_view_id+'-tableheader').selectAll("thead").remove();
+				d3.select(hashtag_view_id+'-content').selectAll("table").remove();
+
+				// DEBUG - check loaded data set
+				//console.log(data);
+				//console.log(data.length);
+				//console.log(data[0]);
+				//console.log(data[0].cluster_id);	
+				//console.log(data[0].cluster_x);
+				//console.log(data[0].cluster_y);
+				//console.log(data[0].hashtags_text);
+				//console.log(data[0].hashtags_lang);
+				//console.log(data[0].hashtags_freq);
+				//console.log(data[0].Swedish);
+
+
+				// === DATA HANDLING ===
+
+				// create data structure arrays (hashtags, languages, and frequencies) based on loaded csv file and cluster id
+				// Note: cluster selection based on index = cluster_id + index, e.g. array index 308 selects cluster id 309 (308 + 1)
+				var hashtagArray = data[cluster_id-1].hashtags_text.split(" ");
+				var languageArray = data[cluster_id-1].hashtags_lang.split(" ");
+				var frequencyArray = data[cluster_id-1].hashtags_freq.split(" ");
+				//console.log(hashtagArray);
+				//console.log(languageArray);
+				//console.log(frequencyArray);
+
+				// structure arrays should all have the same length
+				if(hashtagArray.length != languageArray.length ||
+					hashtagArray.length != frequencyArray.length)
+					console.error("[HASHTAG CSV data extraction error: Length of hashtag, language, and frequencies do not coninside.]")
+
+				// initiate total / sum values to display total amount of frequencies, unique hashtags, and unique languages
+				var totalFreq = 0;
+				var totalHashtags = hashtagArray.length;
+				var totalLang = languageArray.filter(onlyUnique).length;	// perform filter function to return an array of unique values on the language array and receive its length
+
+				// create hashtag result data array for display in table
+				var hashtagData = [];
+				for(var i = 0; i < hashtagArray.length; i++)
+				{
+					// check if there are no hashtags existing
+					if(frequencyArray[i] == "NA")
+					{
+						hashtagData.push( { freq: 0,
+											hashtag: "No hashtags for selected place and time.",
+											lang: "" } );
+					}
+					// there are hashtags existing
+					else
+					{
+						hashtagData.push( { freq: parseInt(frequencyArray[i]),
+											hashtag: "#" + parseTextForForeignCharacters(hashtagArray[i]),
+											lang: languageArray[i] } );
+						
+						// sum up frequencies
+						totalFreq = totalFreq + parseInt(frequencyArray[i]);
+					}
+				}
+				//console.log(hashtagData);
+
+
+				// === TABLE ===
+				// HTML5 Table documentation via [https://www.w3schools.com/html/html_tables.asp]
+
+				// helper values
+				var sortDescending = true;
+
+				// get HTML element that is going to contain the table, append table, as well as its head and body
+				var dtHead = d3.select(hashtag_view_id+'-tableheader')
+								.append('thead');
+				var dTable = d3.select(hashtag_view_id+'-content')
+				  				.append('table');
+				//var dtHead = dTable.append('thead');
+				var dtBody = dTable.append('tbody');
+
+				// create the header row (column captions) by reading the keys of the first element in the hashtag result data array
+				var dthColumns = d3.keys(hashtagData[0]);
+				dtHead.append('tr')
+						.attr('id', hashtag_view_id+'-tableheader')
+				  		.selectAll('th')
+				  		.data(dthColumns)
+				  		.enter()
+				  		.append('th')
+			  			.text(function(d){
+			  				switch(d){
+				  				case "freq":
+				  					return "Freq";
+				  				case "hashtag":
+				  					return "#Hashtag \u2191";
+				  				case "lang":
+				  				default:
+				  					return "Lang";
+		  					}
+			  			})
+				  		.style("width", function(d) {
+				  			switch(d){
+				  				case "freq":
+				  					return tableColumnWithForFrequency + "px";
+				  				case "hashtag":
+				  					return tableColumnWithForHashtag + "px";
+				  				case "lang":
+				  				default:
+				  					return tableColumnWithForLang + "px";
+				  			}
+				  		})
+				  		.on('click', function (d) {
+
+				  			// update clicked table header sorting indicator
+				  			updateTableHeaderSortIndicator(this, sortDescending);
+
+				  			// LOGGING
+							if(shouldLog)
+							{
+								var sortDescriptor = (sortDescending) ? "desending" : "ascending";
+								writeAOTMessageToServer("HastagTableView_Sort", d3.select(this).text().substring(0, 4) + "-" + sortDescriptor, hashtag_view_id);
+							}
+
+				  			// table header can be clicked in order to sort accordingly
+				  			if(sortDescending == true)
+				  			{
+				  				// descending sort
+				  				if(d == "freq")
+				  				{
+				  					// sort first based on frequency, then (second) alphabetically
+				  					dtbRows.sort(function(a, b) {
+				  						return d3.descending(a["freq"], b["freq"]) ||
+				  								d3.descending(a["hashtag"].toLowerCase(), b["hashtag"].toLowerCase());
+				  					});
+				  				}
+				  				else if (d == "hashtag")
+				  				{
+				  					// sort first alphabetically, then (second) based on frequency
+				  					dtbRows.sort(function(a, b) {
+				  						return d3.descending(a["hashtag"].toLowerCase(), b["hashtag"].toLowerCase()) ||
+				  								d3.descending(a["freq"], b["freq"]);
+				  					});
+				  				}
+				  				else // d == "lang"
+				  				{
+				  					// sort first based on language, then (second) based on frequency
+				  					dtbRows.sort(function(a, b) {
+				  						return d3.descending(a["lang"], b["lang"]) ||
+				  								d3.descending(a["freq"], b["freq"]);
+				  					});
+				  				}
+
+				  				// hashtag sort == case insensitive
+				  				//if(d == "hashtag") dtbRows.sort(function(a, b) { return d3.descending(a[d].toLowerCase(), b[d].toLowerCase()); });
+				  				//else dtbRows.sort(function(a, b) { return d3.descending(a[d], b[d]); })	
+				  				sortDescending = false;
+				  			}
+				  			else
+				  			{
+				  				// ascending sort
+
+				  				if(d == "freq")
+				  				{
+				  					// sort first based on frequency, then (second) alphabetically
+				  					dtbRows.sort(function(a, b) {
+				  						return d3.ascending(a["freq"], b["freq"]) ||
+				  								d3.ascending(a["hashtag"].toLowerCase(), b["hashtag"].toLowerCase());
+				  					});
+				  				}
+				  				else if (d == "hashtag")
+				  				{
+				  					// sort first alphabetically, then (second) based on frequency
+				  					dtbRows.sort(function(a, b) {
+				  						return d3.ascending(a["hashtag"].toLowerCase(), b["hashtag"].toLowerCase()) ||
+				  								d3.descending(a["freq"], b["freq"]);
+				  					});
+				  				}
+				  				else // d == "lang"
+				  				{
+				  					// sort first based on language, then (second) based on frequency
+				  					dtbRows.sort(function(a, b) {
+				  						return d3.ascending(a["lang"], b["lang"]) ||
+				  								d3.descending(a["freq"], b["freq"]);
+				  					});
+				  				}
+
+				  				// hashtag sort == case insensitive
+				  				//if(d == "hashtag") dtbRows.sort(function(a, b) { return d3.ascending(a[d].toLowerCase(), b[d].toLowerCase()); });
+				  				//else dtbRows.sort(function(a, b) { return d3.ascending(a[d], b[d]); });
+				  				sortDescending = true;
+				  			}
+
+				  			// select hashtag table content view and scroll back to the top
+				  			var htmlTableElement = document.getElementById('hashtagview-content');
+				  			htmlTableElement.scrollTop = 0;
+		                });
+
+		        // create second header row to display total / sums for each column
+		        dtHead.append('tr')
+				  		.selectAll('th')
+				  		.data(dthColumns)
+				  		.enter()
+				  		.append('th')
+			  			.text(function(d){
+			  				switch(d){
+				  				case "freq":
+				  					return totalFreq;
+				  				case "hashtag":
+				  					return totalHashtags;
+				  				case "lang":
+				  				default:
+				  					return totalLang;
+		  					}
+			  			})
+			  			.style("background-color", "#E0E0E0");
+
+				// append an individual row for each data entry in the hashtag result data array
+				var dtbRows = dtBody.selectAll('tr')
+				  					.data(hashtagData)
+				  					.enter()
+				  					.append('tr')
+				  					.style("background-color", function(d){
+				  						// change background of color of row according to detected language
+										var rowColor = languageColors(6);	// default row color: "other" language
+										if(d.lang == "sv" ) 	   rowColor = languageColors(0);
+										else if (d.lang == "da" )  rowColor = languageColors(1);
+										else if (d.lang == "no" )  rowColor = languageColors(2);
+										else if (d.lang == "fi" )  rowColor = languageColors(3);
+										else if (d.lang == "is" )  rowColor = languageColors(4);
+										else if (d.lang == "en" )  rowColor = languageColors(5);
+										else if (d.lang == "und" ) rowColor = languageColors(7);
+
+										// white color in case no hashtag data is available
+										if(d.freq == 0) rowColor = "#FFFFFF";
+
+				  						return rowColor;
+				  					});
+
+				// fill each cell in each row for each column according to the loaded data 'deadlines' array
+	  			var dtbrCells = dtbRows.selectAll('td')
+				  						.data(function(row) {
+				  						 	return dthColumns.map(function(column) {
+				  						 		return {column: column, value: row[column]};
+				  						 	});
+				  						})
+				  						.enter()
+				  						.append('td')
+				  						.text(function(d){
+				  							return d.value;
+				  						})
+				  						.style("width", function(d) {
+								  			switch(d.column){
+								  				case "freq":
+								  					return tableColumnWithForFrequency + "px";
+								  				case "hashtag":
+								  					return tableColumnWithForHashtag + "px";
+								  				case "lang":
+								  				default:
+								  					return tableColumnWithForLang + "px";
+								  			}
+								  		});
+
+				// LOGGING
+				if(shouldLog)
+				{
+					writeAOTMessageToServer("HastagTableView_Update", cluster_id, hashtag_view_id);
+				}
+			})
+			.catch(function(error) {
+				console.error("[HASHTAG CSV data loading error.]")
+    		});
+	}
+
+	function updateTableHeaderSortIndicator(clickedTableHeaderElement, sortDescending)
+	{
+		/*
+		console.log(clickedTableHeaderElement);
+		console.log(clickedTableHeaderElement.previousSibling);
+		console.log(clickedTableHeaderElement.nextSibling);
+		console.log(sortDescending);
+		console.log(d3.select(clickedTableHeaderElement).text());
+		*/
+
+		var clickedElementString = d3.select(clickedTableHeaderElement).text().substring(0, 4);
+		switch(clickedElementString){
+			case "Freq":
+				var freqText = (sortDescending) ? "Freq \u2193" : "Freq \u2191"
+				d3.select(clickedTableHeaderElement).text(freqText);
+				d3.select(clickedTableHeaderElement.nextSibling).text("#Hashtag");
+				d3.select(clickedTableHeaderElement.nextSibling.nextSibling).text("Lang");
+				break;
+			case "#Has":
+				var hastagText = (sortDescending) ? "#Hashtag \u2193" : "#Hashtag \u2191"
+				d3.select(clickedTableHeaderElement.previousSibling).text("Freq");
+				d3.select(clickedTableHeaderElement).text(hastagText);
+				d3.select(clickedTableHeaderElement.nextSibling).text("Lang");
+				break;
+			case "Lang":
+				var langText = (sortDescending) ? "Lang \u2193" : "Lang \u2191"
+				d3.select(clickedTableHeaderElement.previousSibling.previousSibling).text("Freq");
+				d3.select(clickedTableHeaderElement.previousSibling).text("#Hashtag");
+				d3.select(clickedTableHeaderElement).text(langText);
+			default:
+				break;
+		}
+	}
+
+
+	// === INFO VIEW ===
+
+	function createDateLabelStringFromDate(date)
+	{
+		// DATA_LOADING_SWITCH
+		if(clusterTimeFrequency == "weekly")
+		{
+			// return weekly date string as is
+			return date;
+		}
+		else if(clusterTimeFrequency == "daily")
+		{
+			// extract relevant date label components
+			var yyyy = date.getFullYear();		// year
+			var mm 	 = date.getMonth() + 1;		// january = 0
+			var dd   = date.getDate();			// day of the month	
+
+			// handle 0 prefix if neccesary
+			if(mm < 10) mm = "0" + mm;
+			if(dd < 10) dd = "0" + dd;
+
+			// return yyyy-mm-dd
+			return yyyy + "-" + mm + "-" + dd;
+		}
+	}
+
+	function updateInfoTimeLabel(timelabel)
+	{
+		d3.select('#info-time')
+			.text("Selected time: " + timelabel);
+	}
+
+	function updateInfoPlacesForTableViewDisplay(places_view_id, places_description, cluster_id,)
+	{
+		// build places string
+		d3.dsv(",", "data/_places_cluster_lookup.csv").then(function(data) {
+
+			var placesString = "";
+			for(var i = 0; i < data.length; i++)
+			{
+				if(data[i].cluster_id == cluster_id)
+				{
+					placesString = placesString + data[i].place_name + ", ";
+				}
+			}
+
+			// cut off last ", "
+			placesString = placesString.substring(0, placesString.length-2);
+
+			// update places
+			d3.select(places_view_id)
+				.text("Places (" + places_description + "; ID = " + cluster_id + "): " + placesString);
+		});
+	}
+
+	function createLanguageLegend()
+	{
+	    // COLOR DATA ARRAY
+		// create language result data array for display in table
+		var languageLegendData = [];
+		for(var i = 0; i < languageColors.domain().length; i++)
+		{
+			var currentLanguage = "";
+			switch(i)
+			{
+				case 0:
+					currentLanguage = "Swedish";
+					break;
+				case 1:
+					currentLanguage = "Danish";
+					break;
+				case 2:
+					currentLanguage = "Norwegian";
+					break;
+				case 3:
+					currentLanguage = "Finnish";
+					break;
+				case 4:
+					currentLanguage = "Icelandic";
+					break;
+				case 5:
+					currentLanguage = "English";
+					break;
+				case 6:
+					currentLanguage = "Other";
+					break;
+				case 7:
+					currentLanguage = "Unknown";
+					break;
+			}
+
+			languageLegendData.push( { lang: currentLanguage } );
+		}
+		//console.log(languageLegendData);
+		
+	    // TABLE
+	    // get HTML element that is going to contain the legend table, append table, as well as its head and body
+	    var languageLegendDOMID = "#language-legend";
+	    d3.select(languageLegendDOMID).selectAll("table").remove();
+		var dtHead = d3.select(languageLegendDOMID)
+						.append('thead');
+		var dTable = d3.select(languageLegendDOMID)
+		  				.append('table');
+		var dtBody = dTable.append('tbody');
+
+		// create the header row (column captions)
+		var dthColumns = d3.keys(languageLegendData[0]);
+		dtHead.append('tr')
+		  		.selectAll('th')
+		  		.data(dthColumns)
+		  		.enter()
+		  		.append('th')
+	  			.text(function(d){
+		  			return "Languages & Colors";
+	  			})
+		  		.style("width", function(d){
+		  			return "200px";
+		  		})
+		  		.style("font-weight", "bold");
+		
+		// append an individual row for each data entry in the language legend data array
+		var dtbRows = dtBody.selectAll('tr')
+		  					.data(languageLegendData)
+		  					.enter()
+		  					.append('tr')
+		  					.style("background-color", function(d, i){
+		  						return languageColors(i);;
+		  					});
+		
+		// fill each cell in each row for each column according to the language legend data array
+		var dtbrCells = dtbRows.selectAll('td')
+	  						.data(function(row) {
+	  						 	return dthColumns.map(function(column) {
+	  						 		return {column: column, value: row[column]};
+	  						 	});
+	  						})
+	  						.enter()
+	  						.append('td')
+	  						.text(function(d){
+					  			return d.value;
+	  						});
+
+	  	// sort legend based on language names (alphabetically, ascending)
+		dtbRows.sort(function(a, b) {
+			return d3.ascending(a["lang"], b["lang"]);
+		});
+	}
+
+
+	// === DATA SELECTION AND LOADING ===
+
+	function grabClusterFileForDate(date)
+	{
+		// DATA_LOADING_SWITCH
+		if (clusterTimeFrequency == "weekly")
+		{
+			//build file name
+			var filePrefix = date;
+			var fileSuffix = " cluster languages.csv";
+			var fileName = filePrefix + fileSuffix;
+			var filePath = "data/weekly/cluster_demoht18_lang/" + fileName;
+		}
+		else if (clusterTimeFrequency == "daily")
+		{
+			//build file name
+			var filePrefix = date;
+			var fileSuffix = " cluster languages.csv";
+			var fileName = filePrefix + fileSuffix;
+			var filePath = "data/daily/cluster_demovt18_lang/" + fileName;
+		}
+
+		//console.log(fileName);
+		//console.log(filePath);
+		
+		return filePath;
+	}
+
+	function updateViewsForNoDataAvailable()
+	{
+		// map view
+		// handled within map view drawing
+
+		// cluster detail view
+		//updateClusterDetailViewForCluster(null, null);
+
+		// places view
+		//updatePlacesViewForForCluster(null);
+
+		// time view
+		// mark time selector red, indicating that data is not available for the selected day
+		streamGraphSVG.selectAll("#timeViewSelectedDateLine").attr("stroke", "#de2d26");
+		streamGraphSVG.selectAll("#timeViewSelectedDateText").attr("fill", "#de2d26");
+	}
+
+
+	// === DATA LOADING SWITCH ===
+	// demo-vt18 = daily  (set through URL argument)
+	// demo-ht18 = weekly (default)
+	// Note: All function calls are tagged as 'DATA_LOADING_SWITCH' wherever applied (for better findability)
+
+	//var clusterTimeFrequency = "weekly";	
+	var clusterTimeFrequency = "daily";	
+	var dataCTF = appURL.searchParams.get("ctf");			// extract url argument "ctf"
+	if(dataCTF == "daily") clusterTimeFrequency = "daily";
+	//else if(dataCTF == "weekly") clusterTimeFrequency = "weekly";
+
+
+	// === SETUP START-UP STATE OF APPLICATION (hardcoded) === 
+	// DATA_LOADING_SWITCH
+	/*if(clusterTimeFrequency == "weekly")
+	{
+		currentlySelectedClusterID = 70;						// 70 -> Gotland, 112 -> Växjö
+		currentlySelectedTimeDateLabel = "2017-w18";
+	}
+	else */ 
+	if(clusterTimeFrequency == "daily")
+	{
+		currentlySelectedClusterID = 112;						// 70 -> Gotland, 112 -> Växjö
+		currentlySelectedTimeDateLabel = "2017-07-04";
+
+		// ODXVRxNTS study init for TagCloud Study VT19 (May)
+
+		// get task parameter from app url (created within NETWORKING section) and override (if exsiting) initial startup state of application
+		var task = appURL.searchParams.get("task");			// extract url argument "task"
+
+		// load autumn data set (Nobel's birthday)
+		if(task == "nobel")
+		{
+			currentlySelectedClusterID = 112;						// 112 -> Växjö
+			currentlySelectedTimeDateLabel = "2017-10-21";
+		}
+		// load spring data set (Linne's birthday)
+		else if(task == "linne")
+		{
+			currentlySelectedClusterID = 112;						// 112 -> Växjö
+			currentlySelectedTimeDateLabel = "2017-05-23";
+		}
+		// default: load summer data set (Almedalsveckan)
+		else if(task == "almedal")
+		{
+			currentlySelectedClusterID = 112;						// 112 -> Växjö
+			currentlySelectedTimeDateLabel = "2017-07-04";
+		}
+	}
+	
+	
+	// === LOGGING === 
+	// Note: places in the source code related to the logging are commented with 'LOGGING'
+
+	// keep track of time (in milliseconds) since application start up
+	// documentation about JavaScript Date features: [ https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date ]
+	var dateAtApplicationStart = new Date();
+	var timeAtApplicationStart = dateAtApplicationStart.getTime();	// in milliseconds
+
+	// function to create a session id representing the current application session
+	// return: string in the format YYYY-MM-DD_hh-mm-ss_nts-tag-explorer
+	function getSessionID()
+	{
+		// init variables based on date at application start
+		var year = dateAtApplicationStart.getFullYear();
+		var month = dateAtApplicationStart.getMonth();		// reminder: January is 0
+		var date = dateAtApplicationStart.getDate();
+		var hours = dateAtApplicationStart.getHours();
+		var min = dateAtApplicationStart.getMinutes();
+		var sec = dateAtApplicationStart.getSeconds();
+
+		// handle prefix zeros for unified formatting
+		if(month < 10) month = "0" + month;
+		if(date < 10) date = "0" + date;
+		if(hours < 10) hours = "0" + hours;
+		if(min < 10) min = "0" + min;
+		if(sec < 10) sec = "0" + sec;
+
+		// compose session id
+		return year + "-" + month + "-" + date + "_" + hours + "-" + min + "-" + sec + "_" + "nts-tag-explorer";
+	}
+
+	// setup session id
+	var sessionID = getSessionID();
+
+	// get logging parameter from app url (created within NETWORKING section) and setup initial startup state of application
+	var shouldLog = false;
+	var logs = appURL.searchParams.get("logs");			// extract url argument "logs"
+	if(logs == "true") shouldLog = true;
+
+	// setup JavaScript http request object and server url pointing to logging API
+	var http = new XMLHttpRequest();
+	var logURL = 'https://vrxar.lnu.se:4246/log/writeAOTMessage/nts-demovt19/' + sessionID;
+	
+	// function to send an Action-Object-Target message to the server
+	function writeAOTMessageToServer(action, object, target)
+	{
+		// determine time since application start up in seconds:
+		// (difference in milliseconds) / 1000 = difference in seconds
+		var timeSinceApplicationStart = (Math.abs(timeAtApplicationStart - Date.now()) * 0.001).toFixed(3);
+
+		// compose POST request body
+		var timeStamp = "timestamp=" + timeSinceApplicationStart;
+		var act = "action=" + action;
+		var obj = "object=" + object;
+		var tar = "target=" + target;
+		var postRequestBody = timeStamp + "&" + act + "&" + obj + "&" + tar;
+
+		// initialize http request as POST request, set logging url, and set request as asynchronous
+		http.open('POST', logURL, true);
+
+		// set request header 
+		http.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+
+		// perform post request with (composed) body information
+		http.send(postRequestBody);
+	}
+
+	/*
+	// code snippet to register http request responses
+	http.onreadystatechange=function(){
+		if(this.readyState == 4 && this.status == 200){
+			console.log(http.responseText);
+		}
+	} 
+	*/
+
+	// === INITIALIZE VIEWS WITH START-UP CONDITIONS ===
+
+	// set initially bookmarked cluster
+	var bookmarkedClusterIDAtStart = 70;											// Gotland
+	var VRSelectedClusterIDAtStart = clusterIDOfVrUserSelectedNode = 40;			// 
+	var VRBookmarkedClusterIDAtStart = 233;											// 
+
+	// LOGGING: keep track of selected time (data set) and absolute time at start up
+	if(shouldLog)
+	{
+		writeAOTMessageToServer("Data_request", currentlySelectedTimeDateLabel, sessionID);
+	}
+
+	// DEBUG initial vis at start up
+	updateMapViewForDate(currentlySelectedTimeDateLabel);
+
+	// DEBUG initial vis at start up
+	updateHashtagViewForDate(currentlySelectedClusterID, currentlySelectedTimeDateLabel, "#hashtagview");
+	updateHashtagViewForDate(bookmarkedClusterIDAtStart, currentlySelectedTimeDateLabel, "#hashtagbookmarkview");
+
+	updateHashtagViewForDate(VRSelectedClusterIDAtStart, currentlySelectedTimeDateLabel, "#vr-hashtagview");
+	updateHashtagViewForDate(VRBookmarkedClusterIDAtStart, currentlySelectedTimeDateLabel, "#vr-hashtagbookmarkview");
+
+	createLanguageLegend();
+	updateInfoTimeLabel(currentlySelectedTimeDateLabel);
+	updateInfoPlacesForTableViewDisplay("#info-places-selected", "selected", currentlySelectedClusterID);
+	updateInfoPlacesForTableViewDisplay("#info-places-bookmarked", "bookmarked", bookmarkedClusterIDAtStart);
+	updateInfoPlacesForTableViewDisplay("#info-places-vr-selected", "VR selected", VRSelectedClusterIDAtStart);
+	updateInfoPlacesForTableViewDisplay("#info-places-vr-bookmarked", "VR bookmarked", VRBookmarkedClusterIDAtStart);
+
+
+	// DEBUG initial vis at start up
+	if(shouldConnectToWebSocketServer)
+	{
+		drawVRUserNode();
+		//updateVRUserNode();
+	}
+
+	</script>
+	<!-- D3.js visualization implementation END. -->
+
+</body>
+
+</html>
