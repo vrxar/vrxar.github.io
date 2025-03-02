@@ -1,14 +1,12 @@
 /*
-Theme Name: reski.nicoversity Theme
-Theme URI: http://reski.nicoversity.com
-Description: Theme for the reski.nicoversity.com
+Theme Name: vrxar Theme
+Description: Theme for vrxar.github.io
 Version: 0.1
-Tags: nicoversity
 Author: Nico Reski
-Author URI: http://reski.nicoversity.com
+Author URI: http://me.nicoversity.com
 
-	nicoversity Teaser Theme
-	http://reski.nicoversity.com
+	vrxar Theme
+	https://vrxar.github.io
 
 	This theme was designed and built by Nico Reski
 
@@ -32,44 +30,19 @@ Author URI: http://reski.nicoversity.com
     font-style: normal;
 }
 
-.symbol, a.symbol:before {
-    font-family: 'Mono Social Icons Font';
-    -webkit-text-rendering: optimizeLegibility;
-    -moz-text-rendering: optimizeLegibility;
-    -ms-text-rendering: optimizeLegibility;
-    -o-text-rendering: optimizeLegibility;
-    text-rendering: optimizeLegibility;
-    -webkit-font-smoothing: antialiased;
-    -moz-font-smoothing: antialiased;
-    -ms-font-smoothing: antialiased;
-    -o-font-smoothing: antialiased;
-    font-smoothing: antialiased;
-}
-
-a.symbol:before {
-    content: attr(title);
-    margin-right: 0.3em;
-    font-size: 130%;
-}
-
-a.symbol {
-    background: #7D7D7D;
-    padding: 7px 5px 3px 5px;
-    color: white;
-    text-decoration: none;
-}
-
 html, body
 {
-	font: normal 12px menlo,'andale mono','courier new',sans-serif;
-	/*font: normal 12px Helvetica Neue, Helvetica, Arial, sans-serif;*/
-	line-height: 1.8em;
-	letter-spacing: 0px;
-	font-weight: 400;
-	font-style: normal;
-	background: #ffffff;
-	color: #333333;
-	display: block;
+    background: #ffffff;
+    color: #333333;
+    display: block;
+    letter-spacing: 0px;
+
+    font-style: normal;
+    font-variant: normal;
+    font-weight: normal;
+    font-size: 12px;
+    line-height: 1.6;
+    font-family: menlo, 'andale mono', 'courier new', 'helvetica neue', 'helvetia', sans-serif;
 }
 
 #headerWrapper
@@ -105,8 +78,9 @@ html, body
 
 #site
 {
-	margin: 0 auto;
-	padding: 7px;
+	max-width: 680px;
+    margin: 0px auto;
+    padding: 7px;
 }
 
 #canvas
@@ -190,6 +164,7 @@ h1
 h3
 {
 	margin-top: 28px;
+	padding-left: 40px;
 }
 
 #socialFooter
